@@ -1,0 +1,1867 @@
+\documentclass[11pt,reqno]{amsart}
+
+%% ---------------------------------------------------------------------------
+%%  No balanced 5-colouring of K_26: the Erdos-Gyarfas conjecture for r = 5
+%%  Erdos Problem #617, first open case.
+%%  Compile: pdflatex erdos617-r5.tex  (twice, for cross-references)
+%% ---------------------------------------------------------------------------
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=green!45!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{xcolor}
+
+%% ---- theorem environments -------------------------------------------------
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{fact}[theorem]{Fact}
+\theoremstyle{remark}
+\newtheorem*{claim}{Claim}
+
+%% ---- named theorems for the introduction ----------------------------------
+\newtheorem{maintheorem}{Theorem}
+\renewcommand{\themaintheorem}{\Alph{maintheorem}}
+
+%% ---- macros ---------------------------------------------------------------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\eq}[1]{\eqref{#1}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\ee}{\mathrm{e}}
+\newcommand{\ex}{\operatorname{ex}}
+\newcommand{\capeleven}{\textsf{cap-11}}
+\DeclareMathOperator{\Ncap}{N}
+\DeclareMathOperator{\ed}{e}
+
+\begin{document}
+
+\title[Erd\H{o}s Problem 617 at $r=5$: a candidate resolution]{A candidate resolution of Erd\H{o}s Problem 617 for $r=5$:\\
+no balanced 5-colouring of $K_{26}$, with machine verification}
+
+\author{}
+\date{\today}
+
+\thanks{This document is a verification-ready report, not an authored announcement.
+The mathematics was produced and internally reviewed by AI systems; it is offered
+here for independent verification by mathematicians. See
+Section~\ref{sec:howto} for a verification guide and Section~\ref{sec:provenance}
+for a full account of provenance and what has and has not been checked.}
+
+\begin{abstract}
+A $5$-colouring of the edges of the complete graph $K_{26}$ is \emph{balanced} if
+every $6$ of its vertices span all $5$ colours. Erd\H{o}s and Gy\'arf\'as
+conjectured in 1999 that for every $r\ge 3$ the complete graph $K_{r^2+1}$ admits
+no balanced $r$-colouring; this is Erd\H{o}s Problem~$617$. They proved it for
+$r=3$ and $r=4$, noted that it fails for $r=2$, and observed that the
+corresponding statement for $K_{r^2}$ is false for infinitely many $r$, so any
+proof must use the ``$+1$'' essentially. We present a \emph{candidate resolution}
+of the first open case: a proof that there is no balanced $5$-colouring of
+$K_{26}$. Equivalently, the largest complete graph with a balanced $5$-colouring is
+$K_{25}$, realised by the affine plane $\mathrm{AG}(2,5)$.
+
+The proof reduces, by an elementary vertex-deletion argument, to two statements
+about a single colour class on $25$ vertices, and these are established by a
+self-contained double-counting recursion driven by the ``every $6$ vertices span
+at most $11$ edges of one colour'' constraint, one classical extremal input
+(Brouwer's non-partite Tur\'an bound with the Kang--Pikhurko equality
+classification), and four finite graph facts certified by SAT and independently
+DRAT-checked. As a by-product we prove that the merged affine-plane colouring of
+$K_{q^2}$ admits no balanced one-vertex extension, for every prime power
+$q\ge 3$, so any counterexample to the conjecture must be non-affine.
+
+The entire argument has been formalised in Lean~4: the final theorem is
+\texttt{sorry}-free modulo the Kang--Pikhurko equality classification at $(5,21)$
+(the sole remaining hypothesis --- Brouwer's edge bound itself is now formally
+proved) and four SAT-reflection axioms (the \texttt{native\_decide} trust base). This
+document is a verification-ready report rather than an authored announcement: the mathematics was produced and internally reviewed by AI systems and
+is offered here for independent verification. Section~\ref{sec:howto} gives a
+verification guide (a $30$-minute machine-checkable path and a $120$-minute reading
+path); Section~\ref{sec:provenance} discloses the role of the AI systems in full and
+states plainly what has and has not been checked.
+\end{abstract}
+
+\maketitle
+
+\setcounter{tocdepth}{1}
+%\tableofcontents
+
+%% ===========================================================================
+\section{Introduction}
+%% ===========================================================================
+
+\subsection{The conjecture}
+For an integer $r\ge 2$, call an edge-colouring
+$\chi\colon E(K_n)\to\{0,1,\dots,r-1\}$ of the complete graph $K_n$
+(not necessarily using all colours) \emph{balanced} if every set of $r+1$
+vertices sees all $r$ colours among the $\binom{r+1}{2}$ edges it spans. Writing
+$G_c$ for the graph on $V(K_n)$ whose edges are the colour-$c$ edges (the
+\emph{colour class} $c$), balancedness is equivalent to the statement that every
+$G_c$ has independence number $\alpha(G_c)\le r$: an $(r+1)$-set missing colour
+$c$ is exactly an independent set of size $r+1$ in $G_c$.
+
+Erd\H{o}s and Gy\'arf\'as introduced balanced colourings in their study of split
+colourings~\cite{ErGy99} and made the following conjecture (their Conjecture~1,
+the $n=2$ case of a more general question).
+
+\begin{conjecture}[Erd\H{o}s--Gy\'arf\'as~\cite{ErGy99}; Erd\H{o}s Problem
+$617$~\cite{Bloom617}]\label{conj:main}
+For every $r\ge 3$, the complete graph $K_{r^2+1}$ has no balanced $r$-colouring.
+Equivalently, if the edges of $K_{r^2+1}$ are $r$-coloured, then some $r+1$
+vertices span an induced $K_{r+1}$ in which at least one colour is missing.
+\end{conjecture}
+
+It is convenient to set
+\[
+  \Ncap(r)\;=\;\max\{\, n : K_n \text{ has a balanced } r\text{-colouring}\,\}.
+\]
+Since deleting a vertex cannot increase any independence number, a balanced
+colouring of $K_n$ restricts to a balanced colouring of $K_m$ for every
+$r+1\le m\le n$; thus $\Ncap(r)$ is well defined and Conjecture~\ref{conj:main}
+is precisely the assertion $\Ncap(r)\le r^2$ for all $r\ge 3$.
+
+\subsection{What is known}
+Erd\H{o}s and Gy\'arf\'as~\cite{ErGy99} proved
+Conjecture~\ref{conj:main} for $r=3$ (via Brooks' theorem and $R(3,3)=6$) and for
+$r=4$ (via $R(3,4)=9$, the uniqueness of its extremal graph, and an intricate
+edge count), and observed that it is \emph{false} for $r=2$: the pentagon
+colouring of $K_5$, colour $0$ on a $5$-cycle and colour $1$ on the complementary
+$5$-cycle, is balanced, so $\Ncap(2)=5=2^2+1$. They also observed a lower bound
+that makes the ``$+1$'' essential. From an affine plane of order $r$ one builds a
+balanced $r$-colouring of $K_{r^2}$: identify the vertices with the $r^2$ points,
+give each of the $r-1$ colours $1,\dots,r-1$ one parallel class of lines, and
+give colour $0$ the union of the remaining two parallel classes. Each class is a
+disjoint union of cliques (or, for colour $0$, a rook's graph), so has
+independence number exactly $r$; hence every $(r+1)$-set sees all $r$ colours.
+Affine planes of order $r$ exist for every prime power $r$, so $\Ncap(r)\ge r^2$
+for infinitely many $r$. Consequently
+\[
+  \text{the analogue of Conjecture~\ref{conj:main} with } r^2+1
+  \text{ replaced by } r^2 \text{ is false for infinitely many } r,
+\]
+and any proof of the conjecture must distinguish $r^2$ from $r^2+1$.
+
+For $r=5$ the affine construction gives a balanced $5$-colouring of $K_{25}$, so
+$\Ncap(5)\ge 25$, one vertex short of a counterexample. This case is genuinely
+harder than $r=3,4$: the matching upper-bound construction of~\cite{ErGy99}
+requires a projective plane of order $r+1=6$, which does not exist
+(Bruck--Ryser, equivalently the non-existence of two orthogonal Latin squares of
+order $6$), so even the finiteness statements available for $r=3,4$ are not
+available here. Erd\H{o}s and Gy\'arf\'as remarked that the ``flexibility'' of
+the affine construction ``might suggest that the conjecture is not true.''
+Problem~$617$ is listed as \textsc{falsifiable} (open, but disprovable by a finite
+counterexample) at \cite{Bloom617}, and $r=5$ is its first open case.
+
+\subsection{Results}
+Our main result settles the case $r=5$ of Conjecture~\ref{conj:main} on the
+impossibility side.
+
+\begin{maintheorem}\label{thm:main}
+There is no balanced $5$-colouring of $K_{26}$. Equivalently, $\Ncap(5)=25$: the
+affine-plane colourings of $K_{25}$ are optimal, and every $5$-colouring of
+$K_{26}$ has $6$ vertices whose induced $K_6$ misses at least one colour.
+\end{maintheorem}
+
+Together with~\cite{ErGy99} this establishes Conjecture~\ref{conj:main} for
+$r\in\{3,4,5\}$, and confirms $\Ncap(r)=r^2$ for these three values.
+
+Our second result concerns the extremal near-miss. The affine colourings are the
+only balanced colourings of $K_{r^2}$ known in the literature, and they come with
+a choice --- which two parallel classes to merge --- that a counterexample would
+have to exploit. We show they never help.
+
+\begin{maintheorem}\label{thm:affine}
+Let $q\ge 3$ be a prime power and let $\mathcal C$ be the balanced $q$-colouring
+of $K_{q^2}$ obtained from $\mathrm{AG}(2,q)$ by colouring each edge by the
+direction of the line through its endpoints and merging two of the $q+1$
+directions into one colour. Then $\mathcal C$ has no balanced one-vertex
+extension to $K_{q^2+1}$.
+\end{maintheorem}
+
+Theorem~\ref{thm:affine} holds for all prime powers simultaneously, by a short
+finite-geometry argument (Section~\ref{sec:affine}); for $r=5$ it says that a
+counterexample to Conjecture~\ref{conj:main}, if one existed, could not arise by
+adding a vertex to an affine colouring of $K_{25}$. It is strictly weaker than the
+$r=5$ case of the conjecture --- it does not rule out non-affine balanced
+colourings of $K_{25}$ --- but it is clean, uniform in $q$, and independent of the
+machinery behind Theorem~\ref{thm:main}.
+
+\subsection{Why \texorpdfstring{$r=5$}{r=5} resists the earlier method}\label{ssec:why}
+Erd\H{o}s and Gy\'arf\'as settled $r=3,4$ by attacking a \emph{minority} colour
+class of $K_{r^2+1}$ (one with the fewest edges) directly and forcing an
+independent $(r+1)$-set inside it by hand: for $r=3$ from Brooks' theorem and
+$R(3,3)=6$, and for $r=4$ from $R(3,4)=9$, the uniqueness of its extremal graph,
+and an intricate edge count. Neither ingredient scales cleanly to $r=5$. That
+analysis is organised around Ramsey numbers with unique extremal graphs, and at
+$r=5$ the relevant inputs multiply --- $R(3,5)$, $R(4,4)$, $R(4,5)$, and more ---
+with no single extremal structure to anchor them; and, as noted above, the
+matching upper-bound construction needs a projective plane of order $r+1=6$, which
+does not exist, so even the finiteness statement available for $r=3,4$ is out of
+reach here.
+
+What makes the case go through is a change of object. The reduction of
+Section~\ref{sec:reduction} deletes a vertex and folds the surrounding colouring
+into two self-contained statements about a \emph{single} graph on $25$ vertices
+(Lemmas~\ref{lem:MH} and~\ref{lem:MM}); thereafter one classical extremal input ---
+Brouwer's non-partite Tur\'an bound with the Kang--Pikhurko equality case ---
+drives a uniform counting recursion in place of the earlier case-by-case analysis,
+and only four facts about graphs on at most $12$ vertices are left to a SAT solver
+(Section~\ref{ssec:method} sets out the layers). The quantitative thresholds in the
+two lemmas were not guessed but read off a computation: they sit exactly at an
+empirical phase transition (Appendix~\ref{app:phase}). The ``hitter'' configurations
+that Lemma~\ref{lem:MH} forbids exist for every $n\le 24$ and disappear at precisely
+$n=25$ --- the conjecture's ``$+1$'' costing one vertex of slack --- and the same
+``$+1$'' resurfaces in the proof as the arithmetic $21=4\cdot 5+1$, forcing one
+oversized part where $20=4\cdot 5$ splits evenly (Section~\ref{ssec:MH-n24}). This
+is where the argument uses the ``$+1$'' essentially, as any proof must: with the
+colouring forgotten, both lemmas become false (Appendix~\ref{app:phase}).
+
+\subsection{Method and provenance}\label{ssec:method}
+The proof of Theorem~\ref{thm:main} has three layers, described in outline here
+and in detail below.
+
+\emph{The reduction} (Section~\ref{sec:reduction}). Suppose $K_{26}$ had a
+balanced $5$-colouring. Delete a vertex $x$; the induced colouring of $K_{25}$ is
+balanced, and partitioning the $25$ remaining vertices by the colour of their edge
+to $x$ produces five sets $T_0,\dots,T_4$. An elementary argument
+(Lemma~\ref{lem:chain}) shows that two structural statements about the colour
+classes on $25$ vertices --- Lemmas~\ref{lem:MH} (``\textsf{[MH$''$]}'') and
+\ref{lem:MM} (``\textsf{[MM]}'') below --- force a contradiction. This step is short and
+entirely elementary.
+
+\emph{The two lemmas} (Sections~\ref{sec:MH} and~\ref{sec:MM}). Each is a
+statement about graphs on $\le 25$ vertices in which every $6$-set spans at most
+$11$ edges (we call this \capeleven), with prescribed independence numbers. Their
+proofs share a double-counting recursion (Section~\ref{sec:toolkit}) built from
+\capeleven{} and one classical theorem: Brouwer's bound on the number of edges in a
+$K_{r+1}$-free graph that is not $r$-partite, together with the Kang--Pikhurko
+classification of the extremal graphs~\cite{Brouwer81,KP05}. The recursion bottoms
+out in four finite facts about small graphs, which we verify by SAT.
+
+\emph{The certificates and formalisation} (Sections~\ref{sec:certificates}
+and~\ref{sec:lean}). The four finite facts are certified by DRAT/LRAT proofs,
+independently checked. The whole argument --- reduction, both lemmas, the
+recursion, and the SAT facts (through Lean's verified certificate checker) --- has
+been formalised in Lean~4: the final theorem is \texttt{sorry}-free modulo the
+Kang--Pikhurko equality classification at $(5,21)$ (its sole remaining hypothesis;
+Brouwer's edge bound itself is now formally proved in Lean) and four SAT-reflection
+axioms (the \texttt{native\_decide} trust base). It is thus a machine-checked
+conditional proof, not an unconditional formal one; the one remaining input is a
+classical, cited, and independently validated statement.
+
+\medskip
+This document is a \emph{verification-ready report}, not an authored announcement,
+and its whole purpose is to be checked by others. The mathematics was produced and
+internally reviewed by AI systems, which we disclose in full in
+Section~\ref{sec:provenance} in keeping with the norms of \cite{Bloom617}. In brief:
+the proofs of the two lemmas (Sections~\ref{sec:MH}--\ref{sec:MM}) were drafted by a
+large language model (OpenAI \texttt{gpt-5.6-sol}) from self-contained briefs; the
+reduction, the verification and review infrastructure, the SAT certification, and the
+Lean formalisation were produced by Claude (Anthropic) sessions; and each of the
+three links was subjected to an independent adversarial review by a fresh model
+session, whose findings we incorporate (both lemmas required a repair, and those
+repairs are what we present). This internal chain --- author sessions, adversarial
+reviewers, exact recomputation, and a Lean formalisation --- is a strong but
+\emph{not yet independently human-refereed} certificate. We make no claim that it
+substitutes for expert scrutiny; the document is offered precisely so that such
+scrutiny is easy to perform. Section~\ref{sec:howto} is a verification guide for the
+reader who wants to check the claim, at several depths.
+
+\subsection{Organisation}
+Section~\ref{sec:howto} is a verification guide: how to check the claim in $30$
+minutes (machine), in $120$ minutes (by reading), or exhaustively.
+Section~\ref{sec:reduction} fixes notation, records the elementary properties of
+balanced colourings, states the two lemmas, and proves Theorem~\ref{thm:main} from
+them. Section~\ref{sec:toolkit} develops the shared \capeleven{} toolkit
+(Brouwer's theorem, the counting identity, and the $M$- and $L$-tables).
+Sections~\ref{sec:MH} and~\ref{sec:MM} prove Lemmas~\ref{lem:MH} and~\ref{lem:MM}.
+Section~\ref{sec:affine} proves Theorem~\ref{thm:affine}.
+Section~\ref{sec:certificates} documents the four SAT certificates and the
+recipe to regenerate and re-check them. Section~\ref{sec:lean} describes the Lean
+formalisation and its axiom profile. Section~\ref{sec:provenance} gives the full
+provenance and an honest account of the argument's verification status.
+Appendix~\ref{app:phase} records the empirical phase-transition data that
+motivated the shape of the argument.
+
+%% ===========================================================================
+\section{How to verify this report}\label{sec:howto}
+%% ===========================================================================
+
+Because this is a report offered for checking rather than a claim asking to be
+trusted, we describe up front how a reader can verify it, at three depths. The
+accompanying repository contains the Lean project, the SAT certificates, and the
+arithmetic scripts referenced below.
+
+\subsection*{The $30$-minute path (statement audit plus machine check)}
+This path certifies the theorem \emph{modulo} the two clearly delimited
+non-elementary inputs, without reading the combinatorial proofs.
+\begin{enumerate}[label=\textup{(\arabic*)},leftmargin=2.2em]
+\item \emph{Audit the statement.} Read Theorem~\ref{thm:main} and the Lean statements
+\texttt{Main} and \texttt{erdos\_617\_r5\_\allowbreak upstream} (Section~\ref{sec:lean}), and
+confirm they say ``every $5$-colouring of $K_{26}$ has a $6$-set missing a colour'' ---
+matching the \texttt{erdos\_617} statement of the \texttt{formal-conjectures}
+repository at $r=5$~\cite{FC}. A wrong statement would invalidate everything, so this
+step comes first.
+\item \emph{Build and check axioms.} In \texttt{lean617/}, run \texttt{lake exe cache
+get \&\& lake build} (a clean build), then \texttt{\#print axioms
+Erdos617.erdos\_617\_r5}. The result should be \texttt{propext},
+\texttt{Classical.choice}, \texttt{Quot.sound}, plus four named SAT-reflection
+axioms, with \texttt{KPEqualityClassification} appearing in the theorem's \emph{type}
+as a hypothesis --- and crucially \emph{no} \texttt{sorryAx}. The absence of
+\texttt{sorryAx} is the definitive ``no admitted proof'' check; a textual grep for
+\texttt{sorry} finds the token only inside \texttt{sorry-free} annotations in the
+sources.
+\end{enumerate}
+What this establishes, stated exactly: \emph{the final theorem is
+\texttt{sorry}-free modulo the Kang--Pikhurko equality classification at $(5,21)$
+(carried as an explicit hypothesis; Section~\ref{ssec:lean-brouwer}) and four
+SAT-reflection axioms (the \texttt{native\_decide} trust base).} It is not an
+unconditional formal proof: that one classification is assumed, not yet formalised ---
+though Brouwer's edge bound, which accompanies it in Theorem~\ref{thm:brouwer}, is now
+formally proved in Lean, so it no longer needs to be trusted. What remains for a reader
+after this path is exactly to satisfy themselves of those two inputs (the
+classification and the SAT certificates) --- the next two paths do that.
+
+\subsection*{The $120$-minute path (read the mathematics)}
+The proof is elementary and self-contained apart from one classical theorem. Read
+Section~\ref{sec:reduction} (the reduction; short), then the two lemma proofs of
+Sections~\ref{sec:MH} and~\ref{sec:MM}, using Section~\ref{sec:toolkit} as needed.
+The only external input is Brouwer's theorem (Theorem~\ref{thm:brouwer}), a published
+result whose five uses are itemised in Section~\ref{sec:MH}; the only computational
+inputs are the four finite facts of Fact~\ref{fact:sat}, about graphs on at most $12$
+vertices. Everything else is by hand and is confirmed by exact recomputation
+(\texttt{tools/verify\_gpt\_arith.py}). A reader who follows this path and the
+statement audit above has checked the mathematics end to end, modulo trusting (a) the
+cited theorem and (b) the four SAT certificates --- both discharged next.
+
+\subsection*{The completist path (audit the machine inputs)}
+Two things are trusted by the shorter paths and can be checked directly.
+\emph{The SAT facts:} regenerate the four DRAT certificates and check them with
+\texttt{drat-trim} (Section~\ref{sec:certificates}, path~(i)); this is independent of
+Lean and of \texttt{native\_decide}. \emph{The classical input:} the informal proof
+uses Brouwer's bound and the Kang--Pikhurko equality classification, both from
+\cite{Brouwer81,KP05} (the repository records this check use-by-use); the Lean object
+needs only the \emph{equality} half, since the bound is now machine-proved
+(Section~\ref{ssec:lean-brouwer}). A reader who completes all three paths has reduced
+the entire claim to the correctness of \texttt{drat-trim}, the Lean kernel, and a
+single published $2005$ classification statement.
+
+\subsection*{What is deliberately \emph{not} yet claimed}
+This report does \emph{not} claim the result is community-accepted, independently
+refereed, or an unconditional formal proof. The Lean development still carries the
+Kang--Pikhurko equality classification at $(5,21)$
+(\texttt{KPEqualityClassification}) as a hypothesis rather than a proved lemma
+(Section~\ref{ssec:lean-brouwer}), and the verification to date is internal
+(Section~\ref{sec:provenance}). Those are the two gaps a third-party verifier is
+invited to close or to press on.
+
+%% ===========================================================================
+\section{Definitions and the reduction}\label{sec:reduction}
+%% ===========================================================================
+
+\subsection{Notation and conventions}
+All graphs are finite and simple. For a graph $G$ we write $V(G)$, $e(G)=\abs{E(G)}$,
+$d_G(v)$ (or $d_v$) for the degree of $v$, $N_G(v)$ for its neighbourhood,
+$N_G[v]=N_G(v)\cup\{v\}$, $\alpha(G)$ for the independence number, and $\omega(G)$
+for the clique number. For $S\subseteq V(G)$, $G[S]$ is the induced subgraph and
+$e_G(S)=e(G[S])$; for disjoint $A,B$, $e_G(A,B)$ is the number of edges with one
+endpoint in each. We write $t_r(n)=\ex(n,K_{r+1})$ for the Tur\'an number (the
+maximum number of edges in a $K_{r+1}$-free graph on $n$ vertices) and $T_r(n)$ for
+the Tur\'an graph. All colourings are edge-colourings of a complete graph, and
+colours are labelled $0,\dots,r-1$.
+
+For a $5$-colouring $\chi$ we write $G_0,\dots,G_4$ for the colour classes. Two
+properties recur so often that we name them.
+
+\begin{definition}[\capeleven]
+A graph $G$ (typically a colour class of a colouring of $K_n$) is \emph{\capeleven}
+if every $6$-vertex subset spans at most $11$ edges of $G$.
+\end{definition}
+
+\begin{definition}[hitter]
+Let $G$ be a graph and $k\ge 0$ an integer. A vertex set $T$ is a \emph{$k$-hitter}
+for $G$ if $\alpha(G-T)\le 4$ and $\abs{T}=k$; that is, deleting the $k$ vertices
+of $T$ leaves a graph with no independent $5$-set. (The value $4$ is fixed
+throughout, tuned to $r=5$.)
+\end{definition}
+
+\subsection{Elementary properties of balanced colourings}
+The following facts are immediate from the definition of balancedness and are used
+constantly.
+
+\begin{lemma}\label{lem:elem}
+Let $\chi$ be a balanced $5$-colouring of $K_n$ with colour classes
+$G_0,\dots,G_4$. Then:
+\begin{enumerate}[label=\textup{(\alph*)}]
+\item\label{it:restrict} the restriction of $\chi$ to any subset of vertices is a
+balanced $5$-colouring of the corresponding complete graph;
+\item\label{it:alpha5} $\alpha(G_c)\le 5$ for every colour $c$;
+\item\label{it:cap} every $G_c$ is \capeleven{} and $K_6$-free;
+\item\label{it:minority} if $n=25$ then $\sum_{c}e(G_c)=\binom{25}{2}=300$, so
+some colour $m$ (a \emph{minority} colour) has $e(G_m)\le 60$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\ref{it:restrict} A subset of an $(r+1)$-set of the smaller graph is an
+$(r+1)$-set of $K_n$; its edge colours are unchanged, so it still sees all
+$5$ colours.
+
+\ref{it:alpha5} An independent $6$-set of $G_c$ is a $6$-set spanning no colour-$c$
+edge, hence missing colour $c$ --- impossible.
+
+\ref{it:cap} A $6$-set has $\binom 62=15$ edges. If $12$ of them had colour $c$,
+the remaining $3$ could realise at most $3$ further colours, so the $6$-set would
+see at most $4$ colours; hence at most $11$ edges of any one colour, which is
+\capeleven. A monochromatic $K_6$ sees a single colour, so no class contains one.
+
+\ref{it:minority} The five classes partition the $\binom{25}{2}=300$ edges, so the
+minimum class size is at most the average $300/5=60$. (Ties are broken
+arbitrarily.)
+\end{proof}
+
+Note that \ref{it:cap} makes ``\capeleven'' and ``$K_6$-free'' standing hypotheses
+on \emph{every} class of a balanced $5$-colouring, and they are inherited by every
+induced subgraph.
+
+\subsection{The two lemmas}
+The reduction turns Theorem~\ref{thm:main} into two statements that no longer
+mention the deleted vertex. The first forbids a small hitter in a single class of a
+balanced colouring of $K_{25}$.
+
+\begin{lemma}[\textsf{[MH$''$]}]\label{lem:MH}
+No balanced $5$-colouring of $K_{25}$ has a colour $c$ and a $4$-hitter $T$ for
+$G_c$. Equivalently: there is no $5$-colouring of $K_{21}$ in which every class is
+\capeleven{} and $K_6$-free and the colour classes have independence numbers
+$(4,5,5,5,5)$.
+\end{lemma}
+
+The second is a purely graph-theoretic statement about the minority class, phrased
+so as to forget the surrounding colouring; the reduction supplies each of its
+hypotheses.
+
+\begin{lemma}[\textsf{[MM]}]\label{lem:MM}
+There is no graph $G$ on $25$ vertices with $\alpha(G)\le 5$, \capeleven, and
+$e(G)\le 60$, together with a $5$-vertex set $T$ such that $\alpha(G-T)\le 4$ and
+$e(G[T])\le 6$.
+\end{lemma}
+
+Lemma~\ref{lem:MH} is proved in Section~\ref{sec:MH} and Lemma~\ref{lem:MM} in
+Section~\ref{sec:MM}. We first show they suffice.
+
+\subsection{Proof of Theorem~\ref{thm:main}}
+\begin{lemma}[Reduction]\label{lem:chain}
+If Lemmas~\ref{lem:MH} and~\ref{lem:MM} hold, then $K_{26}$ has no balanced
+$5$-colouring.
+\end{lemma}
+
+\begin{proof}
+Suppose $\chi$ is a balanced $5$-colouring of $K_{26}$. Fix a vertex $x$, let
+$V'=V(K_{26})\setminus\{x\}$ (so $\abs{V'}=25$), and let $\chi'=\chi|_{V'}$, a
+balanced $5$-colouring of $K_{25}$ by Lemma~\ref{lem:elem}\ref{it:restrict}. Let
+$G_0,\dots,G_4$ be the colour classes of $\chi'$ and, for each colour $c$, let
+\[
+  T_c \;=\; \{\, v\in V' : \chi(xv)=c \,\}.
+\]
+The sets $T_0,\dots,T_4$ partition $V'$, so $\sum_c\abs{T_c}=25$.
+
+\smallskip
+\noindent\emph{Step 1: $\alpha(G_c-T_c)\le 4$ for every $c$.}
+If $F$ were an independent $5$-set of $G_c$ with $F\cap T_c=\varnothing$, then the
+$6$-set $\{x\}\cup F$ would miss colour $c$ under $\chi$: no edge inside $F$ has
+colour $c$ (as $F$ is independent in $G_c$), and no edge $xv$ with $v\in F$ has
+colour $c$ (as $v\notin T_c$). This contradicts balancedness of $\chi$. So $T_c$ is
+a hitter for $G_c$ in the sense that $\alpha(G_c-T_c)\le 4$. This is the one place
+the argument uses the full $K_{26}$.
+
+\smallskip
+\noindent\emph{Step 2: $\abs{T_c}=5$ for every $c$.}
+Suppose some $\abs{T_c}\le 4$. Choose a $4$-set $T^+\supseteq T_c$ inside $V'$
+(possible, as $\abs{V'}=25$). Deleting extra vertices cannot raise an independence
+number, so $\alpha(G_c-T^+)\le\alpha(G_c-T_c)\le 4$ by Step~1; thus $T^+$ is a
+$4$-hitter for $G_c$ in the balanced colouring $\chi'$, contradicting
+Lemma~\ref{lem:MH}. Hence $\abs{T_c}\ge 5$ for all $c$, and since the five sizes sum
+to $25$, all equal $5$.
+
+\smallskip
+\noindent\emph{Step 3: each $T_{c'}$ spans at most $6$ edges of colour $c'$.}
+Fix distinct colours $c\ne c'$. The set $T_{c'}$ has size $5$ and is disjoint from
+$T_c$. If $T_{c'}$ contained no colour-$c$ edge, it would be an independent $5$-set
+of $G_c$ disjoint from $T_c$, contradicting $\alpha(G_c-T_c)\le 4$ (Step~1). Hence
+$T_{c'}$ contains at least one edge of colour $c$, for each of the four colours
+$c\ne c'$. Edges of distinct colours are distinct, so at least $4$ of the
+$\binom 52=10$ edges inside $T_{c'}$ have a colour other than $c'$, leaving at most
+$6$ edges of colour $c'$.
+
+\smallskip
+\noindent\emph{Step 4: contradiction.}
+Let $m$ be a minority colour, so $e(G_m)\le 60$
+(Lemma~\ref{lem:elem}\ref{it:minority}). By
+Lemma~\ref{lem:elem}\ref{it:alpha5}--\ref{it:cap}, $G_m$ has $\alpha(G_m)\le 5$ and
+is \capeleven. By Step~2, $\abs{T_m}=5$; by Step~1, $\alpha(G_m-T_m)\le 4$; and by
+Step~3 (with $c'=m$), $e(G_m[T_m])\le 6$. Thus $(G_m,T_m)$ satisfies every
+hypothesis of Lemma~\ref{lem:MM}, which forbids exactly this configuration.
+Contradiction.
+\end{proof}
+
+Theorem~\ref{thm:main} now follows: Lemmas~\ref{lem:MH} and~\ref{lem:MM} are proved
+below, so Lemma~\ref{lem:chain} applies. The equality $\Ncap(5)=25$ combines this
+with the affine construction ($\Ncap(5)\ge 25$) and monotonicity.
+
+\begin{remark}
+Every hypothesis of Lemma~\ref{lem:MM} is used: $e(G_m)\le 60$ is the minority
+bound, $\abs{T_m}=5$ comes from Lemma~\ref{lem:MH} via Step~2 (a $4$-point $T_m$
+would contain no $5$-set and Step~3 would be vacuous), and $e(G_m[T_m])\le 6$ is
+the ``usability'' bound of Step~3. The pure-graph relaxations of both lemmas ---
+dropping the surrounding colouring --- are \emph{false}: there is an $80$-edge graph
+on $21$ vertices with $\alpha\le 4$ and \capeleven{} (so Lemma~\ref{lem:MH} genuinely
+needs balancedness), and $(\alpha\le 5,\ \capeleven,\ \le 60\text{ edges})$ alone is
+satisfiable on $25$ vertices (so Lemma~\ref{lem:MM} genuinely needs the hitter and
+usability hypotheses). See Appendix~\ref{app:phase}.
+\end{remark}
+
+%% ===========================================================================
+\section{The \texorpdfstring{\capeleven}{cap-11} toolkit}\label{sec:toolkit}
+%% ===========================================================================
+
+Both lemmas are proved by bounding the number of edges of a \capeleven{} graph
+below in terms of its independence number and clique number. This section
+assembles the shared machinery: one classical extremal theorem, a double-counting
+identity, a neighbourhood bound coming from \capeleven, four finite facts about
+very small graphs, and two tables of edge lower bounds ($M$ for independence number
+$2$ and $L$ for independence number $3$) that the two lemmas consume. Throughout,
+``\capeleven'' means every $6$-set spans at most $11$ edges, a property inherited
+by all induced subgraphs.
+
+\subsection{Brouwer's non-partite Tur\'an theorem}
+A $K_{r+1}$-free graph on $n$ vertices has at most $t_r(n)$ edges, with equality
+only for the Tur\'an graph $T_r(n)$, which is $r$-partite. If one additionally
+forbids $r$-partiteness, the bound drops.
+
+\begin{theorem}[Brouwer~\cite{Brouwer81}; equality by Kang--Pikhurko~\cite{KP05}]
+\label{thm:brouwer}
+Let $r\ge 2$ and $n\ge 2r+1$. If $G$ is a $K_{r+1}$-free graph on $n$ vertices
+that is not $r$-partite (equivalently $\chi(G)>r$), then
+\[
+  e(G)\;\le\; t_r(n)-\Big\lfloor\tfrac nr\Big\rfloor+1 .
+\]
+Moreover, Kang and Pikhurko classify the extremal graphs: every graph attaining
+equality arises from an explicit construction $G(\mathbf n)$ obtained from a
+complete $r$-partite graph on parts $N_1,\dots,N_r$ (with $\sum\abs{N_i}=n-1$) by
+adding one vertex and deleting a matching-like set of edges, with the part sizes
+$\mathbf n$ ranging over an explicit short list.
+\end{theorem}
+
+We use Theorem~\ref{thm:brouwer} only for $r=5$ and $n\in\{15,16,21\}$, all of which
+satisfy $n\ge 2r+1=11$.\footnote{Brouwer's $1981$ report~\cite{Brouwer81} is a
+Mathematisch Centrum technical note and is not readily available online; we quote
+the bound in the form in which it is stated and attributed to Brouwer by Ren, Wang,
+Wang, and Yang~\cite{RWWY}, and take the equality classification from the primary
+source~\cite{KP05}. All Tur\'an arithmetic is re-derived in the repository.} The
+relevant Tur\'an numbers are
+\[
+  t_5(15)=90,\qquad t_5(16)=102,\qquad t_5(21)=176,
+\]
+computed from the balanced part sizes $(3,3,3,3,3)$, $(4,3,3,3,3)$ and
+$(5,4,4,4,4)$ respectively, giving Brouwer bounds
+\begin{equation}\label{eq:brouwer-values}
+  90-3+1=88,\qquad 102-3+1=100,\qquad 176-4+1=173.
+\end{equation}
+We use the equality classification only once, at $(r,n)=(5,21)$, in the following
+form; it is a direct reading of the Kang--Pikhurko construction and is verified
+against their Lemma~5 in Section~\ref{sec:MH} where it is applied.
+
+\begin{corollary}[$n=21$ equality shape]\label{cor:equality21}
+Let $F$ be a $K_5$-free graph on $21$ vertices with $\alpha(F)\le 5$ and exactly
+$e(F)=37$ edges. Then there are disjoint sets $A,B$ with $\abs A=5$, $\abs B=4$
+such that $F[A]=K_5-xy$ for some $x,y\in A$, $F[B]=K_4$, and exactly $4$ edges of
+$F$ join $A$ to $B$.
+\end{corollary}
+
+\subsection{A counting identity}
+For a graph $G$ on $q$ vertices and a vertex $v$, write
+\[
+  W_v \;=\; V(G)\setminus N_G[v]
+\]
+for the set of non-neighbours of $v$ other than $v$ itself, so $\abs{W_v}=q-1-d_v$.
+The following two identities are standard double counts; $\tau(G)$ denotes the
+number of triangles.
+
+\begin{lemma}\label{lem:identity}
+For every graph $G$ on $q$ vertices,
+\begin{align}
+  \sum_{v} e(G[W_v]) &= q\,e(G)-\sum_v d_v^2+3\tau(G),\label{eq:41}\\
+  3\tau(G) &= \sum_v e(G[N(v)]).\label{eq:42}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+For~\eqref{eq:41}: a fixed edge $xy$ lies in $G[W_v]$ exactly when $v$ is
+non-adjacent to both $x$ and $y$ and $v\notin\{x,y\}$, i.e.\ for
+$q-\abs{N(x)\cup N(y)}=q-d_x-d_y+\abs{N(x)\cap N(y)}$ vertices $v$ (using
+$\{x,y\}\subseteq N(x)\cup N(y)$). Summing over edges $xy$ gives
+$\sum_v e(G[W_v]) = q\,e(G)-\sum_{xy\in E}(d_x+d_y)+\sum_{xy\in E}\abs{N(x)\cap N(y)}$.
+The middle sum is $\sum_v d_v^2$, and $\abs{N(x)\cap N(y)}$ counts triangles on the
+edge $xy$, so the last sum is $3\tau(G)$. For~\eqref{eq:42}: each triangle is
+counted once for each of its three vertices $v$, as an edge of $G[N(v)]$.
+\end{proof}
+
+\subsection{The neighbourhood bound from \texorpdfstring{\capeleven}{cap-11}}
+\capeleven{} limits how many edges a neighbourhood can carry.
+
+\begin{lemma}\label{lem:nbhd}
+Let $G$ be \capeleven{} and $v$ a vertex of degree $d$. Then
+\[
+  e(G[N(v)])\;\le\; b(d)\;:=\;
+  \begin{cases}
+    \binom d2, & d\le 4,\\[1mm]
+    \big\lfloor \tfrac{3d(d-1)}{10}\big\rfloor, & d\ge 5.
+  \end{cases}
+\]
+If in addition $\omega(G)\le 4$, then $G[N(v)]$ is $K_4$-free, so we may replace
+$b(d)$ by the smaller bound $u(d):=\min\{b(d),\,\ex(d,K_4)\}$, where $\ex(d,K_4)$ is
+the Tur\'an number.
+\end{lemma}
+
+\begin{proof}
+For $d\le 4$ the bound $\binom d2$ is trivial. For $d\ge 5$, let $A\subseteq N(v)$
+be any $5$-set. The $6$-set $\{v\}\cup A$ carries $5$ edges from $v$ to $A$ and
+$e(G[A])$ edges inside $A$, so \capeleven{} gives $5+e(G[A])\le 11$, i.e.\
+$e(G[A])\le 6$. Summing over all $\binom d5$ five-subsets of $N(v)$, each edge of
+$G[N(v)]$ lying in $\binom{d-2}{3}$ of them,
+\[
+  e(G[N(v)])\binom{d-2}{3}\;\le\; 6\binom d5,
+\]
+and $6\binom d5/\binom{d-2}3=\tfrac{3d(d-1)}{10}$ gives the bound. If $\omega(G)\le
+4$ then $G[N(v)]$ has no $K_4$ (a $K_4$ in $N(v)$ plus $v$ is a $K_5$), so
+$e(G[N(v)])\le\ex(d,K_4)$ as well.
+\end{proof}
+
+\subsection{Four certified small-graph facts}\label{ssec:small}
+The recursion below rests on four facts about small \capeleven{} graphs with
+independence number $2$. Each is a finite statement; each is proved by SAT and
+independently DRAT-checked (Section~\ref{sec:certificates}).
+
+\begin{fact}\label{fact:sat}
+\leavevmode
+\begin{enumerate}[label=\textup{(M\arabic*)}]
+\item\label{sat:M9} Every \capeleven{} graph on $9$ vertices with $\alpha\le 2$,
+$\omega\le 4$ has at least $19$ edges.
+\item\label{sat:M10} Every \capeleven{} graph on $10$ vertices with $\alpha\le 2$,
+$\omega\le 4$ has at least $25$ edges.
+\item\label{sat:nonex11} There is no \capeleven{} graph on $11$ vertices with
+$\alpha\le 2$ \textup{(no clique bound needed)}.
+\item\label{sat:nonex12} There is no \capeleven{} graph on $12$ vertices with
+$\alpha\le 2$ \textup{(no clique bound needed)}.
+\end{enumerate}
+\end{fact}
+
+\begin{remark}\label{rem:nonex-mono}
+Facts~\ref{sat:nonex11} and~\ref{sat:nonex12} are $\omega$-free: they hold for any
+clique number. Since $\alpha\le 2$ and \capeleven{} are both inherited by induced
+subgraphs, \ref{sat:nonex11} alone implies that \emph{no} \capeleven{} graph on
+$n\ge 11$ vertices has $\alpha\le 2$; \ref{sat:nonex12} is a redundant independent
+check. This $\omega$-freeness is what the repaired proofs of both lemmas use
+(Sections~\ref{ssec:MH-K5free} and~\ref{ssec:MM-two}); the clique bound $\omega\le
+4$ is genuinely required in \ref{sat:M9} and~\ref{sat:M10}, where it is available
+in context, since $K_5\sqcup K_4$ and $K_5\sqcup K_5$ are \capeleven{} graphs with
+$\alpha=2$ on $9$ and $10$ vertices.
+\end{remark}
+
+\subsection{The $M$-table and the $L$-table}\label{ssec:tables}
+We package the edge lower bounds into two functions.
+
+\begin{definition}
+For $s\ge 0$ let
+\[
+  M(s)\;=\;\min\{\, e(Z) : \abs{V(Z)}=s,\ \alpha(Z)\le 2,\ \omega(Z)\le 4,\
+  Z\text{ \capeleven}\,\},
+\]
+with $M(s)=+\infty$ if no such graph exists, and let $L(s)$ be defined the same
+way with $\alpha\le 3$ in place of $\alpha\le 2$.
+\end{definition}
+
+\begin{lemma}\label{lem:Mtable}
+$M(s)=\binom s2-\lfloor s^2/4\rfloor$ for $0\le s\le 8$; $M(9)=19$; $M(10)=25$;
+and $M(s)=+\infty$ for $s\ge 11$.
+\end{lemma}
+
+\begin{proof}
+For $s\le 8$, $\alpha(Z)\le 2$ means the complement $\overline Z$ is triangle-free,
+so by Mantel's theorem $e(\overline Z)\le\lfloor s^2/4\rfloor$ and
+$e(Z)\ge\binom s2-\lfloor s^2/4\rfloor$; this bound is attained (e.g.\ by the
+complement of a balanced complete bipartite graph, which is \capeleven{} and
+$K_4$-free for $s\le 8$), and \capeleven{} is vacuous in this range. The values
+$M(9)=19$ and $M(10)=25$ are Facts~\ref{sat:M9} and~\ref{sat:M10} (attainment is by
+explicit graphs). Finally $M(s)=+\infty$ for $s\ge 11$ is
+Fact~\ref{sat:nonex11} and Remark~\ref{rem:nonex-mono}.
+
+For completeness we record the $s\le 10$ values, which are all we use:
+\[
+  \begin{array}{c|cccccccccc}
+    s & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\\hline
+    M(s) & 0 & 0 & 1 & 2 & 4 & 6 & 9 & 12 & 19 & 25.
+  \end{array}\qedhere
+\]
+\end{proof}
+
+\begin{lemma}\label{lem:Ltable}
+For $s\le 12$, $L(s)=\binom s2-t_3(s)$ \textup{(the complement-Tur\'an value for
+$\alpha\le 3$)}. For $13\le s\le 20$,
+\[
+  \begin{array}{c|cccccccc}
+    s & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20\\\hline
+    L(s) & 24 & 31 & 38 & 46 & 53 & 62 & 73 & 84 .
+  \end{array}
+\]
+\end{lemma}
+
+\begin{proof}
+For $s\le 12$, $\alpha\le 3$ means $\overline Z$ is $K_4$-free, so
+$e(\overline Z)\le t_3(s)=\ex(s,K_4)$ and $e(Z)\ge\binom s2-t_3(s)$, attained by the
+complement of the Tur\'an graph $T_3(s)$ (which is a disjoint union of $\le 3$
+cliques, so \capeleven{} and $K_4$-free once $s\le 12$). This gives the small values
+\[
+  \begin{array}{c|cccccccccccc}
+    s & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\\hline
+    L(s) & 0 & 1 & 2 & 3 & 5 & 7 & 9 & 12 & 15 & 18 .
+  \end{array}
+\]
+
+For $13\le s\le 20$ we run the recursion of Lemma~\ref{lem:identity}. Let $X$ be a
+\capeleven{} graph on $s$ vertices with $\alpha(X)\le 3$ and $\omega(X)\le 4$. For
+each $v$, $W_v$ has $\alpha(W_v)\le 2$ (an independent $3$-set in $W_v$ plus $v$
+would be an independent $4$-set), $\omega(W_v)\le 4$, and is \capeleven; so
+$e(X[W_v])\ge M(s-1-d_v)$, where by Lemma~\ref{lem:Mtable} the value is finite only
+for $s-1-d_v\le 10$, i.e.\ $d_v\ge s-11$. Combining~\eqref{eq:41},~\eqref{eq:42} and
+Lemma~\ref{lem:nbhd} (in its $\omega\le 4$ form),
+\[
+  \sum_v M(s-1-d_v)\;\le\;\sum_v e(X[W_v])
+  = s\,e(X)-\sum_v d_v^2+\sum_v e(X[N(v)])
+  \;\le\; s\,e(X)-\sum_v d_v^2+\sum_v u(d_v),
+\]
+which rearranges to $\sum_v\Phi_s(d_v)\le 0$, where
+\[
+  \Phi_s(d)\;=\;M(s-1-d)+d^2-\tfrac s2\,d-u(d)
+\]
+(and $\Phi_s(d)=+\infty$ when $d<s-11$, forbidding those degrees). Direct
+substitution gives affine lower bounds $\Phi_s(d)\ge A_s-B_s d$ valid at every
+feasible integer $d$, with
+\[
+  \begin{array}{c|cccccccc}
+    s & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20\\\hline
+    A_s & 25 & 26 & 30 & 34 & 28 & 34 & 57 & 125/2\\
+    B_s & 7 & 6 & 6 & 6 & 9/2 & 5 & 15/2 & 15/2 .
+  \end{array}
+\]
+Then $0\ge\sum_v\Phi_s(d_v)\ge sA_s-B_s\sum_v d_v=sA_s-2B_s\,e(X)$, so
+$e(X)\ge\lceil sA_s/(2B_s)\rceil$, which equals the tabulated $L(s)$ in each case.
+The affine bounds and the ceilings are verified by exact integer arithmetic; see
+Section~\ref{sec:certificates} and the script \texttt{tools/verify\_gpt\_arith.py}.
+\end{proof}
+
+\begin{remark}
+The refinement $u(d)=\min\{b(d),\ex(d,K_4)\}$ (rather than $b(d)$ alone) is needed
+at exactly $d=4$, where $u(4)=\ex(4,K_4)=5<6=\binom 42$; elsewhere $u=b$. Using
+$b(4)=6$ would break the affine bound at $s\in\{13,14,15\}$. The nonexistence at
+$11$ vertices (Fact~\ref{sat:nonex11}) is used only to declare degrees $d<s-11$
+infeasible, tightening the feasible range; it makes the floor larger, never
+smaller.
+\end{remark}
+
+Finally we record the one \capeleven{} consequence used repeatedly to control how
+$K_5$'s attach to the rest of a graph.
+
+\begin{lemma}\label{lem:K5indeg}
+If $G$ is \capeleven{} and $Q\subseteq V(G)$ induces a $K_5$, then every vertex
+$v\notin Q$ has at most one neighbour in $Q$. Consequently, between two disjoint
+$K_5$'s the edges form a matching.
+\end{lemma}
+
+\begin{proof}
+If $v$ had two neighbours in $Q$, the $6$-set $\{v\}\cup Q$ would carry the
+$\binom 52=10$ edges of $Q$ plus at least $2$ more, exceeding $11$.
+\end{proof}
+
+%% ===========================================================================
+\section{Proof of Lemma \textsf{[MH\texorpdfstring{$''$}{''}]}}\label{sec:MH}
+%% ===========================================================================
+
+We prove the equivalent statement in Lemma~\ref{lem:MH}: there is no
+$5$-colouring of $K_{21}$ whose colour classes are all \capeleven{} and $K_6$-free
+and have independence numbers $(4,5,5,5,5)$. (The equivalence is the reduction to
+$21$ vertices in Section~\ref{ssec:MH-reduce}; a $4$-hitter $T$ in a balanced
+$K_{25}$ removes $4$ vertices, and the remaining $21$ carry exactly such a
+colouring by Lemma~\ref{lem:elem}.)
+
+Suppose such a colouring of $K_{21}$ existed. Write $H$ for the class of
+independence number $4$ and $F_1,\dots,F_4$ for the four classes of independence
+number $5$. All five graphs are \capeleven{} and $K_6$-free, and they partition
+$E(K_{21})$, so
+\begin{equation}\label{eq:MH-partition}
+  e(H)+\sum_{i=1}^4 e(F_i)=\binom{21}{2}=210 .
+\end{equation}
+The proof shows $e(H)\ge 58$ and $e(F_i)\ge 38$, forcing equality throughout, and
+then derives a contradiction from the rigid equality structure.
+
+\subsection{Reduction to $21$ vertices}\label{ssec:MH-reduce}
+Let $\chi$ be a balanced $5$-colouring of $K_{25}$ with a colour (say $0$) and a
+$4$-set $T$ such that $\alpha(G_0-T)\le 4$. Put $S=V(K_{25})\setminus T$,
+$\abs S=21$, and $H=G_0[S]$, $F_i=G_i[S]$ ($1\le i\le 4$). Then $\alpha(H)\le 4$
+(an independent $5$-set of $H$ is one of $G_0-T$), and $\alpha(F_i)\le 5$
+(Lemma~\ref{lem:elem}). All five are \capeleven{} and $K_6$-free
+(Lemma~\ref{lem:elem}\ref{it:cap}, inherited by $S$). This is exactly the
+configuration above, so Lemma~\ref{lem:MH} follows from its $21$-vertex form.
+
+For each $v\in S$ set $W_v=S\setminus N_H[v]$. As in Section~\ref{sec:toolkit},
+$\alpha(H[W_v])\le 3$ for every $v$ (an independent $4$-set in $W_v$ together with
+$v$ is an independent $5$-set of $H$).
+
+\subsection{Every ordinary colour has at least $38$ edges}\label{ssec:MH-Fi}
+Fix an \emph{ordinary} colour $i\in\{1,2,3,4\}$.
+
+\begin{claim}
+$F_i$ is $K_5$-free.
+\end{claim}
+Indeed, a $K_5$ in $F_i$ is a $5$-set spanning only colour-$i$ edges, hence
+spanning no $H$-edge, hence an independent $5$-set of $H$ --- contradicting
+$\alpha(H)\le 4$.
+
+Let $J_i=\overline{F_i}$ be the complement. Since $\alpha(F_i)\le 5$, $J_i$ is
+$K_6$-free; since $\omega(F_i)\le 4$ ($F_i$ is $K_5$-free),
+$\alpha(J_i)=\omega(F_i)\le 4$, so $J_i$ is not $5$-partite (five independent parts
+would cover at most $5\cdot 4=20<21$ vertices). Brouwer's theorem
+(Theorem~\ref{thm:brouwer}) with $r=5$, $n=21$ and the value~\eqref{eq:brouwer-values}
+gives $e(J_i)\le 173$, hence
+\begin{equation}\label{eq:MH-37}
+  e(F_i)\ge\binom{21}{2}-173=210-173=37 .
+\end{equation}
+
+We exclude equality. Suppose $e(F_i)=37$. Then $J_i$ is an extremal graph in
+Theorem~\ref{thm:brouwer} at $(r,n)=(5,21)$, so by the Kang--Pikhurko
+classification (Corollary~\ref{cor:equality21}) $F_i$ contains disjoint sets
+$A,B$ with $\abs A=5$, $\abs B=4$,
+\[
+  F_i[A]=K_5-xy\ \ (\text{some }x,y\in A),\qquad F_i[B]=K_4,\qquad e_{F_i}(A,B)=4 .
+\]
+(In Kang--Pikhurko's construction the part sizes of the extremal graph on the $20$
+``old'' vertices are one of $(4,4,4,4,4)$, $(3,4,4,4,5)$, $(3,3,4,5,5)$; the latter
+two contain a part of size $5$, which would be a $K_5$ in $F_i$, so only
+$(4,4,4,4,4)$ survives, and translating that construction into $F_i=\overline{J_i}$
+gives exactly the stated $A,B$ with $4$ cross-edges, independently of the internal
+parameter of the construction.)
+
+Now count. The non-edge $xy$ of $F_i[A]$ carries some colour $\ne i$; it cannot be
+an $F_j$-edge for an ordinary $j\ne i$ with $A$ otherwise avoiding $H$, because $A$
+must contain an $H$-edge (else $A$ is an independent $5$-set of $H$), and the only
+non-$i$ edge inside $A$ is $xy$, so $xy$ is an $H$-edge. Consider the $20$ edges
+between $A$ and $B$:
+\begin{itemize}[nosep]
+\item colour $i$ contributes exactly $4$ (given);
+\item colour $0$ ($H$) contributes at least $5$: $B$ is $H$-independent (it is a
+$K_4$ of $F_i$), so each $a\in A$ has an $H$-neighbour in $B$ (else $B\cup\{a\}$ is
+an $H$-independent $5$-set);
+\item each ordinary $j\ne i$ contributes at least $4$: for every pair $a,a'\in A$
+the $6$-set $B\cup\{a,a'\}$ must contain a colour-$j$ edge, and neither $B$
+($=K_4$ in $F_i$) nor the pair $aa'$ can supply it, so it runs from $\{a,a'\}$ to
+$B$; hence at most one vertex of $A$ has no colour-$j$ neighbour in $B$, giving
+$e_j(A,B)\ge 4$.
+\end{itemize}
+Edges of distinct colours are distinct, so the $A$--$B$ edges number at least
+$4+5+3\cdot 4=21>20$, a contradiction. Therefore
+\begin{equation}\label{eq:MH-38}
+  e(F_i)\ge 38\qquad(1\le i\le 4).
+\end{equation}
+
+\subsection{If $H$ is $K_5$-free then $e(H)\ge 58$}\label{ssec:MH-58}
+Assume for now that $H$ is $K_5$-free, so $\omega(H)\le 4$. Each $W_v$ has
+$\alpha\le 3$, $\omega\le 4$ and is \capeleven, so $e(H[W_v])\ge L(20-d_v)$
+(Lemma~\ref{lem:Ltable}), finite only for $20-d_v\le 20$. Feeding
+$e(H[W_v])\ge L(20-d_v)$ and Lemma~\ref{lem:nbhd} into~\eqref{eq:41}--\eqref{eq:42}
+(with $q=21$) yields $\sum_v\Psi(d_v)\le 0$, where
+\[
+  \Psi(d)=L(20-d)+d^2-\tfrac{21}{2}d-u(d).
+\]
+Direct substitution gives $\Psi(d)\ge 52-\tfrac{19}{2}d$ for $0\le d\le 20$; the
+successive slacks $\Psi(d)-(52-\tfrac{19}{2}d)$ are
+\[
+  32,\,21,\,11,\,4,\,1,\,0,\,0,\,2,\,6,\,14,\,23,\,34,\,48,\,63,\,79,\,97,\,117,\,139,\,163,\,188,\,214,
+\]
+all nonnegative. Hence
+\[
+  0\ge\sum_v\Psi(d_v)\ge 21\cdot 52-\tfrac{19}{2}\sum_v d_v=1092-19\,e(H),
+\]
+so $e(H)\ge\lceil 1092/19\rceil=58$:
+\begin{equation}\label{eq:MH-58}
+  H\text{ $K_5$-free}\ \Longrightarrow\ e(H)\ge 58 .
+\end{equation}
+
+\subsection{$H$ is $K_5$-free}\label{ssec:MH-K5free}
+Suppose, for contradiction, that $H$ contains a $K_5$, say on the vertex set $Q$,
+and put $X=S\setminus Q$, $\abs X=16$.
+
+By \capeleven{} (Lemma~\ref{lem:K5indeg}), every $x\in X$ has at most one
+$H$-neighbour in $Q$. If $X$ contained an $H$-independent $4$-set, its four
+vertices would have at most $4$ neighbours in $Q$, so some $q\in Q$ would be
+$H$-nonadjacent to all of them, giving an independent $5$-set of $H$; thus
+\begin{equation}\label{eq:MH-X-alpha}
+  \alpha(H[X])\le 3 .
+\end{equation}
+
+We claim $H[X]$ is $K_5$-free. If not, let $R\subseteq X$ be an $H$-$K_5$ and
+$L=X\setminus R$, $\abs L=11$. An independent triple in $L$, together with a vertex
+of $Q$ and a vertex of $R$ chosen non-adjacent to it (possible since \capeleven{}
+makes the $Q$--$R$ and triple--$Q$, triple--$R$ adjacencies sparse), would form an
+$H$-independent $5$-set; hence $\alpha(H[L])\le 2$. But $L$ is a \capeleven{} graph
+on $11$ vertices with $\alpha\le 2$, and no such graph exists by
+Fact~\ref{sat:nonex11} (Remark~\ref{rem:nonex-mono}). So $H[X]$ contains no second
+$K_5$, i.e.\ $H[X]$ is $K_5$-free.
+
+\begin{remark}
+This is the one place where the \emph{$\omega$-free} form of the nonexistence fact
+is essential. The original draft bounded $\omega(H[L])\le 4$ and invoked a value
+$M(11)=35$; but $M(11)$ is in fact $+\infty$ (no such graph exists at all,
+Fact~\ref{sat:nonex11}), and the clean statement is that $L$ cannot exist for any
+clique number. This makes the second-$K_5$ case vacuous outright.
+\end{remark}
+
+Since $H[X]$ is $K_5$-free with $\alpha\le 3$ and is \capeleven, Lemma~\ref{lem:Ltable}
+gives
+\begin{equation}\label{eq:MH-X-46}
+  e(H[X])\ge L(16)=46 .
+\end{equation}
+Now bound the ordinary colours on $X$. For each $i$, $F_i[X]$ is $K_4$-free (a $K_4$
+of $F_i$ inside $X$ would be an $H[X]$-independent $4$-set, contradicting
+\eqref{eq:MH-X-alpha}). Its complement is $K_6$-free (as $\alpha(F_i[X])\le 5$) and
+not $5$-partite ($\alpha=\omega(F_i[X])\le 3$, and $5\cdot 3=15<16$), so Brouwer's
+theorem with $(r,n)=(5,16)$ and~\eqref{eq:brouwer-values} gives
+$e(\overline{F_i[X]})\le 100$, hence
+\begin{equation}\label{eq:MH-X-20}
+  e(F_i[X])\ge\binom{16}{2}-100=120-100=20 .
+\end{equation}
+Summing~\eqref{eq:MH-X-46} and~\eqref{eq:MH-X-20} over the five colours inside $X$,
+\[
+  \binom{16}{2}=120\;\ge\; e(H[X])+\sum_{i=1}^4 e(F_i[X])\;\ge\; 46+4\cdot 20=126,
+\]
+a contradiction. Therefore $H$ is $K_5$-free.
+
+\subsection{All bounds are equalities}\label{ssec:MH-eq}
+By~\eqref{eq:MH-38}, \eqref{eq:MH-58} (now unconditional, as $H$ is $K_5$-free) and
+the edge partition~\eqref{eq:MH-partition},
+\[
+  210=e(H)+\sum_{i=1}^4 e(F_i)\ge 58+4\cdot 38=210 .
+\]
+Hence
+\begin{equation}\label{eq:MH-equalities}
+  e(H)=58,\qquad e(F_i)=38\quad(1\le i\le 4).
+\end{equation}
+
+\subsection{Excluding the equality case}\label{ssec:MH-endgame}
+We now derive a contradiction from~\eqref{eq:MH-equalities}.
+
+\paragraph{Minimum degree.}
+Suppose $d_H(v)=4$ for some $v$. Then $\abs{W_v}=16$, $\alpha(H[W_v])\le 3$,
+$\omega(H[W_v])\le 4$, so $e(H[W_v])\ge L(16)=46$; and each $F_i[W_v]$ is $K_4$-free
+(an $F_i$-$K_4$ in $W_v$ with $v$ is an $H$-independent $5$-set), giving
+$e(F_i[W_v])\ge 20$ as in~\eqref{eq:MH-X-20}. Then the $\binom{16}2=120$ edges of
+$K_{16}$ on $W_v$ would satisfy $120\ge 46+4\cdot 20=126$, impossible. The same count
+(with the larger floors $L(17),\dots,L(19)\ge 46$) excludes $d_H(v)\le 3$ a
+fortiori. Hence
+\begin{equation}\label{eq:MH-delta5}
+  \delta(H)\ge 5 .
+\end{equation}
+Since $2e(H)=116<6\cdot 21=126$, some vertex has degree exactly $5$. Fix such a
+vertex $v$ and put
+\[
+  A=N_H(v),\quad Q=A\cup\{v\},\quad W=S\setminus Q,\qquad \abs A=5,\ \abs Q=6,\ \abs W=15 .
+\]
+Write $\rho=e_H(A)$,\footnote{The source documents in \texttt{review\_queue/} name
+this quantity $r$; we rename it to $\rho$ to avoid shadowing the global colour count
+$r=5$ (and correspondingly write $\mu_x$ below for the multiplicity they call
+$\rho_x$).} $w=e_H(W)$, $c=e_H(A,W)$. Since $\alpha(H[W])\le 3$,
+$\omega(H[W])\le 4$ and $W$ is \capeleven, $w\ge L(15)=38$; and \capeleven{} on $Q$
+gives $\rho\le 6$.
+
+\paragraph{The $(\rho,w,c)$ system.}
+Let $a=\sum_{x\in A}(d_H(x)-5)\ge 0$ (by~\eqref{eq:MH-delta5}) and $\eta=w-38\ge 0$.
+Summing $H$-degrees over $A$ counts each edge $xv$ once, each internal $A$-edge
+twice, and each $A$--$W$ edge once (a vertex of $A$ has no other neighbours, as
+$V(H)=Q\cup W$ and $Q=A\cup\{v\}$), so
+$\sum_{x\in A}d_H(x)=\abs A+2\rho+c=5+2\rho+c$. On the other hand
+$\sum_{x\in A}d_H(x)=25+a$ by the definition of $a$. Hence
+\[
+  25+a=5+2\rho+c,\qquad\text{so}\qquad c=20+a-2\rho .
+\]
+Using $e(H)=58=e_H(Q)+w+e_H(Q,W)=(\rho+5)+w+c$ (as $v$ has no neighbour in $W$, so
+$e_H(Q,W)=e_H(A,W)=c$) and $w=38+\eta$,
+\[
+  58=(\rho+5)+(38+\eta)+(20+a-2\rho)=63-\rho+a+\eta,\qquad\text{i.e.}\qquad
+  a+(6-\rho)+\eta=1 .
+\]
+Since $a,\eta\ge 0$ and $\rho\le 6$, the only solutions are
+\begin{equation}\label{eq:MH-rwc}
+  (\rho,w,c)\in\{(5,38,10),\ (6,38,9),\ (6,39,8)\}.
+\end{equation}
+
+\paragraph{A low ordinary colour on $W$, and $c\ge 10$.}
+The four ordinary colours partition the non-$H$ edges of $K_{15}$ on $W$, so
+$\sum_{i=1}^4 e(F_i[W])=\binom{15}{2}-w=105-w\in\{66,67\}$. Some ordinary colour,
+say $i$, has $e(F_i[W])\le 16$. Also $F_i[W]$ is $K_4$-free (as $\alpha(H[W])\le 3$),
+so its complement is $K_6$-free and, by the complement-Tur\'an bound for $\alpha\le
+3$, $e(F_i[W])\ge L(15)$'s ordinary floor $=15$. Two cases:
+\begin{itemize}[nosep]
+\item If $e(F_i[W])=15$, then $\overline{F_i[W]}$ attains the Tur\'an bound
+$t_3(15)=90$, and by uniqueness of the extremal graph $F_i[W]=5K_3$.
+\item If $e(F_i[W])=16$, then $e(\overline{F_i[W]})=\binom{15}2-16=89$; a $K_6$-free
+non-$5$-partite graph on $15$ vertices has at most $t_5(15)-3+1=88<89$ edges
+(Theorem~\ref{thm:brouwer}), so $\overline{F_i[W]}$ is $5$-partite, and since
+$\omega(F_i[W])\le 3$ all five parts have size $3$.
+\end{itemize}
+In either case $W=C_1\dot\cup\cdots\dot\cup C_5$ where each $C_j$ is a colour-$i$
+triangle, hence $H$-independent. For each $j$ set $X_j=\{q\in Q:e_H(q,C_j)=0\}$. If
+two vertices of $X_j$ were $H$-nonadjacent, they would form, with $C_j$, an
+$H$-independent $5$-set; so $X_j$ is an $H$-clique, and since $H$ is $K_5$-free,
+$\abs{X_j}\le 4$. Thus at least two vertices of $Q$ send an $H$-edge into each
+$C_j$, whence
+\begin{equation}\label{eq:MH-c10}
+  c=e_H(Q,W)\ge 2\cdot 5=10 .
+\end{equation}
+This excludes the last two cases of~\eqref{eq:MH-rwc}, leaving $(\rho,w,c)=(5,38,10)$.
+
+\paragraph{The triangle-cover contradiction.}
+Equality in~\eqref{eq:MH-c10} means that for each $j$: exactly two vertices of $Q$
+send an $H$-edge into $C_j$, each exactly one such edge, and the other four vertices
+form the $H$-$K_4$ $X_j$. Since $v$ has no $H$-neighbour in $W$, $v\in X_j$ for every
+$j$. Let $F=H[A]$; as $\rho=5$, $e(F)=5$. Write $X_j=\{v\}\cup T_j$, so $T_j$ is a
+triangle of $F$. For $x\in A$ put $\mu_x=\abs{\{j:x\in T_j\}}$. The $H$-degree of
+$x$ decomposes as
+\[
+  d_H(x)=\underbrace{1}_{xv}+\;d_F(x)\;+\underbrace{(5-\mu_x)}_{\text{edges into }W},
+\]
+because $x$ sends one $H$-edge into each $C_j$ with $x\notin T_j$ and none into the
+$C_j$ with $x\in T_j$. By~\eqref{eq:MH-delta5}, $d_H(x)\ge 5$, so $\mu_x\le
+d_F(x)+1$. But
+\[
+  \sum_{x\in A}\mu_x=5\cdot 3=15=2e(F)+5=\sum_{x\in A}(d_F(x)+1),
+\]
+so $\mu_x=d_F(x)+1\ge 1$ for every $x$; in particular the five triangles
+$T_1,\dots,T_5$ cover all of $A$. This is impossible in a $5$-edge graph: any set of
+triangles covering all $5$ vertices of $F$ uses at least $6$ edges (one triangle
+uses $3$ edges and covers $3$ vertices; covering the remaining two needs either a
+second triangle sharing an edge, which covers only one new vertex, or two triangles
+adding at least $3$ more edges). This contradicts $e(F)=5$ and completes the proof
+of Lemma~\ref{lem:MH}.\qed
+
+\subsection{Why the argument does not apply at $n=24$}\label{ssec:MH-n24}
+The proof uses $\abs S=21$ quantitatively; it must, because $4$-hitters do exist in
+balanced colourings of $K_{24}$ (Appendix~\ref{app:phase}). Deleting a $4$-hitter
+from a balanced $K_{24}$ leaves $20$ vertices, where the special colour can be
+$4K_5$ ($40$ edges) and an ordinary $K_5$-free colour can be $5K_4$ ($30$ edges),
+so the analogue of the equality count reads $40+4\cdot 30=160<\binom{20}2=190$ ---
+no contradiction. Sharper: if the special colour contains a $K_5$, deleting it
+leaves $15$ vertices with floors $30+4\cdot 15=90\le\binom{15}2=105$, again slack;
+whereas at $21$ vertices the same deletion leaves $16$ and gives the decisive
+$46+4\cdot 20=126>120=\binom{16}2$. The tension is exactly the odd part
+$21=4\cdot 5+1$: the ``$+1$'' of the conjecture propagates down to force one
+oversized part where $20=4\cdot 5$ splits evenly.
+
+%% ===========================================================================
+\section{Proof of Lemma \textsf{[MM]}}\label{sec:MM}
+%% ===========================================================================
+
+Suppose, for contradiction, that $G$ on $25$ vertices and a $5$-set $T$ satisfy the
+hypotheses of Lemma~\ref{lem:MM}: $\alpha(G)\le 5$, $G$ is \capeleven,
+$e(G)\le 60$, $\alpha(G-T)\le 4$, and $e(G[T])\le 6$. Put
+\[
+  H=G-T,\quad m=e(H),\quad x=e_G(T,H),\quad \sigma=e(G[T]).
+\]
+Then $\abs{V(H)}=20$, $\alpha(H)\le 4$, $\sigma\le 6$, and
+\begin{equation}\label{eq:MM-budget0}
+  m+x+\sigma\le 60 .
+\end{equation}
+Let $F$ denote the graph of \emph{non-edges} of $G[T]$ (a graph on the $5$ vertices
+of $T$), and $\nu=e(F)=10-\sigma\ge 4$. Since $\alpha(G)\le 5$, $G$ has no
+independent $6$-set --- a fact used constantly, together with
+Lemma~\ref{lem:K5indeg} (\capeleven{} forces at most one edge from any vertex into a
+$K_5$, and a matching between two disjoint $K_5$'s).
+
+For a graph $Y$ with $\alpha(Y)\le 3$, $\omega(Y)\le 4$ and \capeleven{} we write
+$L(\abs{V(Y)})$ for the edge floor of Lemma~\ref{lem:Ltable}; recall
+$L(15)=38$, $L(16)=46$, $L(17)=53$, $L(18)=62$, and for $\le 12$ vertices the
+complement-Tur\'an value.
+
+\subsection{Peeling and the case split}
+\begin{lemma}[Peeling]\label{lem:peel}
+Let $Q_1,\dots,Q_k$ be disjoint $K_5$'s in $H$ and $R=H-\bigcup_i Q_i$. Then
+$\alpha(R)\le 4-k$.
+\end{lemma}
+\begin{proof}
+If $S\subseteq R$ were independent with $\abs S=5-k$, choose $q_i\in Q_i$
+successively keeping all chosen vertices independent: at step $i$, the $\le 5-k$
+vertices of $S$ and the $\le i-1$ earlier choices each rule out at most one vertex
+of $Q_i$ (Lemma~\ref{lem:K5indeg}), so at most $(5-k)+(i-1)\le 4$ vertices are
+ruled out and some $q_i\in Q_i$ remains. The result is an independent $5$-set of
+$H$, contradicting $\alpha(H)\le 4$.
+\end{proof}
+
+Let $k$ be the maximum number of pairwise disjoint $K_5$'s in $H$. By
+Lemma~\ref{lem:peel}, $k\le 4$; and $k=3$ is impossible, since then $R$ has
+$\abs{V(R)}=5$ and $\alpha(R)\le 1$, i.e.\ $R$ is a fourth $K_5$. Hence
+\[
+  k\in\{0,1,2,4\},
+\]
+and we eliminate each case.
+
+\subsection{The case $k=0$: $H$ is $K_5$-free}\label{ssec:MM-free}
+Then every $W_v=H\setminus N_H[v]$ ($\abs{W_v}=19-d_v$) has $\alpha\le 3$,
+$\omega\le 4$, and is \capeleven, so $e(H[W_v])\ge L(19-d_v)$. Writing $f(d)=b(d)$
+for the neighbourhood bound of Lemma~\ref{lem:nbhd}, the
+identities~\eqref{eq:41}--\eqref{eq:42} give $\sum_v g(d_v)\le 0$ with
+\[
+  g(d)=L(19-d)+d^2-f(d)-10d .
+\]
+Substituting $L$ and $f$, the quantity $2g(d)+17d-84$ equals, for $d=0,\dots,19$,
+\[
+  62,39,22,11,0,1,0,5,18,33,50,73,100,129,162,197,236,281,328,377,
+\]
+all nonnegative, so $g(d)\ge 42-\tfrac{17}2 d$. Then
+$0\ge\sum_v g(d_v)\ge 20\cdot 42-\tfrac{17}2\cdot 2m=840-17m$, whence
+\begin{equation}\label{eq:MM-m50}
+  m\ge 50 .
+\end{equation}
+
+Now fix a non-edge $tt'$ of $G[T]$ and put $U_{tt'}=N_H(t)\cup N_H(t')$. An
+independent $4$-set of $H-U_{tt'}$ together with $t,t'$ would be an independent
+$6$-set of $G$; hence
+\begin{equation}\label{eq:MM-Ualpha}
+  \alpha(H-U_{tt'})\le 3 .
+\end{equation}
+Summing over the $\nu$ non-edges of $G[T]$, and using $d_F(t)\le 4$,
+\begin{equation}\label{eq:MM-Usum}
+  \sum_{tt'}\abs{U_{tt'}}\le\sum_{tt'}\bigl(d_H(t)+d_H(t')\bigr)
+  =\sum_{t\in T}d_H(t)\,d_F(t)\le 4x .
+\end{equation}
+Because $m\le 60<62=L(18)$, we always have $\abs{U_{tt'}}\ge 3$ (else $H-U_{tt'}$
+contains an $18$-vertex induced subgraph with $\alpha\le 3$, $\omega\le 4$,
+\capeleven, forcing $\ge L(18)=62>m$ edges). Also~\eqref{eq:MM-budget0} gives
+$x\le 60-m-\sigma=50+\nu-m$. We split on $m$.
+\begin{itemize}[nosep]
+\item If $m\ge 53$: from $\abs{U_{tt'}}\ge 3$ and~\eqref{eq:MM-Usum},
+$3\nu\le 4x\le 4(50+\nu-m)\le 4(\nu-3)$, so $\nu\ge 12>10$, impossible.
+\item If $m\in\{51,52\}$: now $\abs{U_{tt'}}\ge 4$ (a $17$-vertex residual would need
+$L(17)=53>m$), so $4\nu\le 4x$, i.e.\ $\nu\le x\le 50+\nu-m\le\nu-1$, impossible.
+\item If $m=50$: first $\delta(H)\ge 3$ (if $d(v)\le 2$ then
+$m\ge d(v)+L(19-d(v))\ge\min\{73,63,55\}=55>50$). If some $\abs{U_{tt'}}\le 4$,
+enlarge it to a $4$-set $U$; then $H-U$ has $\ge L(16)=46$ edges and the number of
+edges meeting $U$ is at least $\sum_{u\in U}d(u)-\binom 42\ge 12-6=6$, so
+$m\ge 46+6=52>50$, impossible. Hence $\abs{U_{tt'}}\ge 5$ for every non-edge, and
+$5\nu\le 4x\le 4(50+\nu-50)=4\nu$, so $\nu\le 0$, impossible.
+\end{itemize}
+Thus $H$ is not $K_5$-free.
+
+\subsection{The case $k=4$: four disjoint $K_5$'s}
+Write $H=Q_1\cup Q_2\cup Q_3\cup Q_4$. By Lemma~\ref{lem:K5indeg} every cross-graph
+$H[Q_i,Q_j]$ is a matching and every $t\in T$ has at most one neighbour in each
+$Q_i$. Choose a non-edge $tt'$ of $G[T]$ (it exists as $\sigma\le 6<10$), and set
+$A_i=Q_i\setminus(N(t)\cup N(t'))$, so $\abs{A_i}\ge 3$. There is no independent
+transversal of $A_1,\dots,A_4$: such a transversal with $t,t'$ would be an
+independent $6$-set.
+
+\begin{claim}
+If four parts each have size $\ge 3$, every cross-graph is a matching, and there is
+no independent transversal, then every vertex of every part has a neighbour in each
+other part.
+\end{claim}
+\begin{proof}
+Suppose $v\in A_i$ has no neighbour in $A_j$. Delete from each of the two other
+parts $A_k$ ($k\ne i,j$) the at most one neighbour of $v$; at least two vertices
+remain in each. The matching between these two residual sets cannot cover all pairs,
+so pick non-adjacent $y,z$, one in each, both non-adjacent to $v$. Then $y,z$
+forbid at most two vertices of $A_j$ and $v$ forbids none, so
+($\abs{A_j}\ge 3$) a fourth vertex of $A_j$ completes an independent transversal.
+\end{proof}
+
+Hence each cross-graph $H[A_i,A_j]$ saturates both sides, so has $\ge 3$ edges, and
+\[
+  e(H)\ge 4\binom 52+6\cdot 3=40+18=58 .
+\]
+By~\eqref{eq:MM-budget0}, $\sigma+x\le 2$. Now $G[T]$ has at most $2$ edges on $5$
+vertices, so $T$ contains an independent triple $P$. Deleting from $Q_1,Q_2,Q_3$
+all neighbours of $P$ removes at most $x\le 2$ vertices in total, leaving $\ge 3$ in
+each clique; as the cross-graphs are matchings, a greedy independent transversal
+$q_1\in Q_1$, $q_2\in Q_2$, $q_3\in Q_3$ exists, and $P\cup\{q_1,q_2,q_3\}$ is an
+independent $6$-set of $G$. Contradiction.
+
+\subsection{The case $k=1$: exactly one $K_5$}
+Let $Q$ be the unique $K_5$ and $R=H-Q$, so $\abs{V(R)}=15$, $\alpha(R)\le 3$
+(Lemma~\ref{lem:peel}), and $\omega(R)\le 4$ ($R$ is $K_5$-free, since a $K_5$ in
+$R$ would be disjoint from $Q$). Hence
+\begin{equation}\label{eq:MM-eR}
+  e(R)=38+b,\qquad b\ge 0 .
+\end{equation}
+Set $p=e(Q,R)$; by Lemma~\ref{lem:K5indeg} each $r\in R$ has at most one neighbour
+in $Q$. For $t_i\in T$, let $q_i$ be its (at most one) neighbour in $Q$, let
+$Z_i=N_R(t_i)$, $d_i=\abs{Z_i}$, let $a$ be the number of $t_i$ with $q_i$ defined,
+and $D=\sum_i d_i$. Counting edges,
+\begin{equation}\label{eq:MM-budget1}
+  b+p+a+D+\sigma\le 12 ,
+\end{equation}
+since $e(G)=e(Q)+e(R)+e(Q,R)+e(T,H)+e(G[T])=10+(38+b)+p+(a+D)+\sigma\le 60$.
+
+For each edge $ij$ of $F$ (i.e.\ each non-edge $t_it_j$ of $G[T]$):
+\begin{itemize}[nosep]
+\item if $q_i,q_j$ are not two distinct vertices of $Q$, then
+$\alpha(R-(Z_i\cup Z_j))\le 2$ (an independent triple there, with $t_i,t_j$, has at
+most $3+1=4$ neighbours in $Q$, so misses a $Q$-vertex, giving an independent
+$6$-set), and by Fact~\ref{sat:nonex11} this residual $\omega\le 4$, \capeleven{}
+graph has $\le 10$ vertices; hence
+\begin{equation}\label{eq:MM-14}
+  d_i+d_j\ge \abs{Z_i\cup Z_j}\ge 5 ;
+\end{equation}
+\item if $q_i,q_j$ are distinct, let $P\subseteq R$ be the $p$ vertices with a
+$Q$-neighbour; the same argument inside $R-(Z_i\cup Z_j\cup P)$ (the triple now has
+no $Q$-neighbour) gives
+\begin{equation}\label{eq:MM-15}
+  d_i+d_j+p\ge 5 .
+\end{equation}
+\end{itemize}
+Let $h$ be the number of $F$-edges joining two ``marked'' vertices (those with a
+$Q$-neighbour) whose $Q$-neighbours are distinct. Summing~\eqref{eq:MM-14}
+and~\eqref{eq:MM-15} over $E(F)$,
+\[
+  \sum_{ij\in E(F)}(d_i+d_j)\ge 5\nu-\min(p,5)\,h,
+\]
+while $\sum_{ij\in E(F)}(d_i+d_j)=\sum_i d_i\,d_F(i)\le 4D$, and $h\le\min\{\nu,\binom a2\}$.
+From~\eqref{eq:MM-budget1}, $D\le \nu+2-p-a$. Hence a necessary condition is
+\begin{equation}\label{eq:MM-16}
+  5\nu-\min(p,5)\min\{\nu,\tbinom a2\}\le 4(\nu+2-p-a).
+\end{equation}
+An exhaustive scan of~\eqref{eq:MM-16} over $a\in\{0,\dots,5\}$, $p\ge 0$,
+$\nu\in\{4,\dots,10\}$ (verified by exact arithmetic; see
+Section~\ref{sec:certificates}) leaves exactly two families:
+\[
+  a\le 1\text{ and } p+a\le 1;\qquad\text{or}\qquad a=5\text{ and }p\in\{5,6,7\};
+\]
+the borderline $(p,a,\nu)=(4,5,10)$ is separately excluded, since then every pair of
+$T$ has weight-sum $\ge 1$, so at most one $d_i$ is $0$ and $D\ge 4$, contradicting
+$D\le\nu+2-p-a=3$.
+
+\paragraph{Sub-case $p+a\le 1$.}
+Every $F$-edge satisfies $d_i+d_j\ge 5$~\eqref{eq:MM-14}. If $F$ is not a star it
+contains two disjoint edges, so $D\ge 10$ and hence $\nu\ge 8$
+(via~\eqref{eq:MM-budget1}); but then $F=K_5$ minus $\le 2$ edges contains a
+$5$-cycle, and summing $d_i+d_j\ge 5$ around it gives $2D\ge 25$, so $D\ge 13>\nu+2$,
+impossible. Thus $F=K_{1,4}$, $\nu=4$, with centre $t$. Summing the four star
+inequalities, $3\,d_R(t)+D\ge 20$; since $D\le\nu+2-p-a\le 6$, we get $d_R(t)\ge 5$
+and at least one leaf $t_\ell$ has $d_\ell=0$. For that leaf, \eqref{eq:MM-14} gives
+$\alpha(R-N_R(t))\le 2$. Consider $X=R+t$ (so $\abs{V(X)}=16$): then $\alpha(X)\le 3$
+(an independent $4$-set through $t$ would give an independent triple in
+$R-N_R(t)$), $X$ is \capeleven, and $e(X)=e(R)+d_R(t)\le 44$
+(from~\eqref{eq:MM-budget1}). If $X$ is $K_5$-free then $e(X)\ge L(16)=46>44$,
+impossible; if $X$ contains a $K_5$ it runs through $t$ (as $R$ is $K_5$-free), and
+deleting it leaves $11$ vertices with $\omega\le 4$ whose independence number is at
+most $2$ (an independent triple would, by Lemma~\ref{lem:K5indeg}, miss a vertex of
+the deleted $K_5$, giving an independent $4$-set of $X$), contradicting
+Fact~\ref{sat:nonex11}.
+
+\paragraph{Sub-case $p\in\{5,6,7\}$, $a=5$.}
+Now~\eqref{eq:MM-budget1} gives $D+\sigma\le 7-p$, so $D\le 2$ and
+$\nu=10-\sigma\ge 8$. Delete $\bigcup_i Z_i$ (at most $D\le 2$ vertices) from $R$;
+at least $13$ vertices remain, and by Fact~\ref{sat:nonex11} they cannot have
+$\alpha\le 2$, so they contain an independent triple $S$ disjoint from all $Z_i$.
+For every $F$-edge $ij$, $S\cup\{t_i,t_j\}$ is an independent $5$-set; to avoid an
+independent $6$-set, its neighbours must cover all of $Q$, forcing
+$\abs{N_Q(S)}=3$ and $\{q_i,q_j\}=Q\setminus N_Q(S)$ --- the same fixed $2$-element
+set for every $F$-edge. (If $\abs{N_Q(S)}<3$ then no $F$-edge can cover $Q$, an
+immediate independent $6$-set.) Thus $F$ embeds in a bipartite graph on the
+$\le 5$ vertices of $T$ split by $q_i\in\{$the two fixed $Q$-vertices$\}$, so
+$\nu=e(F)\le\lfloor 25/4\rfloor=6<8\le\nu$, a contradiction.
+
+\subsection{The case $k=2$: exactly two $K_5$'s}\label{ssec:MM-two}
+Let $Q_1,Q_2$ be the two cliques and $B$ the remaining $10$ vertices. By
+Lemma~\ref{lem:peel}, $\alpha(B)\le 2$; and $\omega(B)\le 4$ (a $K_5$ in $B$ would
+give three disjoint $K_5$'s). Hence
+\begin{equation}\label{eq:MM-eB}
+  e(B)=25+b,\qquad b\ge 0
+\end{equation}
+by $M(10)=25$ (Fact~\ref{sat:M10}; here $\omega\le 4$ is available, as required by
+Remark~\ref{rem:nonex-mono}). Set
+\[
+  c=e(Q_1,Q_2)+e(B,Q_1\cup Q_2),\quad y=e(T,Q_1\cup Q_2),\quad D=e(T,B),
+\]
+so that $e(H)=45+b+c$ and~\eqref{eq:MM-budget0} becomes
+\begin{equation}\label{eq:MM-budget2}
+  b+c+y+D\le \nu+5 .
+\end{equation}
+For $t_i\in T$, $Z_i=N_B(t_i)$, $d_i=\abs{Z_i}$. Call an $F$-edge $ij$ \emph{unhit}
+if $B-(Z_i\cup Z_j)$ contains a non-edge $uv$.
+
+\paragraph{No unhit edges.}
+For an unhit edge, $\{t_i,t_j,u,v\}$ is an independent $4$-set. Each of its four
+vertices has at most one neighbour in each $Q_\ell$, so each $Q_\ell$ has $\ge 1$
+missed vertex; if some missed vertex of $Q_1$ were non-adjacent to some missed
+vertex of $Q_2$, those two would extend the $4$-set to an independent $6$-set.
+Since $Q_1$--$Q_2$ edges form a matching (Lemma~\ref{lem:K5indeg}), this forces
+exactly one missed vertex in each $Q_\ell$, adjacent to each other; consequently
+$t_i,t_j$ each have $2$ neighbours in $Q_1\cup Q_2$, the vertices $u,v$ send $4$
+edges from $B$ into $Q_1\cup Q_2$, and one $Q_1$--$Q_2$ edge is used. If there are
+$h$ unhit edges meeting $\rho$ vertices of $T$, then
+\begin{equation}\label{eq:MM-22}
+  y\ge 2\rho,\qquad c\ge 5 .
+\end{equation}
+Every \emph{hit} $F$-edge has $B-(Z_i\cup Z_j)$ a clique, hence of size $\le 4$
+($\omega(B)\le 4$), so $\abs{Z_i\cup Z_j}\ge 6$; summing,
+$6(\nu-h)\le\sum_{ij}(d_i+d_j)\le 4D$. Combined with~\eqref{eq:MM-budget2}
+and~\eqref{eq:MM-22} (which give $D\le\nu-2\rho$),
+\begin{equation}\label{eq:MM-24}
+  \nu+4\rho\le 3h .
+\end{equation}
+Since $h\le\binom\rho2$, \eqref{eq:MM-24} is impossible for $\rho\in\{2,3,4\}$
+(using $\nu\ge 4$). For $\rho=5$ it forces $\nu=10$, $D=0$, $c=5$, $y=10$; then $T$
+is independent and has no edge to $B$, so any $b\in B$ makes $T\cup\{b\}$ an
+independent $6$-set. Hence $h=0$: every $F$-edge is hit, and
+\begin{equation}\label{eq:MM-25}
+  d_i+d_j\ge \abs{Z_i\cup Z_j}\ge 6\qquad\text{for every }ij\in E(F).
+\end{equation}
+
+\paragraph{Classifying $\nu$.}
+From~\eqref{eq:MM-budget2}, $D\le\nu+5$.
+\begin{itemize}[nosep]
+\item $\nu\in\{5,6\}$: $F$ has two disjoint edges, so $D\ge 12>\nu+5$, impossible.
+\item $\nu\in\{8,9\}$: $F$ contains a $5$-cycle, so $2D\ge 30$, $D\ge 15>\nu+5$,
+impossible.
+\item $\nu=10$: summing~\eqref{eq:MM-25} over all $10$ pairs, $4D\ge 60$, so $D=15$
+and all $d_i=3$; then $\abs{Z_i\cup Z_j}=6$ forces the five $3$-sets $Z_i$ pairwise
+disjoint, impossible in a $10$-set.
+\item $\nu=7$ \textup{(the repaired case)}: $F$ has two disjoint edges, so $D\ge 12$;
+with $D\le\nu+5=12$, $D=12$. The weight vector $(d_1,\dots,d_5)$ is nonnegative,
+sums to $12$, and has at least $7$ pairs of sum $\ge 6$ (one per $F$-edge); the only
+such vector is $(0,0,0,6,6)$. So the two weight-$6$ vertices are $F$-adjacent to each
+other and to the three weight-$0$ vertices. Pick a weight-$6$ vertex $t_i$
+($\abs{Z_i}=6$) and a weight-$0$ vertex $t_j$ ($Z_j=\varnothing$); their $F$-edge is
+hit, so $B-Z_i$ is a clique, of size $10-6=4$, i.e.\ a $K_4$. Then $X=B+t_i$ has
+$\abs{V(X)}=11$, is \capeleven, and has $\alpha(X)\le 2$ (an independent triple in
+$X$ would be a triple in $B$, impossible, or $\{t_i,u,v\}$ with $u,v\in B-Z_i=K_4$
+adjacent, impossible). This contradicts Fact~\ref{sat:nonex11}.
+\item $\nu=4$: $F=K_{1,4}$ (else two disjoint edges give $D\ge 12>9$), with centre
+$t_0$. If a leaf has weight $0$, then $B-N_B(t_0)$ is a clique and $X=B+t_0$ is an
+$11$-vertex \capeleven{} graph with $\alpha\le 2$ (as in the $\nu=7$ case),
+contradicting Fact~\ref{sat:nonex11}. So all four leaves have positive weight; then
+\eqref{eq:MM-25} and $D\le 9$ force
+\[
+  d_B(t_0)=5,\quad d_B(t_i)=1\ (1\le i\le 4),\quad D=9,
+\]
+and~\eqref{eq:MM-budget2} forces $b=c=y=0$, so $e(B)=25$ and there are no edges
+between $T$ and $Q_1\cup Q_2$, none between $B$ and $Q_1\cup Q_2$, and none between
+$Q_1$ and $Q_2$. We finish this last case below.
+\end{itemize}
+
+\paragraph{The $\nu=4$ endgame.}
+Put $Z=N_B(t_0)$ and $C=B-Z$, so $\abs Z=\abs C=5$, and let $z_i$ be the unique
+$B$-neighbour of leaf $t_i$. Since $Z\cup\{z_i\}$ meets every non-edge of $B$ (the
+$F$-edge $t_0t_i$ is hit), $B-(Z\cup\{z_i\})$ is a clique; as $\omega(B)\le 4$ this
+forces $z_i\in C$ and
+\begin{equation}\label{eq:MM-30}
+  B[C\setminus\{z_i\}]=K_4 .
+\end{equation}
+For every $v\in B$, its non-neighbours form a clique (as $\alpha(B)\le 2$) of size
+$\le 4$, so $d_B(v)\ge 5$; since $e(B)=25$ has average degree $5$, $B$ is
+$5$-regular. Comparing degree sums of $Z$ and $C$ (each $=25$ minus the common
+cross-count) gives $e(B[Z])=e(B[C])$. The $6$-set $\{t_0\}\cup Z$ gives
+$5+e(B[Z])\le 11$, so $e(B[Z])\le 6$; and~\eqref{eq:MM-30} gives $e(B[C])\ge 6$.
+Hence
+\[
+  e(B[Z])=e(B[C])=6 .
+\]
+Thus $z_i$ is isolated in $B[C]$ (the six edges of $C\setminus\{z_i\}\cong K_4$
+exhaust $e(B[C])$), so its five neighbours all lie in $Z$: $z_i$ is adjacent to all
+of $Z$. Finally, for any $z\in Z$ the $6$-set $\{t_0,z_i\}\cup(Z\setminus\{z\})$
+spans $4+4+(6-d_{B[Z]}(z))=14-d_{B[Z]}(z)$ edges, so \capeleven{} gives
+$d_{B[Z]}(z)\ge 3$ for every $z\in Z$; then $12=2e(B[Z])=\sum_{z\in Z}d_{B[Z]}(z)\ge
+15$, a contradiction.
+
+\medskip
+All four cases $k\in\{0,1,2,4\}$ are impossible, so no such $G$ exists. This proves
+Lemma~\ref{lem:MM}.\qed
+
+\begin{remark}
+The two boundary hypotheses of Lemma~\ref{lem:MM} enter essentially. The bound
+$e(G[T])\le 6$ gives $\nu=10-e(G[T])\ge 4$, supplying the non-edges of $T$ that
+drive every weighted hitting argument; and $e(G)\le 60$ supplies the sharp budgets
+\eqref{eq:MM-budget0}, \eqref{eq:MM-budget1}, \eqref{eq:MM-budget2}, forcing exact
+equalities in the final $k=2$, $\nu=4$ endgame.
+\end{remark}
+
+%% ===========================================================================
+\section{The affine near-miss never extends}\label{sec:affine}
+%% ===========================================================================
+
+We now prove Theorem~\ref{thm:affine}, which is independent of
+Sections~\ref{sec:toolkit}--\ref{sec:MM} and holds for all prime powers at once. It
+says that the only balanced colourings of $K_{r^2}$ known in the literature ---
+the affine ones --- are a genuine dead end for a counterexample: none extends by a
+single vertex.
+
+Fix a prime power $q\ge 3$ and the affine plane $\mathrm{AG}(2,q)$: $q^2$ points,
+lines of $q$ points, and $q+1$ \emph{parallel classes} (directions), each a
+partition of the points into $q$ disjoint lines. We use three standard facts:
+each parallel class partitions the points into $q$ lines of size $q$ (F1); two lines
+from different classes meet in exactly one point (F2); every pair of points lies on a
+unique line, and ``collinear in a fixed direction'' is an equivalence relation whose
+classes are the lines of that direction (F3).
+
+Form the colouring $\mathcal C$ of $K_{q^2}$: colour each edge by the direction of
+the line through its two endpoints, then merge two chosen directions $d_1,d_2$ into
+colour $0$, letting the remaining directions $e_1,\dots,e_{q-1}$ be colours
+$1,\dots,q-1$. Each line is monochromatic (its $\binom q2$ edges all have its own
+direction). That $\mathcal C$ is balanced is immediate: any $(q+1)$-set meets some
+line of every direction twice (pigeonhole: $q+1$ points into $q$ parallel lines), so
+sees every colour.
+
+\begin{proof}[Proof of Theorem~\ref{thm:affine}]
+Suppose $\varphi\colon V(K_{q^2})\to\{0,\dots,q-1\}$ gives the colours of the edges
+from a new vertex $x$, and the extension is balanced. A $(q+1)$-set through $x$ is
+$\{x\}\cup F$ with $\abs F=q$; balancedness means every colour missing inside $F$
+appears among $\{\varphi(p):p\in F\}$.
+
+\smallskip
+\noindent\emph{Step 1: each colour class of $\varphi$ has exactly $q$ points.}
+Every line $L$ is monochromatic in $\mathcal C$, so as a $q$-set it misses the
+other $q-1$ colours; hence $\varphi$ must realise all $q-1$ of them on the $q$
+points of $L$. Thus for any colour $c$ and any direction $D$ whose colour is not
+$c$, colour $c$ appears on \emph{every} one of the $q$ disjoint lines of $D$ (F1),
+so $\abs{\varphi^{-1}(c)}\ge q$. Every colour has such a direction: colour $0$ is
+exempt only on $d_1,d_2$ (leaving $q-1\ge 2$ directions), and each colour $c\ne 0$
+is exempt only on $e_c$ (leaving $q$). Since $\sum_c\abs{\varphi^{-1}(c)}=q^2$ over
+$q$ colours, all inequalities are equalities: $\abs{\varphi^{-1}(c)}=q$ for every
+$c$.
+
+\smallskip
+\noindent\emph{Step 2: for $c\in\{1,\dots,q-1\}$, $T_c:=\varphi^{-1}(c)$ is a line
+of direction $e_c$.}
+Colour $c$ is exempt only on lines of direction $e_c$. So for each of the other $q$
+directions ($d_1,d_2$, and $e_j$ with $j\ne c$), every line has colour $\ne c$ and
+hence meets $T_c$. As $\abs{T_c}=q$ and there are $q$ disjoint lines per direction,
+$T_c$ meets each such line exactly once; thus no two points of $T_c$ are collinear
+in any non-exempt direction. Every pair of points is collinear in exactly one of the
+$q+1$ directions, and $q$ of them are excluded, so every pair of $T_c$ is collinear
+in $e_c$. Being in a common $e_c$-line is an equivalence relation (F3), so all $q$
+points of $T_c$ lie in one $e_c$-line; as lines have $q$ points, $T_c$ \emph{is}
+that line.
+
+\smallskip
+\noindent\emph{Step 3: contradiction.}
+Since $q\ge 3$ there are $q-1\ge 2$ unmerged colours; take distinct $c,c'$. By
+Step~2, $T_c,T_{c'}$ are lines of the distinct directions $e_c\ne e_{c'}$, so by
+(F2) they meet in a point $p$. Then $\varphi(p)=c$ and $\varphi(p)=c'$, impossible
+as colour classes are disjoint.
+\end{proof}
+
+For $q=2$ the argument breaks (only one unmerged colour, so Step~3 is vacuous), and
+indeed $\Ncap(2)=5$ is realised by the pentagon, not by an affine construction. For
+$q=5$ the theorem is confirmed computationally: all $15$ ways of choosing the merged
+pair give a one-vertex extension problem that a SAT solver reports unsatisfiable
+(Section~\ref{sec:certificates}).
+
+%% ===========================================================================
+\section{Computational certificates}\label{sec:certificates}
+%% ===========================================================================
+
+The proof uses computation in two sharply separated ways. \emph{All arithmetic}
+--- the Tur\'an values~\eqref{eq:brouwer-values}, the $M$- and $L$-tables
+(Lemmas~\ref{lem:Mtable}--\ref{lem:Ltable}), the affine-bound and slack
+computations, the $g$-table of Section~\ref{ssec:MM-free}, and the case
+scan~\eqref{eq:MM-16} --- is elementary and finite, and is confirmed by exact
+integer recomputation (no floating point, no solver trust); the scripts are
+\texttt{tools/verify\_gpt\_arith.py} (the $L$-recursion and slacks) and
+\texttt{tools/verify\_gpt\_tables.py} (small SAT cross-checks of the tables). Only
+four genuinely combinatorial facts about small graphs --- Fact~\ref{fact:sat} ---
+are established by SAT, and each comes with an independently checkable
+unsatisfiability certificate.
+
+\subsection{The four primitives, as CNF}
+Encode a graph on $s$ vertices by one Boolean variable $x_{\{a,b\}}$ per pair
+$a<b$, true iff $\{a,b\}$ is an edge. The three graph properties become clause
+families:
+\begin{itemize}[nosep]
+\item $\alpha\le 2$: every $3$-set spans an edge --- one clause
+$\bigvee x_{\{a,b\}}$ per triple;
+\item $\omega\le 4$: every $5$-set omits an edge --- one clause of $10$ negated
+literals per $5$-set;
+\item \capeleven: every $6$-set spans $\le 11$ of its $15$ pairs --- for each
+$6$-set, one clause $\bigvee_{p\in P}\lnot x_p$ over each $12$-subset $P$ of its
+pairs.
+\end{itemize}
+For the ``$\ge k$ edges'' facts we add a sequential-counter (Sinz) encoding of
+``at most $k-1$ edges'' and ask for unsatisfiability. The four instances are then:
+\[
+  \renewcommand{\arraystretch}{1.2}
+  \begin{array}{lllll}
+    \textbf{name} & \textbf{statement} & \textbf{vars} & \textbf{clauses} & \textbf{verdict}\\\hline
+    \textsf{nonex11} & \text{Fact~\ref{sat:nonex11}: no such graph, }s{=}11 & 55 & 210{,}375 & \text{UNSAT}\\
+    \textsf{nonex12} & \text{Fact~\ref{sat:nonex12}: no such graph, }s{=}12 & 66 & 420{,}640 & \text{UNSAT}\\
+    \textsf{M9$\ge$19} & \text{Fact~\ref{sat:M9}: no such graph with }\le 18\text{ edges} & 360 & 39{,}078 & \text{UNSAT}\\
+    \textsf{M10$\ge$25} & \text{Fact~\ref{sat:M10}: no such graph with }\le 24\text{ edges} & 549 & 96{,}927 & \text{UNSAT}
+  \end{array}
+\]
+(For \textsf{nonex11}/\textsf{nonex12} no $\omega$-clauses are present --- the facts
+are clique-number-free, per Remark~\ref{rem:nonex-mono}. The variable counts $55$
+and $66$ are $\binom{11}2$ and $\binom{12}2$; the extra variables of the $M$
+instances are Sinz counters.) The clause counts are reproducible: e.g.\ \textsf{nonex11}
+has $\binom{11}3=165$ triple-clauses and $\binom{11}6\binom{15}{12}=210{,}210$
+cap-clauses, totalling $210{,}375$.
+
+\subsection{Two independent verification paths}
+Each instance is refuted with a resolution-style proof that is checked by a program
+far simpler than any SAT solver.
+
+\emph{(i) DRAT, checked by \texttt{drat-trim}.} A CDCL solver (kissat) emits a binary
+DRAT proof (\texttt{data/sat/prim\_*.drat}); the trusted checker \texttt{drat-trim}
+(built in \texttt{ext/drat-trim}) replays it and reports \verb|s VERIFIED| for all
+four (\texttt{data/sat/prim\_*.check}). For example \textsf{nonex11} verifies
+$158{,}868$ of $210{,}375$ clauses and $1{,}573{,}853$ lemmas in the unsatisfiability
+core via $22{,}469{,}404$ resolution steps, with $0$ RAT lemmas.
+
+\emph{(ii) LRAT, checked inside Lean.} For the formalisation (Section~\ref{sec:lean})
+each instance is re-solved with cadical (with inprocessing disabled, so no fresh
+variables are introduced), its LRAT proof is trimmed to consecutive clause
+identifiers, and Lean's kernel-verified certificate checker
+(\texttt{Std.Tactic.BVDecide}'s \texttt{verifyCert}) confirms the refutation by
+reflection. This makes the SAT facts part of the Lean proof rather than an external
+input, at the cost of one reflection axiom (\texttt{ofReduceBool} via
+\texttt{native\_decide}; see Section~\ref{sec:lean}).
+
+The two paths use different solvers, different proof formats, and different checkers,
+and agree.
+
+\subsection{Regenerating the certificates}
+The DRAT certificates regenerate from the CNFs with
+\begin{quote}\ttfamily
+kissat --unsat data/sat/prim\_NAME.cnf data/sat/prim\_NAME.drat\\
+ext/drat-trim/drat-trim data/sat/prim\_NAME.cnf data/sat/prim\_NAME.drat
+\end{quote}
+which prints \verb|s VERIFIED|; the CNFs themselves regenerate from the encoder in
+\texttt{tools/}. The Lean LRAT certificates regenerate via the pipeline documented
+in \texttt{FORMAL.md} (item F3): \texttt{cadical --lrat --no-binary
+--inprocessing=false}, then the trimming step, then \texttt{lake build}.
+
+\subsection{Corroborating computations (not part of the proof)}
+Two further computations support, but are not required by, the results. First, the
+referee \texttt{tools/verify.py} confirms that the $15$ affine colourings of
+$K_{25}$ (all merge choices) are balanced --- ``all $\binom{25}{6}=177{,}100$
+$6$-subsets see all $5$ colours'' --- witnessing $\Ncap(5)\ge 25$. Second,
+\texttt{tools/extend.py} confirms that each of those colourings, and every one of
+$120+$ sampled non-affine balanced colourings of $K_{25}$, has an unsatisfiable
+one-vertex extension problem --- the computational shadow of Theorem~\ref{thm:affine}
+and Theorem~\ref{thm:main} (Appendix~\ref{app:phase}).
+
+%% ===========================================================================
+\section{Lean formalisation}\label{sec:lean}
+%% ===========================================================================
+
+The entire argument of Sections~\ref{sec:reduction}--\ref{sec:MM} has been
+formalised in Lean~4 with Mathlib \texttt{v4.30.0} (toolchain
+\texttt{leanprover/lean4:v4.30.0}), in the project \texttt{lean617/} of the
+accompanying repository. We describe what is proved, the one hypothesis it stands
+on, and its axiom profile.
+
+\subsection{What is formalised}
+The colouring is modelled as \texttt{c : Sym2 (Fin 26) $\to$ Fin 5}, matching the
+upstream statement (below). The following are all \texttt{sorry}-free:
+\begin{itemize}[nosep]
+\item the reduction (Lemma~\ref{lem:chain}), as \texttt{chain\_deduction : MH2 $\to$
+MM $\to$ Main};
+\item Lemma~\ref{lem:MH} (\textsf{[MH$''$]}), as \texttt{lemma\_MH2\_of}, including the
+repaired $\omega$-free argument of Section~\ref{ssec:MH-K5free} and the endgame of
+Section~\ref{ssec:MH-endgame};
+\item Lemma~\ref{lem:MM} (\textsf{[MM]}), as \texttt{lemma\_MM\_of}, including the
+repaired $\nu=7$ case of Section~\ref{ssec:MM-two};
+\item the counting identities~\eqref{eq:41}--\eqref{eq:42}, the neighbourhood
+bound~(Lemma~\ref{lem:nbhd}), and the $L$-table recursion~(Lemma~\ref{lem:Ltable});
+\item the four SAT primitives (Fact~\ref{fact:sat}), discharged as
+\texttt{primFacts : PrimFacts} by reflecting the cadical LRAT certificates through
+Lean's verified certificate checker (Section~\ref{sec:certificates}, path~(ii));
+\item Brouwer's edge bound itself (the ``saving'' half of Theorem~\ref{thm:brouwer}),
+as \texttt{kp\_saving} --- the full Kang--Pikhurko induction (Case~A, the good/bad
+dichotomy, Lemma~3, and the singleton guard) is formalised and axiom-clean, so the
+bound is now \emph{proved}, not assumed.
+\end{itemize}
+The final theorem and its upstream-shaped corollary are
+\begin{quote}\ttfamily\small
+theorem erdos\_617\_r5 (h : KPEqualityClassification) : Main\\
+theorem erdos\_617\_r5\_upstream (h : KPEqualityClassification)\\
+\phantom{xx}\{V\} [Fintype V] [DecidableEq V] (hV : Fintype.card V = 5\textasciicircum2 + 1)\\
+\phantom{xx}(coloring : Sym2 V $\to$ Fin 5) : \ldots
+\end{quote}
+where \texttt{Main} is the $\mathrm{Fin}\,26$ statement of Theorem~\ref{thm:main}
+and \texttt{erdos\_617\_r5\_upstream} is its transport to the shape of
+\texttt{erdos\_617} at $r=5$ in the google-deepmind \texttt{formal-conjectures}
+repository, over an arbitrary $26$-element vertex type~\cite{FC}. Since Brouwer's
+bound is now proved, the only remaining hypothesis is
+\texttt{KPEqualityClassification}, the Kang--Pikhurko equality classification at
+$(r,n)=(5,21)$ (Section~\ref{ssec:lean-brouwer}); \texttt{brouwerFacts\_of} assembles
+the full \texttt{BrouwerFacts} interface from the proved \texttt{kp\_saving} and this
+one hypothesis. The project \texttt{lake build} is clean, and \texttt{erdos\_617\_r5}
+together with everything it imports contains no admitted proof: \texttt{\#print axioms}
+lists no \texttt{sorryAx} (see the axiom profile below; the definitive ``no admitted
+proof'' check is the absence of \texttt{sorryAx}, robust against the word
+\texttt{sorry} appearing inside \texttt{sorry-free} annotations in the sources).
+
+\subsection{The one remaining hypothesis, stated honestly}\label{ssec:lean-brouwer}
+Theorem~\ref{thm:brouwer} has two parts: the edge \emph{bound} (Brouwer's
+$e\le t_r(n)-\lfloor n/r\rfloor+1$ for non-$r$-partite $K_{r+1}$-free graphs) and the
+\emph{equality classification} of the extremal graphs (Kang--Pikhurko). At the time
+of writing the bound is \emph{formalised and proved} in Lean: \texttt{kp\_saving}
+carries the full Kang--Pikhurko induction --- the Zykov-type symmetrisation, Case~A,
+the good/bad dichotomy, Lemma~3's $K_{r+1}$-counting, and the singleton guard --- and
+is axiom-clean. Consequently \texttt{erdos\_617\_r5} rests on exactly one explicit
+hypothesis, \texttt{KPEqualityClassification}: the classification at the single leaf
+$(r,n)=(5,21)$, in the form Corollary~\ref{cor:equality21} consumes. Precisely, it
+states that every graph $F$ on $21$ vertices with $\alpha(F)\le 5$, $K_5$-free and
+$e(F)=37$ is isomorphic to a Kang--Pikhurko extremal construction $G((4,4,4,4,4))$
+(equivalently, its complement $J=\overline F$, which is $K_6$-free, non-$5$-partite
+and has $173$ edges, is a maximum such graph).
+
+This is a published, literature-verified statement
+(\cite{KP05}; the verification against the primary source, use by use, is recorded in
+the repository), \emph{but this last leaf is not yet formalised}: it is an assumed
+hypothesis, not a proved lemma. Two facts make it a well-delimited assumption rather
+than an open question. First, it has been independently numerically validated ---
+canonical-form (nauty) enumeration confirms the classification at $(5,21)$ and at five
+nearby parameter families. Second, the extremal graph at $(5,21)$ is \emph{not}
+unique: the construction $G((4,4,4,4,4))$ has an internal parameter $\abs{A^\ast}$ and
+forms exactly \emph{two} isomorphism classes (the analysis shows $\abs{A^\ast}=1$ and
+$\abs{A^\ast}=3$ coincide, leaving the classes $\abs{A^\ast}=2$ and
+$\abs{A^\ast}\in\{1,3\}$); the Lean transport consuming the classification is
+variant-agnostic, so this multiplicity does not affect the uniform $A/B$ structure of
+Corollary~\ref{cor:equality21}. Formalising this last leaf --- the optional ``D1--D4''
+campaign in the repository's ledger --- would remove the final hypothesis and make the
+theorem unconditional modulo only the SAT reflections; it is future work.
+
+\subsection{Axiom profile}
+Running \texttt{\#print axioms Erdos617.erdos\_617\_r5} reports exactly:
+\[
+  \texttt{propext},\quad \texttt{Classical.choice},\quad \texttt{Quot.sound}
+\]
+(the three standard Mathlib axioms), plus four named SAT-reflection axioms entering
+through \texttt{primFacts}. The latter are instances of \texttt{Lean.ofReduceBool}
+produced by \texttt{native\_decide}; this is the same trust base as Lean's
+\texttt{bv\_decide} tactic, and it means the kernel trusts the compiled Boolean
+evaluation of the LRAT-certificate checker on the four fixed certificates. No
+\texttt{sorryAx} appears; the axiom profile is unchanged by the discharge of Brouwer's
+bound (\texttt{kp\_saving} is axiom-clean). \texttt{KPEqualityClassification} is a
+hypothesis, so it is visible in the theorem's type rather than its axiom list. Thus
+the formal guarantee is precisely: \emph{granting the Kang--Pikhurko equality
+classification at $(5,21)$ and the \texttt{native\_decide} evaluation of four SAT
+certificates, Theorem~\ref{thm:main} holds, with everything else --- including
+Brouwer's bound --- checked by Lean's kernel.} This is a machine-checked conditional
+proof, not an unconditional formal one.
+
+\subsection{How to check}
+Build with \texttt{lake exe cache get \&\& lake build} in \texttt{lean617/}; inspect
+the guarantees with \texttt{\#print axioms Erdos617.erdos\_617\_r5} (which should show
+the three standard axioms, the four SAT reflections, and no \texttt{sorryAx}, with
+\texttt{KPEqualityClassification} in the theorem's type). The DRAT path~(i) of
+Section~\ref{sec:certificates} is a solver-independent cross-check of the four SAT
+facts that does not rely on \texttt{native\_decide}.
+
+%% ===========================================================================
+\section{Provenance, verification, and limitations}\label{sec:provenance}
+%% ===========================================================================
+
+This work was produced with heavy use of AI systems. Following the norms of
+\cite{Bloom617}, we disclose their role in full and give a candid account of what
+has and has not been verified.
+
+\subsection{Status of this report}
+We state the framing plainly. The mathematics in this document --- both lemma proofs,
+the reduction, the toolkit, the certificates, and the Lean formalisation --- was
+\emph{produced and internally reviewed by AI systems}. The human owner of this effort
+has verified the \emph{process} (that the reduction is sound, that the reviews were
+independent and adversarial, that the certificates check, that the Lean build is
+clean with the stated axiom profile) but does \emph{not} assert having personally
+verified the mathematical content of the two lemma proofs, and is not posting a
+personal claim that the theorem is established. The document is therefore offered as
+a verification-ready report for independent mathematician review, not as an authored
+announcement. Section~\ref{sec:howto} is the guide to performing that review.
+
+\subsection{Who did what}
+\begin{itemize}[nosep]
+\item The proofs of Lemma~\ref{lem:MH} (\textsf{[MH$''$]}) and Lemma~\ref{lem:MM}
+(\textsf{[MM]}) --- the two hard combinatorial arguments of
+Sections~\ref{sec:MH}--\ref{sec:MM} --- were drafted by OpenAI's
+\texttt{gpt-5.6-sol} (via the \texttt{codex} CLI) from self-contained briefs, in the
+form presented in the repository's \texttt{review\_queue/}.
+\item Everything else was produced by Claude (Anthropic) sessions: the problem
+framing and the reduction (Lemma~\ref{lem:chain}); the empirical structure-mining
+that identified the correct lemma statements (Appendix~\ref{app:phase}); the briefs
+handed to \texttt{gpt-5.6-sol}; the \capeleven{} toolkit exposition; the SAT
+encodings, certificates, and their re-verification; the Lean formalisation; and the
+adversarial reviews described next. This write-up was assembled by a Claude session
+from those frozen sources.
+\end{itemize}
+
+\subsection{The adversarial-review chain}
+Each of the three links was reviewed by a \emph{fresh} model session instructed to
+attack it, working independently of the author session and re-deriving or
+re-checking every load-bearing step.
+\begin{itemize}[nosep]
+\item The reduction (Lemma~\ref{lem:chain}) was reviewed and \textsc{accepted}: all
+six steps and both lemma interfaces were found sound.
+\item Lemma~\ref{lem:MH} was \textsc{accepted modulo} one repairable gap: the
+original draft justified a clique bound $\omega(H[L])\le 4$ that the reviewer could
+not reconstruct. The repair --- used here in Section~\ref{ssec:MH-K5free} --- replaces
+it with the \emph{$\omega$-free} $11$-vertex nonexistence (Fact~\ref{sat:nonex11}),
+which makes the offending case vacuous outright. The reviewer independently
+re-derived the counting identities, every $M$- and $L$-value, the affine bounds and
+slacks, and the finite endgame facts.
+\item Lemma~\ref{lem:MM} was \textsc{accepted modulo} one missing conclusion: the
+$\nu=7$ case of Section~\ref{ssec:MM-two} stopped at the forced weight vector
+$(0,0,0,6,6)$ without closing. The reviewer supplied the closing paragraph (reusing
+the $\nu=4$ argument), which we adopt here. The reviewer re-ran the $g$-table, the
+case scan~\eqref{eq:MM-16}, and the finite graph facts on independent encodings.
+\item Theorem~\ref{thm:affine} was reviewed and \textsc{accepted}, with an
+independent exhaustive check at $q=3$.
+\end{itemize}
+The repaired proofs are the ones presented in this paper. In addition, the one
+external theorem (Theorem~\ref{thm:brouwer}) was checked against the primary sources
+\cite{KP05} and a secondary statement of Brouwer's bound~\cite{RWWY}, with all five of its uses
+confirmed faithful and all Tur\'an arithmetic recomputed.
+
+\subsection{What has and has not been verified}
+\emph{Verified (by us):} the reduction and both lemmas have each been (a) drafted or
+constructed, (b) checked line-by-line by the author session, (c) subjected to an
+independent adversarial review that re-derived the load-bearing content, and
+(d) formalised in Lean with no \texttt{sorry}s modulo the Kang--Pikhurko equality
+classification at $(5,21)$ (Section~\ref{sec:lean}). Every finite numerical claim is
+confirmed by exact
+recomputation; every SAT fact carries a DRAT certificate checked by
+\texttt{drat-trim} \emph{and} an LRAT certificate checked inside Lean; the external
+theorem is literature-verified.
+
+\emph{Not yet verified:} the chain of author sessions, fresh-session adversarial
+reviewers, and machine checks is an \emph{internal} verification. It has not been
+refereed by an independent human expert, which for a result of this kind is the
+appropriate next standard. Two specific gaps to a fully self-contained formal object
+remain: (i) one classical statement, the Kang--Pikhurko equality classification at
+$(5,21)$, is an assumed hypothesis in the Lean development rather than a proved lemma
+(Brouwer's edge bound, formerly also assumed, is now proved; Section~\ref{ssec:lean-brouwer});
+and (ii) the SAT facts are trusted through \texttt{native\_decide}'s reflection axiom
+(with the independent \texttt{drat-trim} path as mitigation). We make no claim that
+the present internal certificate substitutes for expert human scrutiny; we invite it.
+
+\subsection{Why the argument should be believed, and where to attack it}
+The proof is elementary and self-contained modulo one classical theorem, and it uses
+the hypotheses essentially: it distinguishes $r^2$ from $r^2+1$ (it fails, as it
+must, at $n=24$; Section~\ref{ssec:MH-n24} and Appendix~\ref{app:phase}), it does not
+prove too much (the pure-graph relaxations of both lemmas are false), and it is not
+suspiciously short. The most fragile-looking points --- and the ones a sceptical
+reader should probe first --- are the $n=21$ equality classification feeding
+Corollary~\ref{cor:equality21}, the correctness of the $L$-table recursion (whose
+affine bounds we verify pointwise), and the two repaired cases
+(Sections~\ref{ssec:MH-K5free} and~\ref{ssec:MM-two}) that turn on the $\omega$-free
+$11$-vertex nonexistence. Each of these is exactly where an independent check would
+be most valuable.
+
+%% ===========================================================================
+\section*{Acknowledgements}
+%% ===========================================================================
+\addcontentsline{toc}{section}{Acknowledgements}
+We thank the maintainers of \cite{Bloom617} and of the \texttt{formal-conjectures}
+project~\cite{FC} for the infrastructure that makes a claim like this one checkable,
+and the authors of kissat, cadical, \texttt{drat-trim}, Lean, and Mathlib.
+
+%% ===========================================================================
+\appendix
+\section{The empirical phase transition}\label{app:phase}
+%% ===========================================================================
+
+The lemma statements were not guessed; they were extracted from computation, which
+also explains why the argument bites at $n=25$ and not below. We record the data
+here as motivation and as a falsification guard.
+
+\emph{Balanced $K_{25}$ colourings are plentiful and rigid.} Local search finds
+balanced $5$-colourings of $K_{25}$ routinely from random starts; over $120$
+distinct referee-verified samples were generated, including non-affine ones (edge
+profile $(52,54,58,68,68)$ versus the affine $(50,50,50,50,100)$). Uniformly across
+all samples: every class has exactly $5$ monochromatic $K_5$'s and hitting number
+$5$, and every minimal hitting $5$-set spans $9$ or $10$ edges of its own class ---
+never $\le 6$, the ``usability'' threshold of Step~3 of Lemma~\ref{lem:chain}. Every
+sample fails one-vertex extension (all $\binom{25}{6}$-set checks pass for $K_{25}$
+but the extension CNF is unsatisfiable).
+
+\emph{The hitter family dies between $24$ and $25$.} Call an \emph{h4-witness at $n$}
+a balanced $5$-colouring of $K_n$ with a colour and a $4$-set $T$ such that
+$\alpha(G_0-T)\le 4$ --- exactly the configuration Lemma~\ref{lem:MH} forbids at
+$n=25$. Such witnesses \emph{exist} and are referee-verified for every
+$n\in\{17,\dots,24\}$ (found by SAT for $n\le 22$ and by local search for $n=23,24$).
+At $n=25$, five independent searches each descend to exactly $24$ residual violations
+and stall there for tens of CPU-hours, with every residual violation passing through
+the newest vertex. This ``deficiency-$1$'' signature --- the hitter constraint costs
+exactly one vertex of slack --- is the empirical shadow of the ``$+1$'' in the
+conjecture, and matches the structural fact that $21=4\cdot 5+1$ forces one oversized
+part in the proof of Lemma~\ref{lem:MH} (Section~\ref{ssec:MH-n24}) whereas
+$20=4\cdot 5$ splits evenly.
+
+\emph{Pure-graph relaxations fail.} The graph relaxation of Lemma~\ref{lem:MH}
+(drop balancedness, keep $\alpha\le 4$ and \capeleven{} on $21$ vertices) has an
+$80$-edge witness; the graph relaxation of Lemma~\ref{lem:MM}
+($\alpha\le 5$, \capeleven, $\le 60$ edges on $25$ vertices) is satisfiable. Both
+lemmas therefore genuinely require the surrounding colouring structure that the
+reduction supplies --- which is why the proof cannot be replaced by a single Tur\'an
+computation, and why the machine facts it does use are confined to graphs on at most
+$16$ vertices.
+
+%% ===========================================================================
+\begin{thebibliography}{9}
+%% ===========================================================================
+
+\bibitem{Bloom617}
+T.~F. Bloom,
+\emph{Erd\H{o}s Problem \#617},
+\url{https://www.erdosproblems.com/617}, accessed 2026-07-11.
+
+\bibitem{Brouwer81}
+A.~E. Brouwer,
+\emph{Some lotto numbers from an extension of Tur\'an's theorem},
+Math. Centrum report ZW~152, Mathematisch Centrum, Amsterdam, 1981.
+
+\bibitem{ErGy99}
+P.~Erd\H{o}s and A.~Gy\'arf\'as,
+\emph{Split and balanced colorings of complete graphs},
+Discrete Math. \textbf{200} (1999), 79--86.
+\url{https://doi.org/10.1016/S0012-365X(98)00323-9}.
+
+\bibitem{FC}
+Google DeepMind,
+\emph{formal-conjectures} (Lean formalisations of open problems),
+\url{https://github.com/google-deepmind/formal-conjectures}
+(file \texttt{FormalConjectures/ErdosProblems/617.lean}), accessed 2026-07-11.
+
+\bibitem{KP05}
+M.~Kang and O.~Pikhurko,
+\emph{Maximum $K_{r+1}$-free graphs which are not $r$-partite},
+Mat. Studii \textbf{24} (2005), no.~1, 12--20.
+\url{https://doi.org/10.30970/ms.24.1.12-20}.
+
+\bibitem{RWWY}
+S.~Ren, J.~Wang, S.~Wang, and W.~Yang,
+\emph{Extremal triangle-free graphs with chromatic number at least four},
+preprint, arXiv:2404.07486 (2024).
+\url{https://arxiv.org/abs/2404.07486}.
+
+\end{thebibliography}
+
+\end{document}

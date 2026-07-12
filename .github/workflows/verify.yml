@@ -1,0 +1,109 @@
+name: verify
+
+# Machine-checks the r = 5 resolution of Erdős Problem 617.
+#
+# Two jobs, by cost:
+#   * fidelity — fast (~Mathlib-cache + one file). Builds the statement/chain file
+#     and runs the source-level `sorry` gate. This is the check most auditors
+#     care about (does the Lean STATEMENT match the problem, and is the chain
+#     sorry-free) and it needs no SAT certificates.
+#   * machine-check — the complete kernel verification: regenerate the four SAT
+#     certificates, `lake build` the whole project (this kernel-checks the
+#     certificates via native_decide), then audit the axioms of the four final
+#     theorems. Cost profile (measured): the native_decide recheck of all four
+#     certificates is ~2 min / ~1.1 GB RAM (fine on a hosted runner), but the
+#     CaDiCaL *regeneration* of nonex11/nonex12 is the slow step — many minutes,
+#     producing ~340MB/~455MB LRAT proofs — hence the long timeout. If that step
+#     is too slow on the default runner, either switch it to download the
+#     certificates from a release asset (see README "Certificates") or use a
+#     larger/self-hosted runner. The fast `fidelity` job is the primary signal
+#     and does not depend on this one.
+#
+# The LRAT certificates themselves are NOT in the repository (they are
+# git-ignored, ~815MB total); this workflow regenerates them from the shipped
+# Lean CNF definitions with CaDiCaL. See README.md and FORMAL.md F3.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fidelity:
+    name: statement fidelity + sorry gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Mathlib build (reservoir olean cache)
+        uses: actions/cache@v4
+        with:
+          path: lean617/.lake
+          key: lake-${{ hashFiles('lean617/lean-toolchain', 'lean617/lake-manifest.json') }}
+
+      - name: Fetch Mathlib olean cache
+        working-directory: lean617
+        run: lake exe cache get
+
+      - name: Build the statement + chain (Statements.lean — no certificates needed)
+        working-directory: lean617
+        run: lake build Lean617.Statements
+
+      - name: Source-level sorry gate
+        run: ./tools/sorry_grep.sh
+
+  machine-check:
+    name: full kernel verification + axiom audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Install CaDiCaL (SAT solver, for certificate regeneration)
+        run: sudo apt-get update && sudo apt-get install -y cadical
+
+      - name: Cache Mathlib build (reservoir olean cache)
+        uses: actions/cache@v4
+        with:
+          path: lean617/.lake
+          key: lake-${{ hashFiles('lean617/lean-toolchain', 'lean617/lake-manifest.json') }}
+
+      - name: Fetch Mathlib olean cache
+        working-directory: lean617
+        run: lake exe cache get
+
+      # Build the CNF-emit / LRAT-trim helpers and the encoding, so regeneration
+      # (which invokes `lake env lean --run`) has its imports available.
+      - name: Pre-build encoding (for certificate regeneration)
+        working-directory: lean617
+        run: lake build Lean617.PrimEncoding
+
+      - name: Regenerate the four SAT certificates
+        run: ./tools/regen_certificates.sh
+
+      - name: Build everything (kernel-checks the certificates via native_decide)
+        working-directory: lean617
+        run: lake build
+
+      - name: Axiom audit of the four final theorems
+        run: ./tools/axiom_audit.sh
+
+      - name: Source-level sorry gate
+        run: ./tools/sorry_grep.sh

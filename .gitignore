@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+*.pyc
+ext/
+data/sat/*.cnf
+data/sat/*.drat
+data/sat/*.out
+data/sat/*.lrat
+data/sat/*.lratlog
+data/sat/*.check
+lean617_f3/
+lean617_f7/
+lean617_f8/
+
+# Compiled search binaries (built from the tracked .c sources; platform-specific)
+tools/locsearch
+tools/locsearch_h4
+
+# Lean build output for the standalone certgen scripts, if ever run in place
+tools/certgen/*.olean
+
+# Scratch SAT artifacts (proof-of-concept; regenerable)
+scratchpad/**/*.cnf
+scratchpad/**/*.drat
+scratchpad/**/*.lrat

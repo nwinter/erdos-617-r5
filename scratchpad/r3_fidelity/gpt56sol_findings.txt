@@ -1,0 +1,134 @@
+I found no statement-fidelity errors in the requested definitions or theorem statements. The cardinalities, quantifier directions, inequalities, and diagonal handling all match the supplied mathematics.
+
+1. `colourClass` — FAITHFUL
+
+[Statements.lean:41](lean617/Lean617/Statements.lean:41) defines adjacency by
+
+```lean
+u ≠ v ∧ c s(u, v) = k
+```
+
+Thus diagonal values `c s(v,v)` never create graph edges. Symmetry is correctly inherited from `Sym2`.
+
+2. `Misses` — FAITHFUL
+
+[Statements.lean:50](lean617/Lean617/Statements.lean:50) says that for every distinct `u,v ∈ S`, the edge color is not `k`. This is exactly “no interior edge of `S` has colour `k`.”
+
+The `u ≠ v` guard ensures diagonal colors are irrelevant.
+
+3. `Balanced` — FAITHFUL
+
+[Statements.lean:55](lean617/Lean617/Statements.lean:55) quantifies over every finset of cardinality exactly `6`, then every one of the five colors, and asserts that the set does not miss that color:
+
+```lean
+S.card = 6 → ∀ k : Fin 5, ¬ Misses c S k
+```
+
+This is precisely “every 6-subset sees all five colours.” The direction of the negation and all quantifiers are correct.
+
+4. `IsIndep` — FAITHFUL
+
+[Statements.lean:59](lean617/Lean617/Statements.lean:59) says no two distinct elements of `S` are adjacent. This is the intended graph independence condition.
+
+5. `edgeCountIn` — FAITHFUL
+
+[Statements.lean:63](lean617/Lean617/Statements.lean:63) counts members of `S.sym2` lying in the simple graph’s `edgeSet`.
+
+Although `S.sym2` includes diagonal pairs, a `SimpleGraph.edgeSet` contains only genuine off-diagonal edges. It also represents `{u,v}` as a `Sym2`, so the two orientations are one element, not two.
+
+The accompanying statements confirm the intended interpretation:
+
+- [Statements.lean:72](lean617/Lean617/Statements.lean:72) explicitly characterizes color-class edges as off-diagonal pairs.
+- [Statements.lean:80](lean617/Lean617/Statements.lean:80) gives exactly `S.card.choose 2` off-diagonal pairs.
+- [Statements.lean:120](lean617/Lean617/Statements.lean:120) says the five color-class counts sum to `C(|S|,2)`.
+
+So there is neither loop inclusion nor double counting.
+
+6. Totality of `c : Sym2 V → Fin 5` — FAITHFUL
+
+Lean colorings assign arbitrary values to diagonal pairs, but every mathematical property in scope excludes them:
+
+- `colourClass` requires `u ≠ v`.
+- `Misses` and `Main` require `u ≠ v`.
+- `Balanced` is expressed through `Misses`.
+- `edgeCountIn` filters through a loopless graph edge set.
+
+This also exactly mirrors the quoted upstream signature, which likewise uses a total `Sym2 V → Fin r` function and excludes diagonals in its conclusion.
+
+7. `MH2` — FAITHFUL
+
+[Statements.lean:137](lean617/Lean617/Statements.lean:137) has all the intended numbers and quantifiers:
+
+- balanced 5-coloring of `K₂₅`;
+- every color `k`;
+- every `T` with `|T| = 4`;
+- an independent `S` with `|S| = 5`;
+- `Disjoint S T`.
+
+This is equivalent to saying no 4-set `T` makes `α(Gₖ−T) ≤ 4`. Requiring an independent set of exactly five vertices is sufficient and equivalent here: any larger independent set contains a 5-subset.
+
+8. `MM` — FAITHFUL
+
+[Statements.lean:146](lean617/Lean617/Statements.lean:146) accurately states nonexistence of the quoted configuration:
+
+- graph on 25 vertices;
+- every independent set has cardinality at most 5;
+- every 6-set spans at most 11 edges;
+- total edge count at most 60;
+- a 5-set `T`;
+- every independent set disjoint from `T` has cardinality at most 4;
+- `T` spans at most 6 edges;
+- conclusion `False`.
+
+In particular, `Disjoint S T` correctly expresses that `S` lies in `G−T`. All inequality directions are correct.
+
+9. `Main` — FAITHFUL
+
+[Statements.lean:157](lean617/Lean617/Statements.lean:157) states:
+
+- every 5-coloring of `K₂₆`;
+- some 6-element vertex set;
+- some color `k`;
+- no distinct pair inside that set has color `k`.
+
+This is exactly the `r=5` specialization of the upstream statement. There are no 25/26 or 5/6 off-by-one errors.
+
+The equivalence at [Statements.lean:162](lean617/Lean617/Statements.lean:162) also confirms that `Main` means “there is no balanced coloring.”
+
+10. `main_imp_upstream` — FAITHFUL
+
+[Statements.lean:180](lean617/Lean617/Statements.lean:180) reproduces the upstream shape over an arbitrary finite type `V`:
+
+```lean
+Fintype.card V = 5 ^ 2 + 1
+S.card = 5 + 1
+```
+
+It therefore gives 26 vertices and a 6-set. Using `Fin 26` in `Main` loses no generality because every finite type of cardinality 26 is equivalent to `Fin 26`.
+
+The upstream `hr : 5 ≥ 3` premise disappears only because this is already specialized to `r=5`; it would be a trivially satisfied premise and does not alter the conclusion.
+
+11. Final theorems and `BrouwerFacts` — FAITHFUL, with an important status qualification
+
+[Final.lean:36](lean617/Lean617/Final.lean:36) proves only the conditional statement
+
+```lean
+erdos_617_r5 (bf : BrouwerFacts) : Main
+```
+
+and [Final.lean:40](lean617/Lean617/Final.lean:40) gives the correspondingly conditional upstream-shaped theorem.
+
+`BrouwerFacts` is an honest, explicit package of substantive graph-theoretic hypotheses, not `False`, not `Main`, and not a premise manufactured from the coloring under consideration. Its fields are:
+
+- the Brouwer non-partite Turán saving, at [Brouwer.lean:185](lean617/Lean617/Brouwer.lean:185);
+- the specialized Kang–Pikhurko equality classification, at [Brouwer.lean:194](lean617/Lean617/Brouwer.lean:194).
+
+The natural-number subtraction in `n / r - 1` is safe under `r > 0` and `2r+1 ≤ n`, so truncating subtraction does not weaken the intended bound in its applicable range.
+
+There is therefore no concealed definitional vacuity. However, no inhabitant of `BrouwerFacts` is supplied in `Final.lean`. Consequently:
+
+- FAITHFUL as a theorem explicitly advertised “modulo `BrouwerFacts`.”
+- MISMATCH(HIGH) only if it is represented elsewhere as an unconditional completed Lean proof of Erdős #617 at `r=5`.
+
+Overall verdict: no fidelity mismatch in `colourClass`, `Misses`, `Balanced`, `IsIndep`, `edgeCountIn`, `MH2`, `MM`, `Main`, or the arbitrary-type upstream corollary. The sole material qualification is that the final result remains conditional on the externally asserted `BrouwerFacts`.
+CODEX_EXIT=0

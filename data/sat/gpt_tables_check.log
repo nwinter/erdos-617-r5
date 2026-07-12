@@ -1,0 +1,7 @@
+A. M(s) [alpha<=2, omega<=4, cap-11]  (claims: 19, 25, 35, none@12)
+   s=9: computed 19, claimed 19  OK
+   s=10: computed 25, claimed 25  OK
+   s=11: computed None, claimed 35  *** MISMATCH ***
+   s=12: computed NONE, claimed NONE  OK
+B. L(s) [alpha<=3, omega<=4, cap-11]  (claims: 24, 31, 38, 46)
+   s=13: computed 25, claimed 24  OK-stronger

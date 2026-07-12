@@ -1,0 +1,4 @@
+n=24: 134596 six-subsets + 15504 h4 five-subsets; initial violations 3213 + 171
+  ..step 0: cur 3102+171 best 3273
+step 80698: violations 0 (0+0)
+done at step 80699: violations 0+0 (best seen 0)

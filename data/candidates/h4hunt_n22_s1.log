@@ -1,0 +1,105 @@
+n=22: 74613 six-subsets + 8568 h4 five-subsets; initial violations 16419 + 1117
+  ..step 0: cur 15137+1117 best 16254
+step 86136: violations 49 (22+27)
+step 86209: violations 45 (21+24)
+step 662178: violations 41 (21+20)
+step 662536: violations 30 (17+13)
+step 669813: violations 29 (14+15)
+step 669852: violations 28 (14+14)
+step 669902: violations 27 (15+12)
+step 669908: violations 20 (10+10)
+  ..step 1048576: cur 40+7 best 20
+  ..step 2097152: cur 10+12 best 20
+  ..step 3145728: cur 69+5 best 20
+  ..step 4194304: cur 59+14 best 20
+  ..step 5242880: cur 408+12 best 20
+  ..step 6291456: cur 138+11 best 20
+  ..step 7340032: cur 168+9 best 20
+  ..step 8388608: cur 422+10 best 20
+  ..step 9437184: cur 65+7 best 20
+step 9745381: violations 19 (7+12)
+step 9745748: violations 12 (3+9)
+step 9745761: violations 10 (1+9)
+step 9745774: violations 9 (1+8)
+step 9745831: violations 8 (0+8)
+step 9745840: violations 6 (0+6)
+step 9869783: violations 5 (5+0)
+step 9869788: violations 3 (3+0)
+step 9869801: violations 2 (2+0)
+  ..step 10485760: cur 2+0 best 2
+  ..step 11534336: cur 0+40 best 2
+  ..step 12582912: cur 2+0 best 2
+  ..step 13631488: cur 2+0 best 2
+  ..step 14680064: cur 0+33 best 2
+  ..step 15728640: cur 2+0 best 2
+  ..step 16777216: cur 0+33 best 2
+  ..step 17825792: cur 0+39 best 2
+  ..step 18874368: cur 0+39 best 2
+  ..step 19922944: cur 0+36 best 2
+  ..step 20971520: cur 0+64 best 2
+  ..step 22020096: cur 2+0 best 2
+  ..step 23068672: cur 0+36 best 2
+  ..step 24117248: cur 2+0 best 2
+  ..step 25165824: cur 205+0 best 2
+  ..step 26214400: cur 62+37 best 2
+  ..step 27262976: cur 305+0 best 2
+  ..step 28311552: cur 0+39 best 2
+  ..step 29360128: cur 2+0 best 2
+  ..step 30408704: cur 300+31 best 2
+  ..step 31457280: cur 0+39 best 2
+  ..step 32505856: cur 2+0 best 2
+  ..step 33554432: cur 2+0 best 2
+  ..step 34603008: cur 2+0 best 2
+  ..step 35651584: cur 125+95 best 2
+  ..step 36700160: cur 0+39 best 2
+  ..step 37748736: cur 2+0 best 2
+  ..step 38797312: cur 0+39 best 2
+  ..step 39845888: cur 95+0 best 2
+  ..step 40894464: cur 2+0 best 2
+  ..step 41943040: cur 2+0 best 2
+  ..step 42991616: cur 0+49 best 2
+  ..step 44040192: cur 2+0 best 2
+  ..step 45088768: cur 0+36 best 2
+  ..step 46137344: cur 2+0 best 2
+  ..step 47185920: cur 2+0 best 2
+  ..step 48234496: cur 0+33 best 2
+  ..step 49283072: cur 0+36 best 2
+  ..step 50331648: cur 0+36 best 2
+  ..step 51380224: cur 0+39 best 2
+  ..step 52428800: cur 2+0 best 2
+  ..step 53477376: cur 0+33 best 2
+  ..step 54525952: cur 2+0 best 2
+  ..step 55574528: cur 0+52 best 2
+  ..step 56623104: cur 0+33 best 2
+  ..step 57671680: cur 2+0 best 2
+  ..step 58720256: cur 2+0 best 2
+  ..step 59768832: cur 2+0 best 2
+  ..step 60817408: cur 0+33 best 2
+  ..step 61865984: cur 0+56 best 2
+  ..step 62914560: cur 2+0 best 2
+  ..step 63963136: cur 0+46 best 2
+  ..step 65011712: cur 2+0 best 2
+  ..step 66060288: cur 0+33 best 2
+  ..step 67108864: cur 401+0 best 2
+  ..step 68157440: cur 2+0 best 2
+  ..step 69206016: cur 48+0 best 2
+  ..step 70254592: cur 2+0 best 2
+  ..step 71303168: cur 2+0 best 2
+  ..step 72351744: cur 0+36 best 2
+  ..step 73400320: cur 2+0 best 2
+  ..step 74448896: cur 2+0 best 2
+  ..step 75497472: cur 2+0 best 2
+  ..step 76546048: cur 2+0 best 2
+  ..step 77594624: cur 0+6 best 2
+  ..step 78643200: cur 0+33 best 2
+  ..step 79691776: cur 2+0 best 2
+  ..step 80740352: cur 0+42 best 2
+  ..step 81788928: cur 280+35 best 2
+  ..step 82837504: cur 0+36 best 2
+  ..step 83886080: cur 0+39 best 2
+  ..step 84934656: cur 2+0 best 2
+  ..step 85983232: cur 0+57 best 2
+  ..step 87031808: cur 0+36 best 2
+  ..step 88080384: cur 67+8 best 2
+  ..step 89128960: cur 2+0 best 2
+  ..step 90177536: cur 2+0 best 2

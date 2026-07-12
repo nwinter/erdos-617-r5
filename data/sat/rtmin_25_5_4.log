@@ -1,0 +1,3 @@
+n=25 alpha<=5 omega<=4 edges<=100: SAT
+n=25 alpha<=5 omega<=4 edges<=90: SAT
+n=25 alpha<=5 omega<=4 edges<=80: SAT

@@ -1,0 +1,76 @@
+n=23: 100947 six-subsets + 11628 h4 five-subsets; initial violations 15788 + 750
+  ..step 0: cur 15135+750 best 15885
+  ..step 1048576: cur 377+34 best 112
+  ..step 2097152: cur 66+71 best 112
+  ..step 3145728: cur 134+53 best 112
+  ..step 4194304: cur 103+102 best 72
+  ..step 5242880: cur 447+41 best 70
+  ..step 6291456: cur 261+41 best 70
+  ..step 7340032: cur 232+34 best 70
+  ..step 8388608: cur 84+67 best 70
+  ..step 9437184: cur 108+59 best 70
+  ..step 10485760: cur 321+36 best 70
+  ..step 11534336: cur 209+39 best 70
+  ..step 12582912: cur 83+53 best 70
+  ..step 13631488: cur 518+36 best 70
+  ..step 14680064: cur 292+33 best 70
+  ..step 15728640: cur 211+37 best 70
+  ..step 16777216: cur 102+50 best 70
+  ..step 17825792: cur 71+76 best 70
+  ..step 18874368: cur 423+39 best 70
+  ..step 19922944: cur 220+56 best 70
+  ..step 20971520: cur 157+43 best 70
+  ..step 22020096: cur 113+48 best 70
+  ..step 23068672: cur 108+53 best 70
+  ..step 24117248: cur 119+45 best 70
+  ..step 25165824: cur 100+35 best 70
+  ..step 26214400: cur 143+53 best 70
+  ..step 27262976: cur 168+49 best 70
+  ..step 28311552: cur 155+53 best 70
+  ..step 29360128: cur 365+39 best 70
+  ..step 30408704: cur 25+45 best 70
+  ..step 31457280: cur 60+57 best 70
+  ..step 32505856: cur 560+38 best 70
+  ..step 33554432: cur 109+90 best 70
+  ..step 34603008: cur 98+59 best 70
+  ..step 35651584: cur 322+36 best 70
+  ..step 36700160: cur 31+56 best 70
+  ..step 37748736: cur 102+33 best 70
+  ..step 38797312: cur 277+42 best 70
+  ..step 39845888: cur 303+51 best 70
+  ..step 40894464: cur 922+24 best 70
+  ..step 41943040: cur 99+63 best 70
+  ..step 42991616: cur 189+29 best 70
+  ..step 44040192: cur 140+43 best 70
+  ..step 45088768: cur 83+39 best 70
+  ..step 46137344: cur 317+35 best 70
+  ..step 47185920: cur 154+77 best 70
+  ..step 48234496: cur 130+54 best 70
+  ..step 49283072: cur 674+95 best 70
+  ..step 50331648: cur 121+53 best 70
+  ..step 51380224: cur 86+59 best 70
+  ..step 52428800: cur 346+75 best 70
+  ..step 53477376: cur 197+39 best 70
+  ..step 54525952: cur 508+20 best 70
+  ..step 55574528: cur 103+37 best 70
+  ..step 56623104: cur 97+109 best 70
+  ..step 57671680: cur 122+58 best 70
+  ..step 58720256: cur 183+100 best 70
+  ..step 59768832: cur 88+46 best 70
+  ..step 60817408: cur 118+45 best 70
+  ..step 61865984: cur 28+56 best 70
+  ..step 62914560: cur 73+53 best 70
+  ..step 63963136: cur 85+60 best 70
+  ..step 65011712: cur 257+33 best 70
+  ..step 66060288: cur 17+40 best 57
+  ..step 67108864: cur 210+45 best 57
+  ..step 68157440: cur 99+50 best 57
+step 68516766: violations 45 (45+0)
+step 68516774: violations 32 (32+0)
+step 68516777: violations 18 (18+0)
+step 68516859: violations 14 (14+0)
+step 68517181: violations 12 (12+0)
+step 68517222: violations 7 (7+0)
+step 68517223: violations 4 (4+0)
+step 68517224: violations 0 (0+0)
+done at step 68517225: violations 0+0 (best seen 0)

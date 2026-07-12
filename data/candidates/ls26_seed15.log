@@ -1,0 +1,5 @@
+n=26: 230230 subsets, initial violations 39283
+  ..step 0: cur 38596 best 38596
+  ..step 1048576: cur 1056 best 810
+  ..step 2097152: cur 1196 best 810
+  ..step 3145728: cur 1012 best 808

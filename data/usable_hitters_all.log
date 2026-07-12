@@ -1,0 +1,315 @@
+== data/candidates/b25_1000.json
+  class 0 (93e): 1 hitters, own-edge counts [9], usable: 0
+  class 1 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (54e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1003.json
+  class 0 (57e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (76e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (58e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (59e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_101.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (76e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (71e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1011.json
+  class 0 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (71e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (77e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1012.json
+  class 0 (57e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (73e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (70e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1013.json
+  class 0 (62e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (66e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (59e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (62e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (51e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1017.json
+  class 0 (87e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (61e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1019.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (70e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (56e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (74e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1023.json
+  class 0 (61e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (70e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (69e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1032.json
+  class 0 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (57e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (76e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1036.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (67e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (83e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1057.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (92e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (54e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (54e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1062.json
+  class 0 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (91e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (56e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1070.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (82e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1071.json
+  class 0 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (62e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (56e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1073.json
+  class 0 (66e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (62e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (63e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (59e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1081.json
+  class 0 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (56e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (92e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1084.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (67e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (81e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1088.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (64e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (84e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_1094.json
+  class 0 (79e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (68e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2001.json
+  class 0 (63e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (60e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (77e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2016.json
+  class 0 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (68e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (51e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (51e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (77e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2022.json
+  class 0 (70e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (78e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2032.json
+  class 0 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (93e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (54e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2034.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (74e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (73e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2036.json
+  class 0 (78e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (69e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2038.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (84e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (66e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2042.json
+  class 0 (91e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (55e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (54e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2047.json
+  class 0 (61e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (64e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (59e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (66e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2056.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (71e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (77e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2060.json
+  class 0 (69e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (78e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2061.json
+  class 0 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (61e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (64e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (64e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (59e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2065.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (55e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (55e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (90e): 1 hitters, own-edge counts [9], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2066.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (76e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (72e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2068.json
+  class 0 (55e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (75e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (60e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (60e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2069.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (72e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (57e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (71e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2071.json
+  class 0 (72e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (59e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (68e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (51e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2072.json
+  class 0 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (58e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (60e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2076.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (51e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (77e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (72e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2084.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (75e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (55e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (70e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2089.json
+  class 0 (60e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (89e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (51e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2094.json
+  class 0 (75e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (73e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2099.json
+  class 0 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (68e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (79e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2100.json
+  class 0 (52e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (50e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (79e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (69e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)
+== data/candidates/b25_2106.json
+  class 0 (60e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 1 (53e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 2 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 3 (57e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  class 4 (65e): 5 hitters, own-edge counts [10, 10, 10, 10, 10], usable: 0
+  => extension excluded: some class... (check all classes usable=0? see above)

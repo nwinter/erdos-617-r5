@@ -1,0 +1,36 @@
+# Expected-axioms fixture for the four final theorems (tools/axiom_audit.sh reads this).
+#
+# The audit collects every axiom the four final theorems depend on and requires
+# each to match a line below. It FAILS on any `sorry`/`sorryAx` or any axiom not
+# listed here. Blank lines and `#` comments are ignored.
+#
+# Two kinds of entry:
+#   exact:<name>     — an axiom whose name must match exactly
+#   glob:<pattern>   — a shell glob the axiom name must match (for the
+#                      machine-generated native_decide axiom names)
+#
+# CURRENT EXPECTED PROFILE (F6i, 2026-07-12): the three standard Lean axioms + the
+#   four SAT-reflection native_decide axioms. PROFILE UNCHANGED by F6i.
+# The final theorems are now conditional on the single hypothesis
+# `KPEqualityClassification` (the (5,21) Kang–Pikhurko equality classification), not on
+# `BrouwerFacts`: F6i PROVED Brouwer's `saving` bound (`kp_saving`, axiom-clean) and
+# assembled `BrouwerFacts` via `brouwerFacts_of`. Like `BrouwerFacts` before it,
+# `KPEqualityClassification` is a hypothesis variable, NOT an axiom, so it does not
+# appear here. The KP construction `kpG`'s native_decide facts (Lean617.KPConstruction)
+# do NOT enter the final theorems — the `equality21` field is discharged via the
+# hypothesis route (`equality21_final ∘ equality21_transport`), which never touches
+# `kpG` — so NO new native_decide axioms appear; this file is unchanged. If the D1–D4
+# campaign later PROVES `KPEqualityClassification` from `kpG`, that will introduce the
+# KPConstruction native_decide axioms (still matched by the glob below).
+
+exact:propext
+exact:Classical.choice
+exact:Quot.sound
+
+# The four SAT-primitive certificates, reflected by native_decide (ofReduceBool) —
+# one axiom per certificate, name of the form Erdos617.unsat_<prim>._native.native_decide.ax_1_1
+glob:*native_decide*
+
+# Each standard axiom above should appear at least once; at least one native_decide
+# axiom should appear. tools/axiom_audit.sh enforces both, so an empty/parse-failed
+# audit cannot pass silently.
