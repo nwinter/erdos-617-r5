@@ -35,11 +35,13 @@ graph-construction facts (the same `ofReduceBool` trust base as Lean's `bv_decid
 > The repository is built so that **you do not have to trust any of that** — you can
 > audit the Lean statement and re-run the machine checks yourself, in the order below.
 
-**New to the problem?** Open [`explainer.html`](explainer.html) in a browser first: an
-illustrated, interactive introduction — the construction that achieves 25 points (with an
-in-browser re-verification of all 177,100 six-point sets), the shape of the impossibility
-proof, the search data, and the full who-did-what. It is self-contained (no network, no
-build) and was itself adversarially fact-checked against this repository.
+**New to the problem?** Start with the
+[interactive introduction](https://nwinter.github.io/erdos-617-r5/explainer.html) — an
+illustrated explainer: the construction that achieves 25 points (with an in-browser
+re-verification of all 177,100 six-point sets), the shape of the impossibility proof, the
+search data, and the full who-did-what. It was itself adversarially fact-checked against
+this repository. (The same self-contained file ships here as
+[`explainer.html`](explainer.html) — open it locally from a clone; no network, no build.)
 
 ---
 

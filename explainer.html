@@ -147,7 +147,7 @@
 <body>
 
 <div class="wrap">
-<p class="eyebrow">Erdős problem 617 · the case r = 5</p>
+<p class="eyebrow"><a href="https://www.erdosproblems.com/617" style="color:inherit">Erdős problem 617</a> · the case r = 5</p>
 <h1>Twenty-five points, five colours</h1>
 <p class="dek">Can 26 points be joined by edges of five colours so that every six of them
 show all five? Erdős and Gyárfás conjectured no in 1999, and proved the analogous statements
@@ -443,12 +443,15 @@ var REPO_URL = "https://github.com/nwinter/erdos-617-r5";
   var pkg = document.getElementById("pkg-link");
   var foot = document.getElementById("repo-foot");
   var bare = REPO_URL.replace(/^https?:\/\//,"");
+  var PROB = '<a href="https://www.erdosproblems.com/617">erdosproblems.com/617</a>';
   if (REPO_URL){
-    pkg.innerHTML = '<a href="'+REPO_URL+'">'+bare+'</a> — Lean project, report, certificates, review trail.';
-    foot.innerHTML = ': <a href="'+REPO_URL+'">'+bare+'</a>. The report: <a href="'+REPO_URL+'/blob/main/writeup/erdos617-r5.tex">writeup/erdos617-r5.tex</a>.';
+    var pdf = REPO_URL + "/releases/download/v1.1-public/erdos617-r5.pdf";
+    var tex = REPO_URL + "/blob/main/writeup/erdos617-r5.tex";
+    pkg.innerHTML = '<a href="'+REPO_URL+'">'+bare+'</a> — Lean project, report (<a href="'+tex+'">.tex</a> / <a href="'+pdf+'">.pdf</a>), certificates, review trail. Problem page: '+PROB+'.';
+    foot.innerHTML = ': <a href="'+REPO_URL+'">'+bare+'</a>. The report: <a href="'+tex+'">writeup/erdos617-r5.tex</a> (<a href="'+pdf+'">compiled PDF</a>). The problem itself: '+PROB+'.';
   } else {
-    pkg.textContent = "public repository pending publication: the Lean project, the report (writeup/erdos617-r5.tex), the SAT certificates, and the full review trail; this page ships inside it as explainer.html.";
-    foot.textContent = " (publication pending; this page ships inside it as explainer.html).";
+    pkg.innerHTML = "public repository pending publication: the Lean project, the report (writeup/erdos617-r5.tex), the SAT certificates, and the full review trail; this page ships inside it as explainer.html. Problem page: "+PROB+".";
+    foot.innerHTML = " (publication pending; this page ships inside it as explainer.html). The problem itself: "+PROB+".";
   }
 })();
 var css = getComputedStyle(document.documentElement);
