@@ -154,6 +154,12 @@ theorem equality21_transport (F H : SimpleGraph (Fin 21)) (σ : Fin 21 ≃ Fin 2
 `kpG_compl_AB_structure`. -/
 theorem AB21_kpG_compl : AB21 kpGᶜ := kpG_compl_AB_structure
 
+/-- The `kpG1ᶜ` witness of `AB21` (the `|A*|=1` extremal variant, the second iso class), from the
+native-decide-backed `kpG1_compl_AB_structure`. Together with `AB21_kpG_compl` this exhibits BOTH
+iso classes of `(5,21)` extremal graph as `AB21` witnesses — the complete witness set the KP
+equality classification `KPEqualityClassification` needs to range over (D4 of the D-campaign). -/
+theorem AB21_kpG1_compl : AB21 kpG1ᶜ := kpG1_compl_AB_structure
+
 /-- **equality21, assembled** = the classification hypothesis (`h : KPEqualityClassification`) ∘
 the verified `equality21_transport`. This IS `BrouwerFacts.equality21`'s conclusion (`AB21 F` is
 definitionally the inlined `∃ A B …`). Formerly this composed the sorried `exists_AB21_iso`; that

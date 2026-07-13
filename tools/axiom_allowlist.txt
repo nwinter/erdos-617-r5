@@ -9,19 +9,19 @@
 #   glob:<pattern>   — a shell glob the axiom name must match (for the
 #                      machine-generated native_decide axiom names)
 #
-# CURRENT EXPECTED PROFILE (F6i, 2026-07-12): the three standard Lean axioms + the
-#   four SAT-reflection native_decide axioms. PROFILE UNCHANGED by F6i.
-# The final theorems are now conditional on the single hypothesis
-# `KPEqualityClassification` (the (5,21) Kang–Pikhurko equality classification), not on
-# `BrouwerFacts`: F6i PROVED Brouwer's `saving` bound (`kp_saving`, axiom-clean) and
-# assembled `BrouwerFacts` via `brouwerFacts_of`. Like `BrouwerFacts` before it,
-# `KPEqualityClassification` is a hypothesis variable, NOT an axiom, so it does not
-# appear here. The KP construction `kpG`'s native_decide facts (Lean617.KPConstruction)
-# do NOT enter the final theorems — the `equality21` field is discharged via the
-# hypothesis route (`equality21_final ∘ equality21_transport`), which never touches
-# `kpG` — so NO new native_decide axioms appear; this file is unchanged. If the D1–D4
-# campaign later PROVES `KPEqualityClassification` from `kpG`, that will introduce the
-# KPConstruction native_decide axioms (still matched by the glob below).
+# CURRENT EXPECTED PROFILE (D-CAMPAIGN COMPLETE, 2026-07-12): the three standard Lean
+#   axioms + native_decide reflection axioms only. NO sorryAx, NO mathematical hypothesis.
+# The conditional theorems `erdos_617_r5`/`_upstream` still take `KPEqualityClassification`
+# as a hypothesis variable (so it does not appear as an axiom for them; profile = 3
+# standard + 4 SAT). The UNCONDITIONAL theorems `erdos_617_r5_unconditional`/
+# `_upstream_unconditional` (AxiomAudit.lean) discharge that hypothesis via the PROVEN
+# `kp_equality_classification_proven` (Lean617.JoinTransport, D1–D4 descent + join-transport
+# + the (2,9) base classification). This introduces the KP-construction native_decide
+# witnesses — 2 cone-iso axioms (`kpG_giso_cone3`, `kpG1_giso_cone3`) + 8 AB21-complement
+# axioms (`kpG_compl_AB_structure`, `kpG1_compl_AB_structure`, ax_1_{1..4} each) — so the
+# unconditional profile is 3 standard + 4 SAT + 10 D-campaign = 17 axioms. ALL native_decide
+# axioms (SAT + D-campaign) are matched by the single `glob:*native_decide*` entry below, so
+# the audit passes on the exact observed set with no per-axiom edits needed.
 
 exact:propext
 exact:Classical.choice

@@ -8,25 +8,38 @@ of the Erdős–Gyárfás balanced-colouring conjecture
 > every 5-colouring of the edges of $K_{26}$ has 6 vertices whose induced $K_6$ omits
 > at least one colour; equivalently $N(5) = 25$.
 
-The proof is formalized in **Lean 4 + Mathlib** and reduces to a single explicit
-mathematical hypothesis — the classical Kang–Pikhurko (2005) equality classification of
-the extremal Turán graphs at $(r,n) = (5,21)$ — plus four SAT facts checked by Lean's
-verified LRAT checker. (Brouwer's 1981 Turán bound itself, formerly also assumed, is now
-**proved** in Lean.) The final Lean theorem is `sorry`-free.
+The proof is formalized in **Lean 4 + Mathlib**. The final theorem
+`erdos_617_r5_unconditional : Main` is `sorry`-free and carries **no mathematical
+hypothesis**: the classical Kang–Pikhurko (2005) equality classification of the extremal
+Turán graphs at $(r,n) = (5,21)$ — on which the result was previously conditional — is now
+itself **proved** in Lean, via a cone-descent $(5,21)\to(4,17)\to(3,13)\to(2,9)$ and a
+finite $(2,9)$ base classification. (Brouwer's 1981 Turán bound was already proved.) What
+remains in the trust base is fully disclosed and audited: the three standard Lean axioms
+plus `native_decide` kernel reflection for four SAT certificates and a handful of finite
+graph-construction facts (the same `ofReduceBool` trust base as Lean's `bv_decide`).
 
 > ### Please read this first — what "candidate" means
 >
 > This is an **internally-reviewed, machine-checked** result that has **not** been
 > refereed by an independent human expert. Two honest caveats are load-bearing and are
 > spelled out in [the honesty inventory](#what-verified-modulo-means-the-honesty-inventory):
-> (1) the Lean development assumes ONE classical result as a hypothesis — the
-> Kang–Pikhurko (2005) equality classification at $(5,21)$ (`KPEqualityClassification`) —
-> rather than proving it from scratch; it is literature-verified, not yet formalized.
-> (Brouwer's 1981 Turán bound, formerly part of this same hypothesis, is now proved in
-> Lean.) And (2) the two central lemmas were authored by an AI (gpt-5.6-sol) and reviewed
-> by fresh AI sessions, not (yet) by human referees.
+> (1) the entire Lean development — the two central lemmas AND the now-formalized
+> Kang–Pikhurko equality classification — was authored by an AI (gpt-5.6-sol and Claude
+> sessions) and reviewed only by fresh AI sessions, not (yet) by human referees; and (2)
+> the proof rests on `native_decide` (Lean's `ofReduceBool` kernel reflection) for four SAT
+> certificates and several finite graph-construction facts — a compiler-level trust
+> assumption, disclosed and audited in the axiom profile. The Kang–Pikhurko classification
+> the result was previously *conditional* on is now **proved** in Lean, so `Main` no longer
+> depends on any mathematical hypothesis — but that removes a mathematical assumption, not
+> the two caveats above.
 > The repository is built so that **you do not have to trust any of that** — you can
 > audit the Lean statement and re-run the machine checks yourself, in the order below.
+
+**New to the problem?** Open [`explainer.html`](explainer.html) in a browser first: an
+illustrated, interactive introduction — the construction that achieves 25 points (with an
+in-browser re-verification of all 177,100 six-point sets), the shape of the impossibility
+proof, the search data, and the full who-did-what. It is self-contained (no network, no
+build) and was itself adversarially fact-checked against this repository.
 
 ---
 
@@ -48,9 +61,12 @@ Read these two short files:
   statement `erdos_617` specialized to r = 5, over an *arbitrary* 26-element vertex
   type. This is the check that the formalization did not prove a convenient
   mis-statement.
-- **`lean617/Lean617/Final.lean`** (~60 lines): the final assembly
-  `erdos_617_r5 (h : KPEqualityClassification) : Main` and its upstream-shaped corollary
-  `erdos_617_r5_upstream`.
+- **`lean617/Lean617/Final.lean`** (~85 lines): the final assembly. The unconditional
+  `erdos_617_r5_unconditional : Main` (and its upstream-shaped corollary
+  `erdos_617_r5_upstream_unconditional`) is the headline theorem — it discharges the former
+  hypothesis with the proved `kp_equality_classification_proven`. The conditional
+  `erdos_617_r5 (h : KPEqualityClassification) : Main` remains, for readers who prefer to
+  audit the classification separately.
 
 Satisfy yourself that `Main` / `erdos_617_r5_upstream` says what the problem says.
 `PROBLEM.md` has the exact problem statement and worked examples to check against.
@@ -92,13 +108,15 @@ Every one of the four final theorems must depend on **exactly** these axioms:
 ```
 
 - `propext, Classical.choice, Quot.sound` — the three standard Lean axioms.
-- the four `native_decide` axioms — the SAT-reflection trust base, one per certificate
-  (the same `ofReduceBool` trust base as Lean's `bv_decide`).
-- **No `sorryAx`.** `tools/axiom_audit.sh` fails if any `sorry` or any *other* axiom
-  appears.
-- **`KPEqualityClassification` is a hypothesis, not an axiom** — it is an argument to the
-  theorem, so it does not appear here; it is discharged by whoever supplies it (see honesty
-  inventory item 1).
+- the `native_decide` axioms — the `ofReduceBool` reflection trust base (the same as Lean's
+  `bv_decide`): four for the SAT certificates, plus — for the **unconditional**
+  `erdos_617_r5_unconditional` — ten for the finite Kang–Pikhurko construction facts (two
+  cone-isomorphism witnesses, two A/B complement structures). **17 axioms total.**
+- **No `sorryAx`.** `tools/axiom_audit.sh` fails if any `sorry` or any *other* axiom appears.
+- The still-available *conditional* `erdos_617_r5 (h : KPEqualityClassification)` takes the
+  classification as a hypothesis (so it carries only the 3 standard + 4 SAT axioms); the
+  unconditional theorem discharges that hypothesis with the proved
+  `kp_equality_classification_proven`, which is where the ten construction axioms enter.
 
 ### Step 4 — Sorry gate
 
@@ -116,22 +134,22 @@ else is checked by Lean's kernel.
 Keep these four points in view; they are the difference between "machine-checked" and
 "proved". They are reproduced from `RELEASE.md` and expanded in §9 of the write-up.
 
-1. **One classical result — the Kang–Pikhurko equality classification — is assumed, not
-   formalized.** The final theorem is `erdos_617_r5 (h : KPEqualityClassification) : Main`.
-   `KPEqualityClassification` is the Kang–Pikhurko (2005) classification of the extremal
-   $K_6$-free graphs at $(r,n) = (5,21)$ (every extremal colour class is isomorphic to the
-   $G((4,4,4,4,4))$ shape). It is a **published, classical result**, retrieved and checked
-   against its use (`papers/brouwer-kang-pikhurko.md`) and independently numerically
-   validated (`FORMAL.md` EQUALITY21 analysis), but it is carried as a Lean *hypothesis*,
-   not proved from first principles. **What is no longer assumed:** Brouwer's 1981 Turán
-   bound for non-`r`-partite $K_{r+1}$-free graphs — formerly bundled into the *same*
-   hypothesis (the two-field `BrouwerFacts`) — is now **proved** in Lean (`kp_saving`,
-   axiom-clean), so the assumption is now strictly narrower; `brouwerFacts_of` reconstructs
-   the `BrouwerFacts` interface from that proof plus this one remaining hypothesis. A formal
-   discharge of the remaining classification is scoped (`FORMAL.md` F6, the optional D1–D4
-   campaign). Until that lands, the Lean result is *conditional on a single named, standard
-   theorem* — a status Mathlib and the formal-conjectures project both accept for published
-   inputs, and one the write-up states plainly.
+1. **The Kang–Pikhurko equality classification is now formalized — but by the same AI
+   pipeline, not proved from a textbook and not human-refereed.** The result was previously
+   `erdos_617_r5 (h : KPEqualityClassification) : Main`, conditional on the Kang–Pikhurko
+   (2005) classification of the extremal $K_6$-free graphs at $(r,n) = (5,21)$ (every
+   extremal colour class is isomorphic to the $G((4,4,4,4,4))$ shape). That hypothesis is
+   now **discharged in Lean** (`kp_equality_classification_proven`, `Lean617.JoinTransport`)
+   by a cone-descent $(5,21)\to(4,17)\to(3,13)\to(2,9)$, a join-transport reassembly, and a
+   finite $(2,9)$ base classification — so `erdos_617_r5_unconditional : Main` has **no
+   mathematical hypothesis**. Brouwer's 1981 Turán bound (formerly bundled into the same
+   hypothesis, the two-field `BrouwerFacts`) was already proved (`kp_saving`, axiom-clean).
+   The honest reservation: this discharge is a fresh, load-bearing formalization authored by
+   the same AI pipeline as the rest (item 4), reviewed only by AI sessions (item 3), and its
+   base/construction steps lean on `native_decide` (item 2). The classification itself is a
+   *published, classical result* (`papers/brouwer-kang-pikhurko.md`), so a reader who
+   distrusts the new Lean discharge can instead audit the still-exported conditional
+   `erdos_617_r5` and supply the classification as a cited hypothesis.
 
 2. **The SAT primitives use `native_decide` (compiler trust).** The four small-graph
    facts (nonexistence of certain α ≤ 2 cap-11 graphs on 11 and 12 vertices; edge lower
@@ -140,7 +158,11 @@ Keep these four points in view; they are the difference between "machine-checked
    `native_decide`. This trusts the Lean **compiler** (not just the kernel), exactly as
    `bv_decide` does. The certificates are regenerable from scratch (`tools/regen_certificates.sh`);
    the CNFs are emitted from the *same* Lean definitions the proof checks, so there is no
-   second, drifting encoding.
+   second, drifting encoding. **The unconditional theorem adds ten more `native_decide`
+   axioms** of the same kind: finite facts about the explicit Kang–Pikhurko constructions
+   `kpG`/`kpG1` (two cone-isomorphism witnesses and two A/B complement structures) used by
+   `kp_equality_classification_proven`. Same `ofReduceBool` compiler trust; each is a decidable
+   check on a fixed graph on ≤ 21 vertices.
 
 3. **The review chain is internal.** Correctness rests on: the author sessions'
    self-checks; **fresh-session adversarial reviews** (independent Claude sessions) of

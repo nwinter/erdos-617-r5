@@ -29,3 +29,9 @@ import Lean617.Final
 #print axioms Erdos617.lemma_MH2
 #print axioms Erdos617.erdos_617_r5
 #print axioms Erdos617.erdos_617_r5_upstream
+-- UNCONDITIONAL finish line (D-campaign complete): `KPEqualityClassification` is discharged by the
+-- PROVEN `kp_equality_classification_proven`, so these carry the KP-construction `native_decide`
+-- witness axioms (kpG/kpG1 cone-isos + AB21 complement structures) IN ADDITION to the four SAT ones
+-- — all matched by the `glob:*native_decide*` allowlist entry. Still NO sorryAx.
+#print axioms Erdos617.erdos_617_r5_unconditional
+#print axioms Erdos617.erdos_617_r5_upstream_unconditional

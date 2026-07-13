@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+<title>Twenty-five points, five colours</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --panel:#ffffff; --ink:#21242c; --mut:#6a7080; --line:#d9dde4;
+    --grid:#eef0f4; --sel:#21242c;
+    --c0:#3a66c4; --c1:#c07d10; --c2:#c2434b; --c3:#257f68; --c4:#7d55c0;
+    --ok:#257f68; --warn:#c2434b;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15181e; --panel:#1b1f27; --ink:#dde1e8; --mut:#8b92a2; --line:#2c313b;
+      --grid:#20242d; --sel:#dde1e8;
+      --c0:#7d9ff0; --c1:#e8ae3c; --c2:#ee8087; --c3:#55c0a3; --c4:#b795ec;
+      --ok:#55c0a3; --warn:#ee8087;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f7f8fa; --panel:#ffffff; --ink:#21242c; --mut:#6a7080; --line:#d9dde4;
+    --grid:#eef0f4; --sel:#21242c;
+    --c0:#3a66c4; --c1:#c07d10; --c2:#c2434b; --c3:#257f68; --c4:#7d55c0;
+    --ok:#257f68; --warn:#c2434b;
+  }
+  :root[data-theme="dark"]{
+    --bg:#15181e; --panel:#1b1f27; --ink:#dde1e8; --mut:#8b92a2; --line:#2c313b;
+    --grid:#20242d; --sel:#dde1e8;
+    --c0:#7d9ff0; --c1:#e8ae3c; --c2:#ee8087; --c3:#55c0a3; --c4:#b795ec;
+    --ok:#55c0a3; --warn:#ee8087;
+  }
+  html{background:var(--bg)}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Iowan Old Style",Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
+    font-size:1.0625rem; line-height:1.62; margin:0; padding:0 1.25rem;
+  }
+  .wrap{max-width:44rem; margin:0 auto; padding:3.2rem 0 4rem}
+  .eyebrow{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--mut);
+    margin:0 0 .9rem;
+  }
+  h1{font-size:2.15rem; line-height:1.15; margin:0 0 1rem; font-weight:600; text-wrap:balance}
+  .dek{font-size:1.12rem; color:var(--mut); margin:0 0 2.4rem; line-height:1.55}
+  h2{font-size:1.32rem; margin:2.6rem 0 .8rem; font-weight:600; text-wrap:balance}
+  p{margin:.85rem 0}
+  em{font-style:italic}
+  sub{font-size:.68em}
+  a{color:var(--c0)}
+  .mut{color:var(--mut)}
+  .small{font-size:.9rem}
+
+  table.nvals{border-collapse:collapse; margin:1.1rem 0; font-variant-numeric:tabular-nums}
+  table.nvals th, table.nvals td{border:1px solid var(--line); padding:.35rem .8rem; text-align:center}
+  table.nvals th{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.78rem; font-weight:400; color:var(--mut)}
+  table.nvals td.new{font-weight:700}
+
+  figure.plate{
+    margin:1.6rem 0; border:1px solid var(--line); border-radius:4px; background:var(--panel);
+    background-image:
+      repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 28px);
+    overflow:hidden;
+  }
+  .plate-body{padding:1.1rem 1.1rem .9rem; overflow-x:auto}
+  figcaption{
+    border-top:1px solid var(--line); background:var(--panel);
+    padding:.65rem 1.1rem .7rem; font-size:.85rem; color:var(--mut); line-height:1.5;
+  }
+  figcaption .fig-no{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.7rem;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--ink); margin-right:.5rem;
+  }
+  svg{display:block; max-width:100%; height:auto}
+  svg text{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+  .controls{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.2rem 0 .8rem}
+  button{
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:.83rem;
+    color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:4px;
+    padding:.34rem .7rem; cursor:pointer;
+  }
+  button:hover{border-color:var(--mut)}
+  button:focus-visible{outline:2px solid var(--c0); outline-offset:2px}
+  button[aria-pressed="true"]{border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+  button.chip{display:inline-flex; align-items:center; gap:.4rem}
+  .dot{width:.68rem; height:.68rem; border-radius:50%; display:inline-block; flex:none}
+
+  .readout{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82rem;
+    line-height:1.6; margin:.6rem 0 0; min-height:1.4em; color:var(--ink);
+  }
+  .readout .ok{color:var(--ok); font-weight:700}
+  .readout .no{color:var(--warn); font-weight:700}
+  .swatches{display:flex; gap:.9rem; flex-wrap:wrap; margin-top:.45rem;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.8rem}
+  .swatches span{display:inline-flex; gap:.35rem; align-items:center}
+
+  .chain{display:flex; flex-direction:column; gap:0; margin:.4rem 0}
+  .chain .step{
+    border:1px solid var(--line); border-radius:4px; background:var(--panel);
+    padding:.65rem .85rem; font-size:.95rem; line-height:1.5;
+  }
+  .chain .tag{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.66rem;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--mut);
+    display:block; margin-bottom:.15rem;
+  }
+  .chain .arr{align-self:center; color:var(--mut); font-size:.9rem; line-height:1; padding:.28rem 0}
+
+  .pipe{display:flex; flex-wrap:wrap; gap:.55rem; counter-reset:pipestep; margin:.4rem 0}
+  .pipe .stage{
+    flex:1 1 15rem; border:1px solid var(--line); border-radius:4px; background:var(--panel);
+    padding:.6rem .8rem .65rem; font-size:.88rem; line-height:1.45; counter-increment:pipestep;
+  }
+  .pipe .stage::before{
+    content:counter(pipestep,decimal-leading-zero);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.66rem;
+    letter-spacing:.1em; color:var(--mut); display:block; margin-bottom:.2rem;
+  }
+
+  .status{
+    border:1px solid var(--line); border-radius:4px; background:var(--panel);
+    padding:1rem 1.2rem; margin:1.4rem 0; font-size:.93rem;
+  }
+  .status dl{display:grid; grid-template-columns:max-content 1fr; gap:.3rem 1.1rem; margin:0}
+  .status dt{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--mut); padding-top:.18rem;
+  }
+  .status dd{margin:0}
+  @media (max-width:520px){ .status dl{grid-template-columns:1fr} .status dt{padding-top:.5rem} }
+
+  .foot{margin-top:3rem; padding-top:1rem; border-top:1px solid var(--line);
+    font-size:.85rem; color:var(--mut)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .flash{animation:flash 1.1s ease-in-out 2}
+    @keyframes flash{50%{opacity:.25}}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<p class="eyebrow">Erdős problem 617 · the case r = 5</p>
+<h1>Twenty-five points, five colours</h1>
+<p class="dek">Can 26 points be joined by edges of five colours so that every six of them
+show all five? Erdős and Gyárfás conjectured no in 1999, and proved the analogous statements
+for three and four colours; five was the first open case. This page explains the result of a
+machine-checked candidate resolution — the answer is no, and 25 points is exactly the limit —
+along with the construction that achieves 25, the shape of the impossibility proof, and how
+the proof was produced and checked.</p>
+
+<h2>The question</h2>
+
+<p>Take <em>n</em> points and draw all <em>n</em>(<em>n</em>−1)/2 edges between them — the
+complete graph K<sub><em>n</em></sub>. Colour every edge with one of <em>r</em> colours.
+Call the colouring <em>balanced</em> if every set of <em>r</em>+1 points contains edges of
+all <em>r</em> colours. Balance gets harder as <em>n</em> grows: more six-point sets to
+satisfy, and any subset of a balanced colouring is balanced, so once it fails at some
+<em>n</em> it fails forever after. Write N(<em>r</em>) for the largest <em>n</em> where a
+balanced <em>r</em>-colouring of K<sub><em>n</em></sub> exists.</p>
+
+<p>Two colours already tell an interesting story, and it fits on five points.</p>
+
+<figure class="plate">
+  <div class="plate-body">
+    <div class="controls">
+      <button id="p-step">Step through all 10 triples</button>
+      <button id="p-extend" aria-pressed="false">Add a sixth point</button>
+      <button id="p-reset">Reset</button>
+    </div>
+    <svg id="p-svg" viewBox="0 0 320 250" width="320" role="img"
+         aria-label="Interactive pentagon: a two-colouring of the complete graph on five points"></svg>
+    <p class="readout" id="p-read">Click three points, or step through the triples.</p>
+  </div>
+  <figcaption><span class="fig-no">Figure 1</span>The pentagon colouring of
+  K<sub>5</sub>: crimson on the outer cycle, blue on the diagonals. Each colour class is a
+  five-cycle, so neither contains a triangle — which is exactly why every three points see
+  both colours. Add a sixth point and colour its five new edges however you like: a
+  one-colour triangle always appears (Ramsey's R(3,3) = 6). So N(2) = 5.</figcaption>
+</figure>
+
+<p>So for two colours, 2² + 1 = 5 points can be balanced and six cannot. Erdős and Gyárfás
+observed that two is the exception: for every <em>r</em> ≥ 3, they conjectured, balance
+already fails at <em>r</em>² + 1, so N(<em>r</em>) = <em>r</em>². They proved it for
+<em>r</em> = 3 and <em>r</em> = 4. The next line of the table stayed open from 1999 until
+this project:</p>
+
+<table class="nvals">
+  <tr><th>colours r</th><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+  <tr><th>limit N(r)</th><td>5</td><td>9</td><td>16</td><td class="new">25</td></tr>
+</table>
+
+<p>The two halves of the r = 5 line are different kinds of object. N(5) ≥ 25 needs one
+good colouring of K<sub>25</sub>, and there is a clean one to show. N(5) ≤ 25 needs a proof
+that <em>none</em> of the roughly 5<sup>325</sup> colourings of K<sub>26</sub> is balanced —
+that is Erdős problem 617, and it is where the machinery comes in.</p>
+
+<h2>Twenty-five points: colour by direction</h2>
+
+<p>Arrange 25 points as a 5×5 grid and do arithmetic modulo 5, so the grid is the affine
+plane over the field of five elements. A <em>line</em> is a set of five points of constant
+slope; the possible slopes are 0, 1, 2, 3, 4 and vertical — six directions in all, and any
+two points lie on exactly one line. Lines of nonzero slope can wrap around the edges of
+the grid, torus-style.</p>
+
+<p>Colour every edge by the direction of the line through its two endpoints. That gives six
+colour classes; to get five, merge two directions — here slopes 0 and 1 — into a single
+colour. This is the colouring below, and it is balanced.</p>
+
+<figure class="plate">
+  <div class="plate-body">
+    <div class="controls" id="g-chips"></div>
+    <div class="controls">
+      <button id="g-random">Pick six points at random</button>
+      <button id="g-clear">Clear selection</button>
+      <button id="g-verify">Check all 177,100 six-point sets</button>
+    </div>
+    <svg id="g-svg" viewBox="0 0 304 304" width="304" role="img"
+         aria-label="Interactive 5 by 5 grid showing the direction colouring of the complete graph on 25 points"></svg>
+    <p class="readout" id="g-read">Click up to six points; the edges between them appear in
+    their colours.</p>
+    <div class="swatches" id="g-swatch"></div>
+  </div>
+  <figcaption><span class="fig-no">Figure 2</span>The merged direction colouring of
+  K<sub>25</sub>. Each unmerged colour class is five parallel lines, each line a fully
+  joined clique of five — 50 edges; the merged class has 100. Select any six points and all
+  five colours appear among the fifteen edges between them. The check-everything button
+  re-verifies the whole claim in your browser, independently of the project's own
+  verifier.</figcaption>
+</figure>
+
+<p>Why it works is one pigeonhole. Fix any direction: its five parallel lines partition the
+25 points, so among any <em>six</em> points, two must share a line of that direction —
+which is precisely an edge of that direction's colour. Every direction therefore shows up
+inside every six-point set, and merging two directions into one colour keeps all five
+colours present. The same construction produces a balanced colouring of
+K<sub>r²</sub> whenever r is a prime power, which is the known reason the conjecture's
+"+1" cannot be dropped.</p>
+
+<p>One vertex more, though, and the geometry has no room: a 26th point sits on no line of
+the plane. This project proved (as a warm-up, by hand, for every prime power r ≥ 3) that
+merged direction colourings can never be extended by any one additional point — for r = 5,
+a 26th — and then the real question is whether some entirely different colouring of
+K<sub>26</sub> works instead.</p>
+
+<h2>Twenty-six points: why nothing works</h2>
+
+<p>The impossibility proof runs by contradiction, and its skeleton fits in one diagram.
+Suppose some balanced 5-colouring of K<sub>26</sub> exists.</p>
+
+<figure class="plate">
+  <div class="plate-body">
+    <div class="chain">
+      <div class="step"><span class="tag">Suppose</span>K<sub>26</sub> has a balanced
+        5-colouring: all 230,230 six-point sets see all five colours.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Delete a point</span>Remove any point x. Sort the
+        remaining 25 points into groups T<sub>1</sub>,…,T<sub>5</sub> by the colour of
+        their edge to x.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">What balance forces</span>Take a colour c and any
+        five points spanning no c-edge. If none of them were joined to x in colour c, those
+        five plus x would be a six-point set missing c. So T<sub>c</sub> must intersect
+        <em>every</em> c-free five-point set: a five-way system of "blocking sets" inside a
+        balanced K<sub>25</sub>.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Lemma 1</span>In a balanced 5-colouring of
+        K<sub>25</sub>, no colour has a blocking set of size four or less. Hence every
+        |T<sub>c</sub>| ≥ 5 — and the five groups partition 25 points, so each is
+        <em>exactly</em> five. Everything is tight, and tightness forces more: each
+        T<sub>c</sub> can span at most 6 edges of its own colour.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Count</span>K<sub>25</sub> has 300 edges in five
+        colours, so some colour c has at most 60 edges.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Lemma 2</span>In a balanced 5-colouring of
+        K<sub>25</sub>, a colour class with at most 60 edges admits no five-point blocking
+        set spanning at most 6 edges of its own colour — this is where the extremal graph
+        theory does its work. It contradicts what T<sub>c</sub> was just forced to
+        be.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Contradiction</span>No balanced 5-colouring of
+        K<sub>26</sub> exists. With the K<sub>25</sub> construction above: N(5) = 25.</div>
+    </div>
+  </div>
+  <figcaption><span class="fig-no">Figure 3</span>The extension-obstruction chain. The two
+  lemmas carry the weight: both are statements about balanced colourings of
+  K<sub>25</sub> and finite graphs. Lemma 1 leans on a 1981 Turán-type theorem of Brouwer
+  about graphs with no large clique; both rest on four small finite facts established by
+  SAT solvers with independently checkable certificates.</figcaption>
+</figure>
+
+<p>The two lemmas are where the difficulty actually lives; the chain around them is a page
+of careful bookkeeping. Their proofs are ordinary combinatorics — counting, extremal graph
+theory, case analysis — but the cases are numerous and unforgiving, which is why every step
+was ultimately re-done inside a proof assistant.</p>
+
+<h2>How it was found</h2>
+
+<p>The project ran as a loop between search and proof. Searching for balanced colourings of
+K<sub>25</sub> is easy — a local-search program finds one from a random start in seconds,
+and found dozens of structurally different ones. The same search on K<sub>26</sub> always
+stalls: every run gets stuck around 800 unsatisfied six-point sets, and in the stuck states
+the violations all pass through a single vertex pair. The wall was suspiciously consistent,
+and its shape suggested what to prove.</p>
+
+<p>The blocking-set structure of Lemma 1 gave a sharper probe. Colourings that contain a
+<em>four-point</em> blocking set — the thing Lemma 1 says cannot happen at 25 points — do
+exist on fewer points, and watching where they stop existing located the cliff
+exactly:</p>
+
+<figure class="plate">
+  <div class="plate-body">
+    <svg id="c-svg" viewBox="0 0 560 260" width="560" role="img"
+         aria-label="Log-scale chart of search time to find witness colourings for 17 to 24 points, with none found at 25"></svg>
+  </div>
+  <figcaption><span class="fig-no">Figure 4</span>Time to find a colouring with a four-point
+  blocking set, by number of points. SAT solver up to n = 22 (about ×8 per added point);
+  warm-started local search at 23 and 24; at n = 25, five independent searches each ran
+  ≥18 hours (≥36 CPU-hours) and found nothing, each pinned at the same distance from
+  feasibility. Lemma 1 turned this cliff from evidence into theorem.</figcaption>
+</figure>
+
+<p>Every conjectured lemma went through the same discipline: test it computationally on
+small cases first, prove it only if it survives. Several plausible lemmas died this way —
+a solver refuted one of them with an explicit 80-edge counterexample — and one early
+misreading of the literature was caught the same way. The two lemmas that survived
+were proved, then attacked: fresh sessions with no stake in the proofs reviewed them
+adversarially, found two genuine gaps, and both were repaired. The final step was
+formalization: every definition, both lemmas, the chain, and the classical ingredients were
+rebuilt in the Lean proof assistant, whose small kernel re-checks every inference. The four
+finite facts enter as solver certificates re-verified by a formally proven checker; the
+1981 Brouwer bound and a 2005 classification of the extremal graphs (Kang–Pikhurko) were
+formalized from scratch rather than assumed — the classification by descending through
+nested cones, 21 → 17 → 13 → 9 points, to a nine-point base case with exactly two
+solutions.</p>
+
+<figure class="plate">
+  <div class="plate-body">
+    <div class="pipe">
+      <div class="stage">Construct and search. The grid colouring settles
+        N(5) ≥ 25; all searches wall at 26, always in the same way.</div>
+      <div class="stage">Turn the wall's shape into candidate lemmas; kill the false ones
+        cheaply with SAT solvers before spending proof effort.</div>
+      <div class="stage">Prove the two survivors (proofs authored by one model), then
+        adversarially review them (fresh sessions, different model families). Two gaps
+        found; two repairs adopted.</div>
+      <div class="stage">Formalize everything in Lean 4: the chain, both lemmas, the
+        certificate-checked finite facts, and the classical theorems they lean on.</div>
+      <div class="stage">Audit: zero unproven placeholders; the final theorem's complete
+        axiom list is three standard Lean axioms plus fourteen disclosed
+        certificate/computation reflections.</div>
+    </div>
+  </div>
+  <figcaption><span class="fig-no">Figure 5</span>The pipeline. Proofs, reviews, and
+  formalization were done by separate AI sessions with separate roles, on the theory that
+  an author should never grade its own work; the formalization alone ran as a relay of 21
+  sessions.</figcaption>
+</figure>
+
+<h2>Who did what</h2>
+
+<p>The project ran from 5 to 12 July 2026. It was prompted and directed by Nick Winter,
+who chose the problem, set the rules of engagement (falsify before proving; an untouchable
+referee script; adversarial review before anything counts), supplied the compute and
+accounts, and made the release decisions — and who has verified the process, not the
+mathematics. All mathematics, code, and prose were produced by the AI systems below. The
+roles are documented in the repository's research logs; the model versions and reasoning
+settings are as recorded in the owner's session logs.</p>
+
+<div class="status">
+  <dl>
+    <dt>Claude Fable&nbsp;5</dt><dd>(Anthropic; Claude Code agent sessions with extended
+      thinking.) Primary system: the search programs and SAT encodings, the
+      K<sub>25</sub> constructions and the non-extension theorem, the
+      extension-obstruction chain, the briefs both lemmas were proved from, all
+      verification infrastructure, the entire Lean formalization (a relay of 21 runner
+      sessions plus analysis agents), the write-up, and this page.</dd>
+    <dt>gpt-5.6-sol</dt><dd>(OpenAI; via the codex CLI at ultra reasoning effort.) Proved
+      Lemma 1 and Lemma 2 from written briefs — the two hardest single steps; served as
+      co-prover on Lean sub-lemmas and as an independent cross-checker. Also caught a
+      false claim in one of the briefs before it could do damage.</dd>
+    <dt>Claude Opus&nbsp;4.8</dt><dd>Independent audit that the formal Lean statement
+      faithfully encodes the problem as stated at erdosproblems.com (run alongside an
+      equivalent audit by gpt-5.6-sol; zero mismatches found).</dd>
+    <dt>Fresh-session reviews</dt><dd>Every load-bearing proof was adversarially reviewed
+      by AI sessions that had no part in writing it and were briefed to break it. They
+      found two genuine gaps; both were repaired and the repairs re-verified.</dd>
+  </dl>
+</div>
+
+<h2>What exactly has been established</h2>
+
+<p>The end state is a single machine-checked theorem: <em>no balanced 5-colouring of
+K<sub>26</sub> exists</em> — stated in Lean over an arbitrary 26-element vertex set,
+checked by the Lean kernel, with no remaining mathematical hypothesis. Trust reduces to the
+proof assistant's kernel, three standard axioms, and fourteen named reflection axioms
+covering the SAT certificates and a few concrete finite-graph computations, all disclosed
+and audited. The result has not yet been reviewed by an independent human mathematician,
+and until it is, it should be described as a machine-verified candidate: the honest
+strength of the claim is "a proof object exists and checks", not "the community has
+accepted it".</p>
+
+<div class="status">
+  <dl>
+    <dt>Result</dt><dd>N(5) = 25: the Erdős–Gyárfás conjecture holds at r = 5
+      (Erdős problem 617, first open case).</dd>
+    <dt>Theorem</dt><dd><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em">erdos_617_r5_unconditional</span> — Lean 4 + Mathlib, sorry-free, kernel-checked.</dd>
+    <dt>Trust base</dt><dd>3 standard Lean axioms + 4 SAT-certificate reflections + 10
+      finite-graph computation reflections (17 total, audited).</dd>
+    <dt>Authorship</dt><dd>AI throughout (two model families: proofs, adversarial reviews,
+      formalization), directed and process-verified by the project owner.</dd>
+    <dt>Review status</dt><dd>Internally cross-reviewed with two repaired gaps; no
+      independent human review yet.</dd>
+    <dt>Package</dt><dd><span id="pkg-link"></span></dd>
+  </dl>
+</div>
+
+<p class="foot">Independent checks on this page: Figure 1 and Figure 2 run live on the
+construction data, and the check-everything button in Figure 2 re-verifies balance of the
+K<sub>25</sub> colouring from scratch in your browser — an implementation written for this
+page, sharing no code with the project's referee script. The impossibility side, of course,
+cannot be demonstrated by example; that is what the formal proof is for. Everything
+referenced here — the Lean development, the 25-page report
+(<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em">writeup/erdos617-r5.tex</span>),
+the SAT certificates with regeneration scripts, and the complete review trail — lives in
+the project repository<span id="repo-foot"></span></p>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* Set to the public GitHub URL at publication time, e.g. "https://github.com/<owner>/erdos-617-r5" */
+var REPO_URL = "https://github.com/nwinter/erdos-617-r5";
+(function repoLinks(){
+  var pkg = document.getElementById("pkg-link");
+  var foot = document.getElementById("repo-foot");
+  var bare = REPO_URL.replace(/^https?:\/\//,"");
+  if (REPO_URL){
+    pkg.innerHTML = '<a href="'+REPO_URL+'">'+bare+'</a> — Lean project, report, certificates, review trail.';
+    foot.innerHTML = ': <a href="'+REPO_URL+'">'+bare+'</a>. The report: <a href="'+REPO_URL+'/blob/main/writeup/erdos617-r5.tex">writeup/erdos617-r5.tex</a>.';
+  } else {
+    pkg.textContent = "public repository pending publication: the Lean project, the report (writeup/erdos617-r5.tex), the SAT certificates, and the full review trail; this page ships inside it as explainer.html.";
+    foot.textContent = " (publication pending; this page ships inside it as explainer.html).";
+  }
+})();
+var css = getComputedStyle(document.documentElement);
+function col(name){ return css.getPropertyValue(name).trim(); }
+var SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){
+  var e = document.createElementNS(SVGNS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+/* ---------- Figure 1: pentagon ---------- */
+var P = { sel:[], mode:"triples", newEdges:[-1,-1,-1,-1,-1], stepIdx:-1 };
+var psvg = document.getElementById("p-svg");
+var pread = document.getElementById("p-read");
+var PC = [];
+for (var i=0;i<5;i++){
+  var a = (-90 + 72*i) * Math.PI/180;
+  PC.push([160 + 95*Math.cos(a), 125 + 95*Math.sin(a)]);
+}
+var CENTER = [160,125];
+function pentColour(i,j){ // 0 = crimson cycle, 1 = blue diagonal
+  var d = Math.abs(i-j); if (d>2) d = 5-d;
+  return d===1 ? 0 : 1;
+}
+var pentColourVar = ["--c2","--c0"];
+var pentColourName = ["crimson","blue"];
+var triples = [];
+for (var a1=0;a1<5;a1++) for (var b1=a1+1;b1<5;b1++) for (var c1=b1+1;c1<5;c1++) triples.push([a1,b1,c1]);
+
+function drawPent(){
+  while (psvg.firstChild) psvg.removeChild(psvg.firstChild);
+  var six = P.mode==="extend";
+  var pts = six ? PC.concat([CENTER]) : PC.slice();
+  var edges = [];
+  for (var i=0;i<5;i++) for (var j=i+1;j<5;j++) edges.push([i,j,pentColour(i,j)]);
+  if (six) for (var i=0;i<5;i++) edges.push([i,5,P.newEdges[i]]);
+  var selSet = {}; P.sel.forEach(function(v){selSet[v]=1;});
+  var full = P.sel.length===3;
+  // find mono triangle if in extend mode and complete
+  var mono = null;
+  if (six && P.newEdges.indexOf(-1)<0){
+    var C6 = function(i,j){ if(i>j){var t=i;i=j;j=t;} return j<5 ? pentColour(i,j) : P.newEdges[i]; };
+    outer:
+    for (var x=0;x<6;x++) for (var y=x+1;y<6;y++) for (var z=y+1;z<6;z++){
+      if (C6(x,y)===C6(y,z) && C6(y,z)===C6(x,z)){ mono=[x,y,z]; break outer; }
+    }
+  }
+  edges.forEach(function(e){
+    var i=e[0], j=e[1], c=e[2];
+    var inSel = full && selSet[i] && selSet[j];
+    var inMono = mono && mono.indexOf(i)>=0 && mono.indexOf(j)>=0;
+    var stroke = c<0 ? col("--line") : col(pentColourVar[c]);
+    var ln = el("line",{x1:pts[i][0],y1:pts[i][1],x2:pts[j][0],y2:pts[j][1],
+      stroke:stroke, "stroke-width": inMono?6:(inSel?4.5:(c<0?2.5:2)),
+      opacity: (full&&!inSel&&!inMono) ? .18 : (inMono?1:.9),
+      "stroke-dasharray": c<0 ? "4 4" : "none"}, psvg);
+    if (six && j===5 && !mono){ // clickable new edges
+      ln.setAttribute("cursor","pointer");
+      var iCopy=i;
+      var hit = el("line",{x1:pts[i][0],y1:pts[i][1],x2:pts[j][0],y2:pts[j][1],
+        stroke:"transparent","stroke-width":14,cursor:"pointer"}, psvg);
+      hit.addEventListener("click", function(){
+        P.newEdges[iCopy] = P.newEdges[iCopy]===0 ? 1 : 0;
+        drawPent(); updatePentRead();
+      });
+    }
+    if (inMono) ln.setAttribute("class","flash");
+  });
+  pts.forEach(function(p,idx){
+    var inSel = selSet[idx];
+    var c = el("circle",{cx:p[0],cy:p[1],r:9, fill:col("--panel"),
+      stroke: inSel?col("--sel"):col("--mut"), "stroke-width": inSel?3:1.5, cursor:"pointer"}, psvg);
+    c.addEventListener("click", function(){
+      if (P.mode==="extend") return;
+      var at = P.sel.indexOf(idx);
+      if (at>=0) P.sel.splice(at,1);
+      else { if (P.sel.length>=3) P.sel.shift(); P.sel.push(idx); }
+      P.stepIdx = -1;
+      drawPent(); updatePentRead();
+    });
+  });
+}
+function updatePentRead(){
+  if (P.mode==="extend"){
+    var k = 5 - P.newEdges.filter(function(x){return x<0;}).length;
+    if (k<5){ pread.innerHTML = "Click the five dashed edges to colour them — "+k+"/5 done. Any choice works (or fails) the same way."; return; }
+    var C6 = function(i,j){ if(i>j){var t=i;i=j;j=t;} return j<5 ? pentColour(i,j) : P.newEdges[i]; };
+    for (var x=0;x<6;x++) for (var y=x+1;y<6;y++) for (var z=y+1;z<6;z++){
+      if (C6(x,y)===C6(y,z)&&C6(y,z)===C6(x,z)){
+        pread.innerHTML = "<span class='no'>One-colour triangle</span> — the highlighted triple sees only "+pentColourName[C6(x,y)]+". Six points, two colours: unavoidable.";
+        return;
+      }
+    }
+  } else if (P.sel.length===3){
+    pread.innerHTML = "Points {"+P.sel.slice().sort().join(", ")+"}: crimson <span class='ok'>✓</span> blue <span class='ok'>✓</span> — both colours present, as for every triple.";
+  } else {
+    pread.textContent = "Click three points, or step through the triples.";
+  }
+}
+document.getElementById("p-step").addEventListener("click", function(){
+  if (P.mode==="extend") togglePentMode(false);
+  P.stepIdx = (P.stepIdx+1) % triples.length;
+  P.sel = triples[P.stepIdx].slice();
+  drawPent();
+  pread.innerHTML = "Triple "+(P.stepIdx+1)+"/10 — {"+P.sel.join(", ")+"}: crimson <span class='ok'>✓</span> blue <span class='ok'>✓</span>";
+});
+function togglePentMode(on){
+  P.mode = on ? "extend" : "triples";
+  document.getElementById("p-extend").setAttribute("aria-pressed", on?"true":"false");
+  P.sel = []; P.newEdges = [-1,-1,-1,-1,-1]; P.stepIdx=-1;
+  drawPent(); updatePentRead();
+}
+document.getElementById("p-extend").addEventListener("click", function(){
+  togglePentMode(P.mode!=="extend");
+});
+document.getElementById("p-reset").addEventListener("click", function(){ togglePentMode(false); });
+drawPent(); updatePentRead();
+
+/* ---------- Figure 2: the 5x5 grid ---------- */
+var INV = [0,1,3,2,4]; // inverses mod 5
+function dirOf(p,q){
+  var x1=Math.floor(p/5), y1=p%5, x2=Math.floor(q/5), y2=q%5;
+  if (x1===x2) return 5; // vertical
+  var s = ((y2-y1)*INV[((x2-x1)%5+5)%5]) % 5;
+  return ((s%5)+5)%5;
+}
+// merge slopes 0 and 1 -> colour 0 ; slope 2 -> 1 ; slope 3 -> 2 ; slope 4 -> 3 ; vertical -> 4
+function colourOf(p,q){
+  var d = dirOf(p,q);
+  if (d===0||d===1) return 0;
+  if (d===5) return 4;
+  return d-1;
+}
+var CMAT = [];
+for (var p=0;p<25;p++){ CMAT.push([]); for (var q=0;q<25;q++) CMAT[p].push(p===q?-1:0); }
+for (var p=0;p<25;p++) for (var q=p+1;q<25;q++){ var c=colourOf(p,q); CMAT[p][q]=c; CMAT[q][p]=c; }
+var classEdges = [[],[],[],[],[]];
+for (var p=0;p<25;p++) for (var q=p+1;q<25;q++) classEdges[CMAT[p][q]].push([p,q]);
+
+var gsvg = document.getElementById("g-svg");
+var gread = document.getElementById("g-read");
+var G = { show:4, sel:[] };
+var classLabel = ["slopes 0 + 1 (merged)","slope 2","slope 3","slope 4","vertical"];
+var cvars = ["--c0","--c1","--c2","--c3","--c4"];
+function gxy(p){ var x=Math.floor(p/5), y=p%5; return [40+x*56, 40+y*56]; }
+
+var chipsBox = document.getElementById("g-chips");
+var themedDots = [];
+classLabel.forEach(function(lab,ci){
+  var b = document.createElement("button");
+  b.className="chip"; b.setAttribute("aria-pressed", ci===G.show?"true":"false");
+  var d = document.createElement("span"); d.className="dot"; d.style.background=col(cvars[ci]);
+  themedDots.push([d,ci]);
+  b.appendChild(d); b.appendChild(document.createTextNode(lab));
+  b.addEventListener("click", function(){ G.show = ci; refreshChips(); drawGrid(); });
+  chipsBox.appendChild(b);
+});
+var allBtn = document.createElement("button");
+allBtn.className="chip"; allBtn.textContent="all classes (faint)";
+allBtn.addEventListener("click", function(){ G.show = -1; refreshChips(); drawGrid(); });
+chipsBox.appendChild(allBtn);
+function refreshChips(){
+  var kids = chipsBox.children;
+  for (var i=0;i<kids.length;i++) kids[i].setAttribute("aria-pressed", (i===G.show || (G.show<0 && i===5)) ? "true":"false");
+}
+var swBox = document.getElementById("g-swatch");
+classLabel.forEach(function(lab,ci){
+  var s = document.createElement("span");
+  var d = document.createElement("span"); d.className="dot"; d.style.background=col(cvars[ci]);
+  themedDots.push([d,ci]);
+  s.appendChild(d); s.appendChild(document.createTextNode((ci===0?"100":"50")+" edges"));
+  swBox.appendChild(s);
+});
+
+function drawGrid(){
+  while (gsvg.firstChild) gsvg.removeChild(gsvg.firstChild);
+  var selSet={}; G.sel.forEach(function(v){selSet[v]=1;});
+  // background class edges
+  for (var ci=0;ci<5;ci++){
+    if (G.show>=0 && ci!==G.show) continue;
+    classEdges[ci].forEach(function(e){
+      var a=gxy(e[0]), b=gxy(e[1]);
+      el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:col(cvars[ci]),
+        "stroke-width": G.show<0?1:1.6, opacity: G.show<0?.22:.5},gsvg);
+    });
+  }
+  // selected-pair overlay
+  if (G.sel.length>=2){
+    for (var i=0;i<G.sel.length;i++) for (var j=i+1;j<G.sel.length;j++){
+      var pp=G.sel[i], qq=G.sel[j], c=CMAT[pp][qq];
+      var a=gxy(pp), b=gxy(qq);
+      el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:col(cvars[c]),"stroke-width":3.4,opacity:.95},gsvg);
+    }
+  }
+  for (var p2=0;p2<25;p2++){
+    (function(pt){
+      var xy=gxy(pt);
+      var c = el("circle",{cx:xy[0],cy:xy[1],r:7.5, fill: selSet[pt]?col("--sel"):col("--panel"),
+        stroke: selSet[pt]?col("--sel"):col("--mut"), "stroke-width":1.4, cursor:"pointer"},gsvg);
+      c.addEventListener("click", function(){
+        var at=G.sel.indexOf(pt);
+        if (at>=0) G.sel.splice(at,1);
+        else { if (G.sel.length>=6) G.sel.shift(); G.sel.push(pt); }
+        drawGrid(); updateGridRead();
+      });
+    })(p2);
+  }
+}
+function updateGridRead(){
+  var k=G.sel.length;
+  if (k<2){ gread.textContent="Click up to six points; the edges between them appear in their colours."; return; }
+  var seen=[false,false,false,false,false];
+  for (var i=0;i<k;i++) for (var j=i+1;j<k;j++) seen[CMAT[G.sel[i]][G.sel[j]]]=true;
+  var parts = seen.map(function(s,ci){
+    return "<span style='color:"+col(cvars[ci])+"'>"+(s?"●":"○")+"</span>";
+  }).join(" ");
+  var missing = seen.filter(function(s){return !s;}).length;
+  if (k===6){
+    gread.innerHTML = k+" points · colours "+parts+" — <span class='ok'>all five present ✓</span>";
+  } else {
+    gread.innerHTML = k+" points · colours "+parts+(missing? " — "+missing+" not yet forced (need six points)":"");
+  }
+}
+document.getElementById("g-random").addEventListener("click", function(){
+  var pool=[]; for(var i=0;i<25;i++) pool.push(i);
+  G.sel=[];
+  for (var i=0;i<6;i++){ var at=Math.floor(Math.random()*pool.length); G.sel.push(pool.splice(at,1)[0]); }
+  drawGrid(); updateGridRead();
+});
+document.getElementById("g-clear").addEventListener("click", function(){ G.sel=[]; drawGrid(); updateGridRead(); });
+document.getElementById("g-verify").addEventListener("click", function(){
+  var t0 = performance.now();
+  // bitmask per pair
+  var BM=[]; for (var p=0;p<25;p++){ BM.push(new Uint8Array(25)); for(var q=0;q<25;q++) if(p!==q) BM[p][q] = 1<<CMAT[p][q]; }
+  var bad=0, total=0;
+  for (var a=0;a<20;a++) for (var b=a+1;b<21;b++){ var mab=BM[a][b];
+    for (var c=b+1;c<22;c++){ var mac=mab|BM[a][c]|BM[b][c];
+      for (var d=c+1;d<23;d++){ var mad=mac|BM[a][d]|BM[b][d]|BM[c][d];
+        for (var e2=d+1;e2<24;e2++){ var mae=mad|BM[a][e2]|BM[b][e2]|BM[c][e2]|BM[d][e2];
+          for (var f=e2+1;f<25;f++){
+            total++;
+            if ((mae|BM[a][f]|BM[b][f]|BM[c][f]|BM[d][f]|BM[e2][f])!==31) bad++;
+          }}}}}
+  var ms = Math.round(performance.now()-t0);
+  gread.innerHTML = total.toLocaleString()+" six-point sets checked in "+ms+" ms — "+
+    (bad===0 ? "<span class='ok'>every one sees all five colours ✓</span>"
+             : "<span class='no'>"+bad+" violations (should not happen)</span>");
+});
+drawGrid(); updateGridRead();
+
+/* ---------- Figure 4: the cliff chart ---------- */
+var csvg = document.getElementById("c-svg");
+function drawChart(){
+  while (csvg.firstChild) csvg.removeChild(csvg.firstChild);
+  var W=560,H=260, L=58, R=18, T=26, B=44;
+  var kis = [[17,0.7],[18,5.8],[19,5.1],[20,46],[21,372],[22,5000]];
+  var lsN = [23,24];
+  var yMin=Math.log10(0.3), yMax=Math.log10(400000); // 0.3s .. ~111h
+  function Y(sec){ return T + (1-(Math.log10(sec)-yMin)/(yMax-yMin))*(H-T-B); }
+  function X(n){ return L + (n-16.4)/(25.6-16.4)*(W-L-R); }
+  // gridlines
+  [[1,"1 s"],[60,"1 min"],[3600,"1 h"],[129600,"36 h"]].forEach(function(g){
+    el("line",{x1:L,y1:Y(g[0]),x2:W-R,y2:Y(g[0]),stroke:col("--line"),"stroke-width":1},csvg);
+    el("text",{x:L-6,y:Y(g[0])+3,"text-anchor":"end","font-size":9,fill:col("--mut")},csvg).textContent=g[1];
+  });
+  // bars
+  kis.forEach(function(d){
+    var x=X(d[0]);
+    el("rect",{x:x-10,y:Y(d[1]),width:20,height:(H-B)-Y(d[1]),fill:col("--c0"),opacity:.8},csvg);
+    el("text",{x:x,y:H-B+14,"text-anchor":"middle","font-size":10,fill:col("--ink")},csvg).textContent=d[0];
+  });
+  // local search diamonds (minutes scale, approximate)
+  lsN.forEach(function(n){
+    var x=X(n), y=Y(70);
+    el("path",{d:"M "+x+" "+(y-7)+" l 7 7 l -7 7 l -7 -7 Z",fill:col("--c3")},csvg);
+    el("text",{x:x,y:H-B+14,"text-anchor":"middle","font-size":10,fill:col("--ink")},csvg).textContent=n;
+  });
+  el("text",{x:(X(23)+X(24))/2,y:Y(70)-12,"text-anchor":"middle","font-size":9,fill:col("--c3")},csvg).textContent="local search ≈ min";
+  // n=25: nothing found
+  var x25=X(25);
+  el("line",{x1:x25,y1:Y(129600),x2:x25,y2:T,stroke:col("--warn"),"stroke-width":2,"stroke-dasharray":"3 3"},csvg);
+  el("text",{x:x25,y:Y(129600)+4,"text-anchor":"middle","font-size":16,fill:col("--warn")},csvg).textContent="✕";
+  el("text",{x:x25-4,y:T+6,"text-anchor":"end","font-size":9,fill:col("--warn")},csvg).textContent="n = 25: none found,";
+  el("text",{x:x25-4,y:T+17,"text-anchor":"end","font-size":9,fill:col("--warn")},csvg).textContent="5 × ≥36 CPU-h ↑";
+  el("text",{x:x25,y:H-B+14,"text-anchor":"middle","font-size":10,fill:col("--ink")},csvg).textContent="25";
+  // axes labels
+  el("text",{x:L,y:H-B+30,"font-size":9,fill:col("--mut")},csvg).textContent="points n  (witness = balanced colouring containing a 4-point blocking set)";
+  el("line",{x1:L,y1:H-B,x2:W-R,y2:H-B,stroke:col("--mut"),"stroke-width":1},csvg);
+}
+drawChart();
+
+/* ---------- redraw everything when the theme changes ---------- */
+function redrawAll(){
+  drawPent(); updatePentRead();
+  drawGrid(); updateGridRead();
+  drawChart();
+  themedDots.forEach(function(d){ d[0].style.background = col(cvars[d[1]]); });
+}
+try{
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", redrawAll);
+  new MutationObserver(redrawAll).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+}catch(e){}
+})();
+</script>
+</body>
+</html>

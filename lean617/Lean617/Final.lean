@@ -26,6 +26,7 @@ import Lean617.Primitives
 import Lean617.MH2Proof
 import Lean617.MMProof
 import Lean617.Equality21
+import Lean617.JoinTransport
 
 set_option linter.style.header false
 set_option linter.style.longLine false
@@ -60,5 +61,25 @@ theorem erdos_617_r5_upstream (h : KPEqualityClassification) {V : Type} [Fintype
     ∃ (S : Finset V) (k : Fin 5), S.card = 5 + 1 ∧
       ∀ u ∈ S, ∀ v ∈ S, u ≠ v → coloring s(u, v) ≠ k :=
   main_imp_upstream (erdos_617_r5 h) hV coloring
+
+/-- **Erdős Problem 617, r = 5 — UNCONDITIONAL** (modulo the standard Lean axioms and the
+`native_decide` reflection axioms). The sole classical hypothesis `KPEqualityClassification` — the
+Kang–Pikhurko (2005) equality classification at `(r,n) = (5,21)` — is now itself PROVEN in Lean
+(`kp_equality_classification_proven`, Lean617.JoinTransport) via the D1–D4 cone descent
+`(5,21)→(4,17)→(3,13)→(2,9)`, the join-transport reassembly, and the `(2,9)` base classification
+(`base_classification`). Conclusion: every 5-colouring of the edges of `K₂₆` has six vertices whose
+induced `K₆` misses a colour. Its `#print axioms` (audited in `AxiomAudit.lean`) is the three
+standard axioms plus the SAT-reflection and KP-construction `native_decide` axioms — no `sorryAx`,
+no remaining mathematical hypothesis. -/
+theorem erdos_617_r5_unconditional : Main :=
+  erdos_617_r5 kp_equality_classification_proven
+
+/-- The upstream-shaped corollary over an arbitrary 26-element vertex type, UNCONDITIONAL. -/
+theorem erdos_617_r5_upstream_unconditional {V : Type} [Fintype V]
+    [DecidableEq V] (hV : Fintype.card V = 5 ^ 2 + 1)
+    (coloring : Sym2 V → Fin 5) :
+    ∃ (S : Finset V) (k : Fin 5), S.card = 5 + 1 ∧
+      ∀ u ∈ S, ∀ v ∈ S, u ≠ v → coloring s(u, v) ≠ k :=
+  erdos_617_r5_upstream kp_equality_classification_proven hV coloring
 
 end Erdos617

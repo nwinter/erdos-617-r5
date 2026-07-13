@@ -10,6 +10,8 @@ import Lean617.BrouwerMax
 import Lean617.GuardScaffold
 import Lean617.KPConstruction
 import Lean617.Equality21
+import Lean617.EqualityProof
+import Lean617.JoinTransport
 import Lean617.Primitives
 import Lean617.MH2Proof
 import Lean617.MMProof

@@ -20,6 +20,307 @@ single source of truth; update it with every merged milestone.
 | F8 | [MM] assembly (peeling lemma + 4 cases incl. the adopted r=7 repair) | hard, long | **DONE — sorry-free (2026-07-10, `lean617/Lean617/MMProof.lean`, full `lake build` clean).** `lemma_MM_of (pf : PrimFacts) : MM` axiom-clean (`#print axioms` = propext/Classical.choice/Quot.sound; NO sorryAx, NO native_decide). CONDITIONAL on `(pf : PrimFacts)` only (NO `BrouwerFacts`). All four cases of the {0,1,2,4}-K₅ split closed: §2 (F8c), §3 (F8d), §5 incl. `all_hit` ρ-counting (F8g), §4 `section4_one` (F8h). Full-chain audit `chain_deduction (lemma_MH2_of primFacts bf) (lemma_MM_of primFacts)` = propext/Classical/Quot + SAT native_decide axioms, NO sorryAx (BrouwerFacts stays a hypothesis). |
 | F9 | final: `erdos_617_r5` sorry-free; CI check (`lake build` clean) | — | DONE (2026-07-11); **UPDATED F6ab (2026-07-12): `erdos_617_r5 (h : KPEqualityClassification) : Main`** (was `(bf : BrouwerFacts)`) + upstream-shaped corollary, both conditional on the single hypothesis `KPEqualityClassification`. ZERO sorryAx project-wide; axioms = 3 standard + 4 named SAT-reflection (primFacts) — **unchanged by F6ab** (`kp_saving` axiom-clean; `kpG` native_decide does NOT enter — hypothesis route). Full build clean (8495 jobs); `tools/axiom_audit.sh` PASS; `leanchecker` per-module exit 0. Aggregator `Lean617.lean` now bundles BrouwerInduction/BrouwerMax/GuardScaffold/KPConstruction/Equality21 (all sorry-free). |
 
+## D-CAMPAIGN COMPLETE (2026-07-12, relay runner 21 / lean-d5 — `erdos_617_r5` UNCONDITIONAL)
+
+**The r=5 resolution is now sorry-free with NO remaining mathematical hypothesis.** The last open
+lane — the `(2,9)` base classification `base_classification` — closed sorry-free (below), which
+retired the `sorryAx` that `kp_equality_classification_proven` transitively carried. Task 5 (the
+finish line) executed:
+
+- **Base closed (lean-d5):** `base_deg3_st_adjacent` (both `k=0`/`k=1` counting cases, via a uniform
+  degree-4-squeeze obstruction — cleaner than the edge-counting spec), `base_deg3_structure` (the
+  `[3,3,4⁷]` adjacency table, α-FREE — see below), and `base_classification_deg3` + iso ⇒
+  `base_classification` SORRY-FREE and axiom-clean `[propext, Classical.choice, Quot.sound]`.
+  Commits `1d45ff0`, `182faca`, `2806e46`.
+- **Finish line:** `Final.lean` now exports `erdos_617_r5_unconditional : Main :=
+  erdos_617_r5 kp_equality_classification_proven` and `erdos_617_r5_upstream_unconditional`;
+  aggregator `Lean617.lean` bundles `EqualityProof` + `JoinTransport`. Full `lake build` clean
+  (8497 jobs, ZERO sorry). `tools/axiom_audit.sh` PASS; `tools/sorry_grep.sh` PASS;
+  `leanchecker` on EqualityProof/JoinTransport/Final exit 0.
+- **Observed axiom set of `erdos_617_r5_unconditional`** (exactly as runner-20 predicted, sorryAx
+  GONE): `[propext, Classical.choice, Quot.sound]` + 4 SAT reflections
+  (`unsat_{M9,M10,nonex11,nonex12}`) + 10 D-campaign witnesses (`kpG_giso_cone3`,
+  `kpG1_giso_cone3`, `kpG_compl_AB_structure` ax_1_{1..4}, `kpG1_compl_AB_structure` ax_1_{1..4})
+  = **17 axioms**, all native_decide beyond the standard three, matched by `glob:*native_decide*`.
+
+Honest framing: the theorem is unconditional **modulo** (a) the three standard Lean axioms and
+(b) `native_decide` kernel reflection for the four SAT certificates and the KP-construction witness
+facts — the same `ofReduceBool` trust base as `bv_decide`, disclosed and audited. NO `sorryAx`, no
+`BrouwerFacts`, no `KPEqualityClassification` hypothesis. The **α-free base determination** (see
+"base `[3,3,4⁷]` structure") is a genuine simplification over the runner-19 spec.
+
+## D-CAMPAIGN PROGRESS (2026-07-12, relay runner 17 — D1 + D2a + D4-prep LANDED, sorry-free)
+
+**Status:** `KPEqualityClassification` (the sole remaining hypothesis of `erdos_617_r5`) is under
+active proof via the D1–D4 decomposition. Runner 17 banked **D1** (cone extraction), **D2a**
+(top-level part size `c = 4`), and **D4-prep** (both extremal witnesses) — all sorry-free and
+axiom-clean `[propext, Classical.choice, Quot.sound]` — and found a **descent** that reshapes the
+D2 crux. Lean dev in `lean617/Lean617/EqualityProof.lean` (**NON-aggregated** — not in `Lean617.lean`;
+the aggregator stays sorry-free). NB `lean617_f7/` is a **gitignored scratch worktree**; commit
+milestones to the tracked `lean617/` (as here).
+
+### The forced-`c=4` descent — the D2 crux, corrected & simplified
+
+The prior D2 note ("G[D] is 4-partite") was **wrong**: `J[Γx]` is NON-4-colourable (Case A, since
+`α(J[Γx])≤4` and `|Γx|=17>16`). The correct, cleaner picture: the cone+bound argument, applied
+recursively, forces the removed block `C = V∖Γx` to have size **exactly 4** at every level, peeling
+one size-4 part per level: **(5,21) → (4,17) → (3,13) → (2,9)**. Verified end-to-end in
+`scratchpad/eq21_descent.py` (contradiction margins 1–10 edges; c=4 gives equality). Per level
+`(r,n)`, `J` extremal (`K_{r+1}`-free, `α≤4`, `e=p_r(n)`, non-`r`-partite):
+- **D1 (cone):** max-degree `x` ⇒ `C=V∖Γx` independent, `Γx–C` complete, `e(J[Γx]) = p_r(n) − d·c`
+  (`d=deg x=n−c`, `c=|C|`). `deg x ≥ ⌈2p_r(n)/n⌉` ⇒ `c≤4`; `x∈C` ⇒ `c≥1`.
+- **D2a (`c=4`):** `J[Γx]` is `K_r`-free, `α≤4`, non-`(r−1)`-partite, so `kp_saving` at `r−1` gives
+  `e(J[Γx]) + (d/(r−1)−1) ≤ t_{r−1}(d)`; VIOLATED for `c∈{1,2,3}`, EQUALITY for `c=4` (where
+  `e(J[Γx]) = p_{r−1}(n−4)`, the next extremal graph). So `c=4`, and the descent continues.
+
+This REPLACES KP's general Lemma-5 optimisation (`α≤4` short-circuits it). D2/D3 becomes: iterate the
+`(D1,D2a)` step 3× to the `(2,9)` base, then reassemble the apex/join tower into `kpG`/`kpG1`.
+
+### Landed (all in `EqualityProof.lean` / `KPConstruction.lean` / `Equality21.lean`, sorry-free)
+
+- **D4a:** `kpG1` (the `|A*|=1` iso class: `kpRel1`, `kpG1_edgeCount=173`, `kpG1_cliqueFree`,
+  `kpG1_alpha`, `kpG1_compl_AB_structure`) + `AB21_kpG1_compl : AB21 kpG1ᶜ`. With `AB21_kpG_compl`
+  this is the COMPLETE 2-witness set the classification ranges over. (native_decide-backed; these
+  axioms enter the final profile only at the D4-finish line.)
+- **D1a:** `d1_cone` — extremal `J`, max-degree `x` ⇒ `C=V∖Γx` independent, `Γx–C` complete. Route:
+  `symmG J x` is `K₆`-free (`symmG_cliqueFree`) + non-5-colourable (`symmG_alpha_of`: `α(symmG)≤4`),
+  so `kp_saving` ⇒ `e(symmG)≤173=e(J)`; `e(J)=e(symmG)` + `symmG_degree_ge` ⇒ POINTWISE degree
+  equality ⇒ cone. Helpers `maxdeg_ge_17`, `symmG_nbhd_of_notMem`, `symmG_alpha_of`.
+- **D2a:** `d2a_deg17` — `deg x = 17` (`c=4`). Via `eD_bound` (kp_saving at `r=4` on `J[Γx]`,
+  transported by `comap`, output kept at `Fin 21` level to dodge dependent types) + concrete
+  `t₄(18)=121, t₄(19)=135, t₄(20)=150` ruling out `deg x∈{18,19,20}`.
+
+### Successor roadmap (D2b → D3 → D4-finish)
+
+1. **D2b — recurse the descent** (the bulk): replicate `(d1_cone, eD_bound, d2a_deg17)` at `(4,17)`,
+   `(3,13)`, `(2,9)`. Each is the SAME structure with different constants (`kp_saving r=3/2`, the
+   `turan_{r}(·)` values via `card_edgeFinset_turanGraph; decide`, `α≤4` non-partite threshold
+   `(r−1)·4 < d`). Needs the next-level graph to ESCAPE as an object (generalise `eD_bound`/`d2a` to
+   return the `comap` extremal package, or make a general `descent_step` over `(r,n)` — but the
+   general `p_r(n)−(n−c)c > p_{r−1}(n−c)` arithmetic is small-margin; per-level concrete is safer).
+2. **Base `(2,9)`** (triangle-free, non-bipartite, `α≤4`, `e=17`): the innermost KP piece (2 parts
+   of 4 + apex, with the `y–A*` non-edges). Small enough that its classification may be
+   `native_decide`-able given the cone structure.
+3. **D3 — reassemble:** the 4 peeled 4-sets + base ⇒ parts `N₀..N₄` + apex `x`; the apex-attachment
+   freedom `A*⊂N_s` (proper) ⇒ `|A*|∈{1,2,3}` ⇒ `J ≅ kpG` (|A*|=2) or `kpG1` (|A*|=1) [3≅1]. Build
+   the `σ : Fin 21 ≃ Fin 21`.
+4. **D4-finish:** `KPEqualityClassification` from `equality21_reduce` (DONE) + the classification
+   (`J ≅ kpG/kpG1`) + `equality21_transport` (DONE) + `AB21_kpG_compl`/`AB21_kpG1_compl` (DONE). Then
+   add `EqualityProof.lean` to the aggregator, `erdos_617_r5_unconditional`, axiom audit (the
+   `kpG`/`kpG1` native_decide axioms ENTER — update `tools/axiom_allowlist.txt` + RELEASE/README/FORMAL).
+
+## D-CAMPAIGN PROGRESS (2026-07-12, relay runner 18 — D2b LANDED sorry-free, base PARTIAL)
+
+**Status:** the **forced-`c=4` descent D2b is COMPLETE and sorry-free** — the chain
+`(5,21)→(4,17)→(3,13)→(2,9)` is formalized end to end. The **(2,9) base** is set up (both iso-class
+witnesses verified + the `Δ≤4` reduction proven sorry-free); its full classification
+(`base_classification`) is the one remaining SORRY. All in `lean617/Lean617/EqualityProof.lean`
+(**NON-aggregated**; now carries exactly **1 sorry** = `base_classification`). Commit `bbd33c1` (D2b)
++ this leg's base commit.
+
+### D2b — the descent, LANDED (sorry-free, axiom-clean `[propext, Classical.choice, Quot.sound]`)
+
+Split into **level-independent generic helpers** (no small-margin arithmetic, safe to generalize)
+and **per-level concrete lemmas** (the tight `c=4` forcing, margins 1–2, kept concrete):
+
+- `maxdeg_ge_gen` — handshake `n·(k−1) < 2E ⇒ k ≤ deg x`.
+- `symmG_nbhd_of_notMem_gen`, `symmG_alpha_of_gen` — `α≤4` preserved under symmetrisation (generic `n`).
+- `cone_extremal_gen {n r}` — **D1 generalized:** extremal `J` (`K_{r+1}`-free, `α≤4`, `e=E` with
+  `E + (n/r−1) = t_r(n)`), max-deg `x`, `|C|≤4` ⇒ `C` independent + `Γx–C` complete. Same
+  symmetrisation-equality proof as `d1_cone`, with `173/21/5/turan_5_21` abstracted to `E/n/r/hp`.
+- `eD_bound_gen {n r}` — **D2a input generalized:** `e(J[Γx]) + (|Γx|/(r−1)−1) ≤ t_{r−1}(|Γx|)`
+  (transport `J[Γx]` by `comap`, `kp_saving` at `r−1`; needs `(r−1)·4 < |Γx|`, which implies
+  `2(r−1)+1 ≤ |Γx|`).
+- `comap_nbhd_package {n r nc}` — **the chaining primitive:** transports `J[Γx]` to `Fin nc`
+  (`nc=|Γx|`) as a graph OBJECT with (`K_r`-free, `α≤4`, edge count `= e(J[Γx])`). This is what
+  lets levels chain — each descent lemma's output is the next's input graph.
+- `descent_21_to_17` / `descent_17_to_13` / `descent_13_to_9` — each takes the extremal package at
+  `(r,n)` and returns `∃ J' : SimpleGraph (Fin (n−4))`, the extremal package at `(r−1,n−4)`. The
+  `c=4` forcing rules out `deg x ∈ {n−1,n−2,n−3}` via `eD_bound_gen` + concrete Turán numbers
+  (`t₄18/19/20 = 121/135/150`, `t₃14/15/16 = 65/75/85`, `t₂10/11/12 = 25/30/36`) + `interval_cases`.
+  Verified against `scratchpad/eq21_descent.py` (only `c=4` survives at each level; `e(J[Γx])`
+  hits `p_{r−1}(n−4)` = 105/53/17 exactly).
+
+Design note: `cone_extremal_gen`/`eD_bound_gen`/`comap_nbhd_package` are generic BECAUSE the
+symmetrisation/cone structure has no small-margin arithmetic; only the `c=4` ruling-out (which
+`interval_cases` handles concretely) is margin-sensitive, so it stays per-level (runner 17's steer).
+
+### Base (2,9) — PARTIAL
+
+`descent_13_to_9` outputs `J' : SimpleGraph (Fin 9)` triangle-free (`K₃`-free), `α≤4`, `e=17`.
+- **Enumeration (nauty `geng -t 9 17:17` + α-filter, this leg):** EXACTLY TWO such graphs up to iso,
+  degseqs `[3,3,4⁷]` and `[2,4⁸]`. These are the bases of `kpG` (`|A*|=2`) and `kpG1` (`|A*|=1`).
+- **Witnesses (verified, `native_decide`-backed):** `base9A2`/`base9A1 : SimpleGraph (Fin 9)` with
+  `base9A{2,1}_edgeCount` (=17), `_cliqueFree3`, `_alpha` (≤4). Relabelled `N₀={0,1,2,3}`,
+  `N₁={4,5,6,7}`, apex `8`; `N₀–N₁` complete minus the `A*–y` edges (`y=4`), apex joined to `A*∪{y}`.
+- **`base_maxdeg_le_four` (sorry-free):** triangle-free ⇒ `N(v)` independent ⇒ `deg v ≤ α ≤ 4`. With
+  `e=17` (`Σdeg=34`) this forces the degree sequence to one of the two above — the structural handle.
+- **`base_classification` (the SORRY):** `J` triangle-free `α≤4` `e=17` on `Fin 9` ⇒ `∃ σ : Fin 9 ≃
+  Fin 9`, `J ≅ base9A2` or `J ≅ base9A1`. **`native_decide` is INFEASIBLE** (∀ over `2³⁶` graphs).
+  Route = hand classification: `base_maxdeg_le_four` gives degseq ∈ {2 options}; then per degseq,
+  the triangle-free `α≤4` graph is unique up to iso (geng confirms; the iso construction is the work).
+
+### Successor roadmap (base → D3 → D4-finish)
+
+1. **`base_classification`** (finish the base): with `Δ≤4` + `Σdeg=34` giving degseq `[2,4⁸]`/`[3,3,4⁷]`,
+   pin the graph per degseq. Route: fix the min-degree vertex as apex `8` (via an `Equiv`); its
+   `N(8)` (size 2 or 3) sits in `N₀∪N₁`; the triangle-free + `α≤4` + `e` constraints then force the
+   bipartite `N₀–N₁` structure and the `A*` attachment. ~200–400 lines of casework; alternatively a
+   cleverer decidable reduction (root at a vertex, bound the search to `native_decide`-able size).
+2. **D3 (reassembly) — KEY ARCHITECTURAL NOTE:** the descent decomposition is
+   `J = C₅ * C₄ * C₃ * base₉` (each `Cᵢ` an independent 4-set joined completely to everything below).
+   `C₅*C₄*C₃` = complete tripartite `K_{4,4,4}`, so **`J = K_{4,4,4} * base₉`** (join). Hence
+   `J ≅ kpG` iff `base₉ ≅ base9A2` and `J ≅ kpG1` iff `base₉ ≅ base9A1` — the classification REDUCES
+   to the base + a join-transport lemma (`join` is iso-rigid: `A*B ≅ A'*B'` from `A≅A'`, `B≅B'` when
+   the join structure is recognized). **BUT the current `descent_*` lemmas return only the PACKAGE
+   (`K`-free/`α`/`e`), discarding the apex vertex + independent 4-set + join witness.** The successor
+   must ENRICH `descent_*` (or add a parallel `descent_cone_*`) to also return the cone data
+   (`∃ x C, C indep ∧ Γx–C complete ∧ J ≅ join(indep C, J')`) so D3 can rebuild the iso. `cone_extremal_gen`
+   already PROVES the cone; it just needs to be surfaced in the return type.
+3. **D4-finish:** `base_classification` + join-transport (D3) ⇒ `J ≅ kpG ∨ kpG1`; then
+   `equality21_reduce` (DONE) + `equality21_transport` (DONE) + `AB21_kpG_compl`/`AB21_kpG1_compl`
+   (DONE) close `KPEqualityClassification`; add `EqualityProof` to the aggregator, drop the hypothesis
+   in `Final.lean`, axiom audit (the `kpG`/`kpG1`/`base9A*` native_decide axioms enter — update
+   `tools/axiom_allowlist.txt` + RELEASE/README/FORMAL).
+
+## D-CAMPAIGN PROGRESS (2026-07-12, relay runner 19 — base `[2,4⁸]` case CLOSED, dichotomy DONE)
+
+**Status:** `base_classification` (the sole `EqualityProof.lean` sorry) now reduces to a SINGLE
+well-scoped sorry, `base_classification_deg3` (the `[3,3,4⁷]` iso). Everything else is sorry-free:
+the `[2,4⁸]` case is fully closed and the degree dichotomy + case wiring is proven. Commits on
+`main`: `b0e72b0` (structure), `6b819c9` (iso), `4ca82b5` (dichotomy). `EqualityProof` builds with
+exactly 1 sorry; NON-aggregated (final theorem still conditional on `KPEqualityClassification`).
+
+### LANDED sorry-free (all in `EqualityProof.lean`)
+- `base_sum_degrees` — `e=17 ⇒ Σ deg = 34`.
+- `base_deg2_structure` — the `[2,4⁸]` structural determination. Purely LOCAL-COUNTING (no Turán, no
+  `native_decide` over graphs): root at the degree-2 apex `a`, `N(a)={p,q}` (`p≁q` by tri-free);
+  every other (degree-4) vertex is adjacent to EXACTLY ONE of `p,q` — the key step is `deg_W ≤ 3`,
+  i.e. if some `w` were non-adjacent to both then `N(w) ⊆ V∖{a,p,q}` with `a ≁ N(w)`, making
+  `{a}∪N(w)` an independent 5-set (contra `α ≤ 4`). Cardinalities (`|P₃|=|Q₃|=3`, `|W|=6`) force
+  `P₃=N(p)∖{a}`, `Q₃=N(q)∖{a}` to partition `W`, and each `P₃`-vertex is joined to all of `Q₃`.
+  Returns the full adjacency table as a big conjunction.
+- `base_classification_deg2` — builds the explicit `Fin 9 ≃ Fin 9` (`a↦8,p↦0,q↦4,Q₃↦{1,2,3},
+  P₃↦{5,6,7}`) via `Equiv.ofBijective` on an if-chain map; discharges the 81 adjacency `↔`s by
+  `fin_cases`+`iff_of_true`/`iff_of_false` (structural facts on the LHS, `decide` on `base9A1`).
+  PATTERN REUSABLE for deg-3. Result: `J ≅ base9A1`.
+- `base_classification` — proves `Δ≤4` (`base_maxdeg_le_four`) + `Σ=34` ⇒ min degree ≥ 2, then
+  `by_cases ∃ a, deg a = 2`: [2,4⁸] branch → `base_classification_deg2` (`Or.inr`); [3,3,4⁷] branch
+  extracts the two degree-3 vertices via a deficiency-sum count (`Σ(4−deg)=2`, each `∈{0,1}` ⇒
+  exactly two are degree 3) and calls `base_classification_deg3` (`Or.inl`).
+
+### `base_classification_deg3` — THE ONE REMAINING SORRY (fully specified, structure verified)
+Statement (given): `J` tri-free, `α≤4`, `e=17`, `s≠t` both degree 3, all others degree 4 ⇒
+`∃ σ, ∀ u v, J.Adj u v ↔ base9A2.Adj (σ u)(σ v)`. Target structure of `base9A2` (VERIFIED, nauty +
+`scratchpad/base_deg3.py`): parts `N₀,N₁` (independent 4-sets), `K_{4,4}` minus `{spoke₁–s, spoke₂–s}`,
+apex `t ~ {spoke₁,spoke₂,s}`. Determination (map `t↦8, s↦4, {spoke₁,spoke₂}↦{0,1},
+{y₁,y₂}↦{2,3}, {z₁,z₂,z₃}↦{5,6,7}`):
+1. **`s~t` (the crux — proof PATH now COMPLETE & verified, `scratchpad/base_deg3_kcheck.py`).**
+   Suppose `s≁t`. Let `k=|N(s)∩N(t)|`, `Rest := V∖({s,t}∪N(s)∪N(t))` (`|Rest|=1+k`; each Rest
+   vertex is degree-4 with `N(⋅)⊆V∖{s,t}` since it is `≁s,t`).
+   - **(1) `Rest` is independent.** If `r₁~r₂` (both degree-4, `N⊆` the 7-set `V∖{s,t}`), triangle-
+     freeness gives `N(r₁)∖{r₂}` and `N(r₂)∖{r₁}` disjoint (no common neighbour), each of size 3,
+     both `⊆ (7-set)∖{r₁,r₂}` (5 vertices) — `6 ≤ 5`, contradiction.
+   - **(2) `k ≤ 1`.** `Rest∪{s,t}` is independent (`s≁t`, `s,t≁Rest`, `Rest` indep), size `3+k ≤ α = 4`.
+   - **(3) `k=0` obstruction (CLEAN).** `A,B` disjoint (each independent, size 3), `Rest={r}`,
+     `N(r)⊆A∪B` independent size 4 with `p:=|N(r)∩A|`, `q:=|N(r)∩B|`, `p+q=4`, `p,q≥1`. Pick
+     `a'∈N(r)∩A`: it is `~s,~r`, `≁t` (`k=0`), `≁A∖{a'}` (indep), `≁N(r)∩B` (indep nbhd of `r`), so its
+     remaining 2 edges go to `B∖(N(r)∩B)` ⇒ `3−q ≥ 2` ⇒ `q ≤ 1`; symmetrically `p ≤ 1`; `p+q ≤ 2 < 4`,
+     contradiction.
+   - **(3') `k=1` obstruction (CLEAN).** `A∩B={m}`, `A∖B={a₁,a₂}`, `B∖A={b₁,b₂}`, `Rest={r₁,r₂}`.
+     `m` (degree-4) is `≁a₁,a₂,b₁,b₂` (`A,B` indep) so `m~r₁,r₂`. Degree counting on
+     `{a₁,a₂}/{b₁,b₂}/{r₁,r₂}` (each vertex has 3 edges into the other two 2-sets) gives
+     `E_ab=E_ar=E_br=3`, so exactly ONE of the 4 `A–B` pairs is a non-edge. But `N(r₁)={m}∪(3 of
+     {a₁,a₂,b₁,b₂})` must be independent, and EVERY 3-subset of `{a₁,a₂,b₁,b₂}` contains 2 of the 4
+     `A–B` pairs — needing 2 non-edges where only 1 exists. Contradiction. Both confirmed 0 completions
+     (`scratchpad/base_deg3_kcheck.py`). **LANDED sorry-free:** `base_deg3_rest_indep` (step (1)) AND
+     the `k ≤ 1` reduction inside `base_deg3_st_adjacent` (steps (2)+(1)-assembly: `Rest` built,
+     `insert s (insert t Rest)` shown independent, `Rest.card+2 ≤ 4` and `Rest.card = 1+k` ⇒ `k ≤ 1`).
+     `base_deg3_st_adjacent` now carries EXACTLY the two `interval_cases k` sorries `k=0`/`k=1` (the
+     counting contradictions (3)/(3') above). Remaining for the full deg-3 base: those 2 counting
+     cases (~120 lines) + `base_classification_deg3` determination (mirror deg-2, ~150) + iso
+     (reuse the `base_classification_deg2` `fin_cases` template, ~120).
+2. With `s~t`: `s∈N(t)`. Set `{spoke₁,spoke₂} := N(t)∖{s}` (degree-4), `{y₁,y₂} := N(s)∖{t}`
+   (degree-4, `⊆ W'`), `{z₁,z₂,z₃} := V∖{t,s,spoke₁,spoke₂,y₁,y₂}`. Then (mirror the deg-2
+   local-counting): `N₀={spoke₁,spoke₂,y₁,y₂}` independent (spokes,`y`s all `≁s` via `N(t)`/`N(s)`
+   independence + `α`-argument), `N₁={s,z₁,z₂,z₃}` independent, `N₀–N₁` complete minus
+   `{spoke_i–s}`, apex `t~N(t)`. Each claim numerically checks on `base9A2`.
+3. Iso assembly: identical to `base_classification_deg2` (build the `Fin 9 ≃`, 81-case `fin_cases`).
+
+Once `base_classification_deg3` lands, `base_classification` is sorry-free and the base is CLOSED;
+D3 (enrich descent + join-transport) is the next blocker.
+
+## D-CAMPAIGN PROGRESS (2026-07-12, relay runner 20 — D3 + D4 LANDED: `KPEqualityClassification` PROVEN modulo base)
+
+**Status:** the reassembly D3 and the D4 assembly are **COMPLETE and sorry-free in their own right**.
+`kp_equality_classification_proven : KPEqualityClassification` is proven; it transitively carries
+ONLY lean-d3's base sorries (`base_classification_deg3`) until that lane closes. New file
+`lean617/Lean617/JoinTransport.lean` (**NON-aggregated**). Commits `2bbe9d7` (scaffold), `42c90db`
+(D3+D4). Descent region of `EqualityProof.lean` enriched, still sorry-free, disjoint from base.
+
+### Task 2 — enriched descent (`EqualityProof.lean`, descent region)
+`descent_21_to_17`/`descent_17_to_13`/`descent_13_to_9` now return, besides the next-level package,
+the neighbourhood embedding `f : Fin (n−4) ↪ Fin n` with `J' = J.comap f` AND the cone data
+(`C = V∖image f` independent, `image f–C` complete) — read off the `cone_extremal_gen` output via
+`hf : image f = Γx`. This is exactly `cone_to_coneExtend`'s input.
+
+### Task 3 — `JoinTransport.lean` (the join-transport)
+- `coneExtend {m} (G : SimpleGraph (Fin m)) : SimpleGraph (Fin (m+4))` — `G` on low `0..m-1`, 4 fresh
+  independent vertices `m..m+3` joined to all of `G`. Prop-`dite` Adj + `native_decide`-friendly
+  `coneExtend_decRel`. Four rewrite lemmas `coneExtend_adj_{ll,lh,hl,hh}`.
+- `GIso G H := ∃ σ : Fin n ≃ Fin n, ∀ a b, G.Adj a b ↔ H.Adj (σ a)(σ b)` (matches the codebase's iso
+  shape) with `GIso.refl/symm/trans/compl`. `coneExtend_congr : GIso G H → GIso (coneExtend G)(coneExtend H)`
+  (functoriality; extends σ via `coneExtendEquiv`, axiom-clean).
+- **`cone_to_coneExtend` (the crux, axiom-clean):** from the enriched cone data at `n = m+4`, builds
+  `GIso J (coneExtend (J.comap f))` via an explicit reconstruction `Fin n ≃ Fin (m+4)` (`coneRho` = `f`
+  on the low block, `Finset.orderEmbOfFin` enumeration of `C` on the high block; `Equiv.ofBijective`).
+- **Concrete witnesses (`native_decide`):** `kpG_giso_cone3 : GIso kpG (coneExtend³ base9A2)` and
+  `kpG1_giso_cone3 : GIso kpG1 (coneExtend³ base9A1)`, via the explicit permutation `sigmaW`
+  (`v ↦ v` for `v<8`, `20 ↦ 8`, `v ↦ v+1` for `8≤v≤19`). Numerically pre-verified
+  `scratchpad/coneextend_iso.py` (0 adjacency mismatches, 173 edges, both classes).
+- **`extremal21_giso : (J K₆-free, α≤4, e=173) → GIso J kpG ∨ GIso J kpG1`** — 3 enriched descents +
+  `base_classification`, transported up through the 3 cone layers by `coneExtend_congr`, landing on
+  the witnesses. (Numeric design note: `coneExtend³ base9 = K_{4,4,4} * base9`, so this IS
+  `J = C₅*C₄*C₃*base₉`.)
+
+### Task 4 — `kp_equality_classification_proven : KPEqualityClassification` (`JoinTransport.lean`)
+`equality21_reduce` (F ↦ K₆-free α≤4 e=173 complement `Fᶜ`) → `extremal21_giso Fᶜ` → complement
+transport (`GIso.compl`, `Fᶜᶜ = F`): every extremal `F` is `≅ kpGᶜ` or `≅ kpG1ᶜ`, with
+`AB21_kpG_compl`/`AB21_kpG1_compl` supplying the A/B structure. **This discharges the sole classical
+hypothesis** the r=5 resolution was conditional on.
+
+### Observed axiom set of `kp_equality_classification_proven` (for the Task-5 audit)
+`[propext, Classical.choice, Quot.sound, sorryAx,` (← lean-d3 base, vanishes when base closes)
+` kpG_giso_cone3._native.native_decide.ax_1_1, kpG1_giso_cone3._native.native_decide.ax_1_1,`
+` kpG_compl_AB_structure._native.native_decide.ax_1_{1..4}, kpG1_compl_AB_structure._native.native_decide.ax_1_{1..4}]`.
+So beyond the 3 standard axioms + the base sorry, the D-campaign adds **10 `native_decide` witness
+axioms** (2 for the cone-isos, 8 for the two AB21 complement structures). `cone_to_coneExtend`,
+`coneExtend_congr`, the whole enriched descent are `native_decide`-free (pure structure). The final
+`erdos_617_r5_unconditional` will also carry the 4 pre-existing SAT `native_decide` axioms from
+`kp_saving`/Brouwer.
+
+### Task 5 (finish line) — BLOCKED on lean-d3's base (mutex NOT claimed)
+
+TASK5 CLAIMED: lean-d5 2026-07-12 (base closed sorry-free at 2806e46; `kp_equality_classification_proven`
+verified sorry-free — `#print axioms` = 3 standard + 10 D-campaign native_decide, sorryAx GONE)
+**Wiring pre-verified (uncommitted sandbox check):** `erdos_617_r5 kp_equality_classification_proven : Main`
+TYPECHECKS today — the finish line is mechanically correct and gated PURELY on `sorryAx` (base). Its
+`#print axioms` (the exact Task-5 allowlist) is:
+`[propext, Classical.choice, Quot.sound, sorryAx,` (sorryAx drops when base closes)
+` unsat_M9/M10/nonex11/nonex12._native.native_decide.ax_1_1` (4 pre-existing SAT reflections),
+` kpG_giso_cone3.…ax_1_1, kpG1_giso_cone3.…ax_1_1,`
+` kpG_compl_AB_structure.…ax_1_{1..4}, kpG1_compl_AB_structure.…ax_1_{1..4}]` (10 D-campaign witnesses)`.
+So `tools/axiom_allowlist.txt` = **3 standard + 4 SAT + 10 D-campaign native_decide = 17 axioms**.
+
+Requires BOTH lanes sorry-free in tracked HEAD; base still has sorried declarations
+(`base_classification_deg3` + its `k=0`/`k=1` sub-case). The moment base closes, Task 5 is mechanical:
+add `EqualityProof` + `JoinTransport` to the aggregator (`Lean617.lean`); `Final.lean`
+`erdos_617_r5_unconditional : Main := erdos_617_r5 kp_equality_classification_proven` (+ `_upstream`);
+full `lake build` (expect zero sorry); update `tools/axiom_allowlist.txt` to the observed set above
+(standard 3 + 4 SAT + the 10 D-campaign witness axioms); re-run `axiom_audit.sh` + `sorry_grep.sh` +
+per-module leanchecker; docs (README/RELEASE honesty flip conditional → unconditional-modulo-SAT/native_decide);
+flag writeup agent (no `.tex` edits). Everything upstream of this is banked and compiling.
+
 ## KP-EQUALITY CORE — the single remaining research object (entry point for the next leg)
 
 > **EQUALITY CORE — F6ab (2026-07-12, relay runner 16): hypothesis NARROWED, `saving` PROVEN.**

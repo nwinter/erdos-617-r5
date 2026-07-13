@@ -58,7 +58,12 @@ no balanced 5-colouring of $K_{26}$, with machine verification}
 The mathematics was produced and internally reviewed by AI systems; it is offered
 here for independent verification by mathematicians. See
 Section~\ref{sec:howto} for a verification guide and Section~\ref{sec:provenance}
-for a full account of provenance and what has and has not been checked.}
+for a full account of provenance and what has and has not been checked.
+\emph{Version~1.1 (2026-07-12):} the Lean development now carries no mathematical
+hypothesis --- the Kang--Pikhurko equality classification at $(5,21)$, on which
+version~1.0 (earlier the same day) was conditional, has been discharged in Lean
+(Section~\ref{ssec:lean-brouwer}), at the cost of ten added \texttt{native\_decide}
+construction axioms (Section~\ref{sec:lean}).}
 
 \begin{abstract}
 A $5$-colouring of the edges of the complete graph $K_{26}$ is \emph{balanced} if
@@ -82,10 +87,15 @@ DRAT-checked. As a by-product we prove that the merged affine-plane colouring of
 $K_{q^2}$ admits no balanced one-vertex extension, for every prime power
 $q\ge 3$, so any counterexample to the conjecture must be non-affine.
 
-The entire argument has been formalised in Lean~4: the final theorem is
-\texttt{sorry}-free modulo the Kang--Pikhurko equality classification at $(5,21)$
-(the sole remaining hypothesis --- Brouwer's edge bound itself is now formally
-proved) and four SAT-reflection axioms (the \texttt{native\_decide} trust base). This
+The entire argument has been formalised in Lean~4, and the headline theorem
+\texttt{erdos\_617\_r5\_\allowbreak unconditional} carries \emph{no} mathematical hypothesis: it is
+\texttt{sorry}-free and unconditional in the exact sense that it rests only on a
+disclosed trust base --- the three standard Lean axioms together with
+\texttt{native\_decide} compiler-level reflection for four SAT certificates and a few
+finite graph-construction facts. The Kang--Pikhurko equality classification at $(5,21)$, on
+which the result was previously conditional, is now itself proved in Lean (as is
+Brouwer's edge bound), though a conditional form assuming that classification is
+retained for separate audit. This
 document is a verification-ready report rather than an authored announcement: the mathematics was produced and internally reviewed by AI systems and
 is offered here for independent verification. Section~\ref{sec:howto} gives a
 verification guide (a $30$-minute machine-checkable path and a $120$-minute reading
@@ -253,13 +263,16 @@ out in four finite facts about small graphs, which we verify by SAT.
 \emph{The certificates and formalisation} (Sections~\ref{sec:certificates}
 and~\ref{sec:lean}). The four finite facts are certified by DRAT/LRAT proofs,
 independently checked. The whole argument --- reduction, both lemmas, the
-recursion, and the SAT facts (through Lean's verified certificate checker) --- has
-been formalised in Lean~4: the final theorem is \texttt{sorry}-free modulo the
-Kang--Pikhurko equality classification at $(5,21)$ (its sole remaining hypothesis;
-Brouwer's edge bound itself is now formally proved in Lean) and four SAT-reflection
-axioms (the \texttt{native\_decide} trust base). It is thus a machine-checked
-conditional proof, not an unconditional formal one; the one remaining input is a
-classical, cited, and independently validated statement.
+recursion, the SAT facts (through Lean's verified certificate checker), Brouwer's
+edge bound, and the Kang--Pikhurko equality classification at $(5,21)$ --- has been
+formalised in Lean~4. The headline theorem \texttt{erdos\_617\_r5\_unconditional} is
+\texttt{sorry}-free and carries no mathematical hypothesis; it is unconditional in the
+exact sense that it depends only on the three standard Lean axioms and the
+\texttt{native\_decide} reflection axioms (four for the SAT certificates, ten for the
+finite Kang--Pikhurko construction facts). It is thus a machine-checked proof modulo
+that disclosed trust base, not an appeal to any unformalised input; a conditional form
+taking the classification as an explicit hypothesis is retained for readers who prefer
+to audit it against the literature (Section~\ref{ssec:lean-brouwer}).
 
 \medskip
 This document is a \emph{verification-ready report}, not an authored announcement,
@@ -316,23 +329,29 @@ repository at $r=5$~\cite{FC}. A wrong statement would invalidate everything, so
 step comes first.
 \item \emph{Build and check axioms.} In \texttt{lean617/}, run \texttt{lake exe cache
 get \&\& lake build} (a clean build), then \texttt{\#print axioms
-Erdos617.erdos\_617\_r5}. The result should be \texttt{propext},
-\texttt{Classical.choice}, \texttt{Quot.sound}, plus four named SAT-reflection
-axioms, with \texttt{KPEqualityClassification} appearing in the theorem's \emph{type}
-as a hypothesis --- and crucially \emph{no} \texttt{sorryAx}. The absence of
-\texttt{sorryAx} is the definitive ``no admitted proof'' check; a textual grep for
-\texttt{sorry} finds the token only inside \texttt{sorry-free} annotations in the
-sources.
+Erdos617.erdos\_617\_r5\_\allowbreak unconditional}. The result should be
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}, plus fourteen named
+\texttt{native\_decide} reflection axioms (four for the SAT certificates and ten for
+the finite Kang--Pikhurko construction facts) --- \emph{seventeen} in all --- with
+\emph{no} mathematical hypothesis in the theorem's type and, crucially, \emph{no}
+\texttt{sorryAx}. (The still-exported conditional \texttt{erdos\_617\_r5} instead
+carries \texttt{KPEqualityClassification} as an explicit hypothesis and only the three
+standard plus four SAT axioms, for a reader who prefers to supply the classification
+themselves.) The absence of \texttt{sorryAx} is the definitive ``no admitted proof''
+check; a textual grep for \texttt{sorry} finds the token only inside
+\texttt{sorry-free} annotations in the sources.
 \end{enumerate}
-What this establishes, stated exactly: \emph{the final theorem is
-\texttt{sorry}-free modulo the Kang--Pikhurko equality classification at $(5,21)$
-(carried as an explicit hypothesis; Section~\ref{ssec:lean-brouwer}) and four
-SAT-reflection axioms (the \texttt{native\_decide} trust base).} It is not an
-unconditional formal proof: that one classification is assumed, not yet formalised ---
-though Brouwer's edge bound, which accompanies it in Theorem~\ref{thm:brouwer}, is now
-formally proved in Lean, so it no longer needs to be trusted. What remains for a reader
-after this path is exactly to satisfy themselves of those two inputs (the
-classification and the SAT certificates) --- the next two paths do that.
+What this establishes, stated exactly: \emph{the headline theorem
+\texttt{erdos\_617\_r5\_unconditional} is \texttt{sorry}-free and carries no
+mathematical hypothesis, resting only on the three standard Lean axioms and fourteen
+\texttt{native\_decide} reflection axioms (seventeen in all).} It is
+``unconditional'' strictly in that sense --- no unformalised mathematical input ---
+and not a claim of a kernel-only formal proof: the four SAT certificates and the ten
+finite Kang--Pikhurko construction facts are trusted through \texttt{native\_decide}'s
+compiler-level reflection (Section~\ref{sec:lean}). Both Brouwer's edge bound and the
+equality classification, formerly assumed, are now proved in Lean. What remains for a
+reader after this path is exactly to satisfy themselves of those
+\texttt{native\_decide} inputs --- the next two paths do that.
 
 \subsection*{The $120$-minute path (read the mathematics)}
 The proof is elementary and self-contained apart from one classical theorem. Read
@@ -352,19 +371,27 @@ Two things are trusted by the shorter paths and can be checked directly.
 \texttt{drat-trim} (Section~\ref{sec:certificates}, path~(i)); this is independent of
 Lean and of \texttt{native\_decide}. \emph{The classical input:} the informal proof
 uses Brouwer's bound and the Kang--Pikhurko equality classification, both from
-\cite{Brouwer81,KP05} (the repository records this check use-by-use); the Lean object
-needs only the \emph{equality} half, since the bound is now machine-proved
-(Section~\ref{ssec:lean-brouwer}). A reader who completes all three paths has reduced
-the entire claim to the correctness of \texttt{drat-trim}, the Lean kernel, and a
-single published $2005$ classification statement.
+\cite{Brouwer81,KP05} (the repository records this check use-by-use); in the Lean
+development both are now \emph{proved} rather than assumed
+(Section~\ref{ssec:lean-brouwer}), so a reader who trusts that formalisation need audit
+neither, while a reader who would rather lean on the literature can check the published
+classification and consume it through the conditional theorem instead. A reader who
+completes all three paths has reduced the entire claim to the correctness of
+\texttt{drat-trim}, the Lean kernel, and \texttt{native\_decide}'s compiler-level
+reflection on the fourteen fixed certificates and construction facts.
 
 \subsection*{What is deliberately \emph{not} yet claimed}
-This report does \emph{not} claim the result is community-accepted, independently
-refereed, or an unconditional formal proof. The Lean development still carries the
-Kang--Pikhurko equality classification at $(5,21)$
-(\texttt{KPEqualityClassification}) as a hypothesis rather than a proved lemma
-(Section~\ref{ssec:lean-brouwer}), and the verification to date is internal
-(Section~\ref{sec:provenance}). Those are the two gaps a third-party verifier is
+This report does \emph{not} claim the result is community-accepted or independently
+refereed by a human expert, nor that the Lean proof is free of a trust base: it is
+unconditional only in the sense that no \emph{mathematical} hypothesis remains, while
+the four SAT certificates and the ten finite Kang--Pikhurko construction facts are
+still trusted through \texttt{native\_decide}'s compiler-level reflection
+(Section~\ref{sec:lean}). The Kang--Pikhurko equality classification at $(5,21)$,
+formerly carried as the hypothesis \texttt{KPEqualityClassification}, is now discharged
+in Lean (Section~\ref{ssec:lean-brouwer}) --- but that discharge is a fresh,
+load-bearing formalisation authored by the same AI pipeline as the rest and reviewed
+only internally (Section~\ref{sec:provenance}). Those two --- the internal-only review
+and the \texttt{native\_decide} trust base --- are the gaps a third-party verifier is
 invited to close or to press on.
 
 %% ===========================================================================
@@ -1574,8 +1601,8 @@ and Theorem~\ref{thm:main} (Appendix~\ref{app:phase}).
 The entire argument of Sections~\ref{sec:reduction}--\ref{sec:MM} has been
 formalised in Lean~4 with Mathlib \texttt{v4.30.0} (toolchain
 \texttt{leanprover/lean4:v4.30.0}), in the project \texttt{lean617/} of the
-accompanying repository. We describe what is proved, the one hypothesis it stands
-on, and its axiom profile.
+accompanying repository. We describe what is proved --- the headline theorem now
+carries no mathematical hypothesis --- and its axiom profile.
 
 \subsection{What is formalised}
 The colouring is modelled as \texttt{c : Sym2 (Fin 26) $\to$ Fin 5}, matching the
@@ -1596,86 +1623,132 @@ Lean's verified certificate checker (Section~\ref{sec:certificates}, path~(ii));
 \item Brouwer's edge bound itself (the ``saving'' half of Theorem~\ref{thm:brouwer}),
 as \texttt{kp\_saving} --- the full Kang--Pikhurko induction (Case~A, the good/bad
 dichotomy, Lemma~3, and the singleton guard) is formalised and axiom-clean, so the
-bound is now \emph{proved}, not assumed.
+bound is now \emph{proved}, not assumed;
+\item the Kang--Pikhurko \emph{equality} classification at $(5,21)$
+(Corollary~\ref{cor:equality21}), as
+\texttt{kp\_equality\_\allowbreak classification\_\allowbreak proven}, via
+the cone-descent discharge of Section~\ref{ssec:lean-brouwer} --- so this last classical
+input is now \emph{proved} as well, and the final theorem needs no mathematical
+hypothesis.
 \end{itemize}
-The final theorem and its upstream-shaped corollary are
+The headline theorem and its upstream-shaped corollary are
 \begin{quote}\ttfamily\small
-theorem erdos\_617\_r5 (h : KPEqualityClassification) : Main\\
-theorem erdos\_617\_r5\_upstream (h : KPEqualityClassification)\\
+theorem erdos\_617\_r5\_unconditional : Main\\
+theorem erdos\_617\_r5\_upstream\_unconditional\\
 \phantom{xx}\{V\} [Fintype V] [DecidableEq V] (hV : Fintype.card V = 5\textasciicircum2 + 1)\\
 \phantom{xx}(coloring : Sym2 V $\to$ Fin 5) : \ldots
 \end{quote}
 where \texttt{Main} is the $\mathrm{Fin}\,26$ statement of Theorem~\ref{thm:main}
-and \texttt{erdos\_617\_r5\_upstream} is its transport to the shape of
+and the \texttt{\_upstream\_} form is its transport to the shape of
 \texttt{erdos\_617} at $r=5$ in the google-deepmind \texttt{formal-conjectures}
-repository, over an arbitrary $26$-element vertex type~\cite{FC}. Since Brouwer's
-bound is now proved, the only remaining hypothesis is
-\texttt{KPEqualityClassification}, the Kang--Pikhurko equality classification at
-$(r,n)=(5,21)$ (Section~\ref{ssec:lean-brouwer}); \texttt{brouwerFacts\_of} assembles
-the full \texttt{BrouwerFacts} interface from the proved \texttt{kp\_saving} and this
-one hypothesis. The project \texttt{lake build} is clean, and \texttt{erdos\_617\_r5}
-together with everything it imports contains no admitted proof: \texttt{\#print axioms}
-lists no \texttt{sorryAx} (see the axiom profile below; the definitive ``no admitted
-proof'' check is the absence of \texttt{sorryAx}, robust against the word
-\texttt{sorry} appearing inside \texttt{sorry-free} annotations in the sources).
+repository, over an arbitrary $26$-element vertex type~\cite{FC}. Neither carries a
+mathematical hypothesis: each is obtained from the conditional
+\texttt{erdos\_617\_r5 (h : KPEqualityClassification)} by supplying the now-proved
+\texttt{kp\_equality\_classification\_proven} (Section~\ref{ssec:lean-brouwer}), which
+in turn feeds \texttt{brouwerFacts\_of} to assemble the full \texttt{BrouwerFacts}
+interface from the proved \texttt{kp\_saving} and the proved classification. The
+conditional \texttt{erdos\_617\_r5} and \texttt{erdos\_617\_r5\_upstream} remain
+exported, for a reader who prefers to audit the classification separately and supply it
+as a hypothesis. The project \texttt{lake build} is clean, and
+\texttt{erdos\_617\_r5\_unconditional} together with everything it imports contains no
+admitted proof: \texttt{\#print axioms} lists no \texttt{sorryAx} (see the axiom profile
+below; the definitive ``no admitted proof'' check is the absence of \texttt{sorryAx},
+robust against the word \texttt{sorry} appearing inside \texttt{sorry-free} annotations
+in the sources).
 
-\subsection{The one remaining hypothesis, stated honestly}\label{ssec:lean-brouwer}
+\subsection{Discharging the equality classification (D1--D4)}\label{ssec:lean-brouwer}
 Theorem~\ref{thm:brouwer} has two parts: the edge \emph{bound} (Brouwer's
 $e\le t_r(n)-\lfloor n/r\rfloor+1$ for non-$r$-partite $K_{r+1}$-free graphs) and the
-\emph{equality classification} of the extremal graphs (Kang--Pikhurko). At the time
-of writing the bound is \emph{formalised and proved} in Lean: \texttt{kp\_saving}
-carries the full Kang--Pikhurko induction --- the Zykov-type symmetrisation, Case~A,
-the good/bad dichotomy, Lemma~3's $K_{r+1}$-counting, and the singleton guard --- and
-is axiom-clean. Consequently \texttt{erdos\_617\_r5} rests on exactly one explicit
-hypothesis, \texttt{KPEqualityClassification}: the classification at the single leaf
-$(r,n)=(5,21)$, in the form Corollary~\ref{cor:equality21} consumes. Precisely, it
-states that every graph $F$ on $21$ vertices with $\alpha(F)\le 5$, $K_5$-free and
-$e(F)=37$ is isomorphic to a Kang--Pikhurko extremal construction $G((4,4,4,4,4))$
-(equivalently, its complement $J=\overline F$, which is $K_6$-free, non-$5$-partite
-and has $173$ edges, is a maximum such graph).
+\emph{equality classification} of the extremal graphs (Kang--Pikhurko). Both are now
+formalised in Lean. The bound is \texttt{kp\_saving}: the full Kang--Pikhurko induction
+--- Zykov-type symmetrisation, Case~A, the good/bad dichotomy, Lemma~3's
+$K_{r+1}$-counting, and the singleton guard --- axiom-clean. The classification is
+\texttt{kp\_equality\_classification\_proven}, the object this subsection documents.
 
-This is a published, literature-verified statement
-(\cite{KP05}; the verification against the primary source, use by use, is recorded in
-the repository), \emph{but this last leaf is not yet formalised}: it is an assumed
-hypothesis, not a proved lemma. Two facts make it a well-delimited assumption rather
-than an open question. First, it has been independently numerically validated ---
-canonical-form (nauty) enumeration confirms the classification at $(5,21)$ and at five
-nearby parameter families. Second, the extremal graph at $(5,21)$ is \emph{not}
-unique: the construction $G((4,4,4,4,4))$ has an internal parameter $\abs{A^\ast}$ and
-forms exactly \emph{two} isomorphism classes (the analysis shows $\abs{A^\ast}=1$ and
-$\abs{A^\ast}=3$ coincide, leaving the classes $\abs{A^\ast}=2$ and
-$\abs{A^\ast}\in\{1,3\}$); the Lean transport consuming the classification is
-variant-agnostic, so this multiplicity does not affect the uniform $A/B$ structure of
-Corollary~\ref{cor:equality21}. Formalising this last leaf --- the optional ``D1--D4''
-campaign in the repository's ledger --- would remove the final hypothesis and make the
-theorem unconditional modulo only the SAT reflections; it is future work.
+The statement discharged is exactly the one Corollary~\ref{cor:equality21} consumes:
+every graph $F$ on $21$ vertices with $\alpha(F)\le 5$, $K_5$-free and $e(F)=37$ is
+isomorphic to a Kang--Pikhurko extremal construction --- equivalently its complement
+$J=\overline F$, which is $K_6$-free, non-$5$-partite and has $173$ edges, is a maximum
+such graph. This is the classification of Kang and Pikhurko~\cite{KP05} at the single
+leaf $(r,n)=(5,21)$; we take that as the theorem \emph{statement} and reprove it in Lean
+by a self-contained cone descent, in four steps.
+\begin{itemize}[nosep]
+\item[\textbf{D1}] \emph{Cone extraction.} For an extremal $J$, a maximum-degree vertex
+$x$ has an independent complement $C=V\setminus N[x]$ joined completely to $N(x)$: the
+Zykov symmetrisation of $J$ at $x$ is again $K_{r+1}$-free with $\alpha\le 4$, so
+\texttt{kp\_saving} forces its edge count to equal $e(J)$, and pointwise degree equality
+then makes $J$ a cone over $J[N(x)]$ (\texttt{cone\_extremal\_gen}).
+\item[\textbf{D2}] \emph{Forced descent.} The same bound, applied at $r-1$ to
+$J[N(x)]$, forces the removed block $C$ to have size exactly $4$ at each level (of the
+feasible sizes only $c=4$ survives, margins $1$--$2$), peeling one independent $4$-set
+per level: $(5,21)\to(4,17)\to(3,13)\to(2,9)$
+(\texttt{descent\_21\_to\_17}, \dots, \texttt{descent\_13\_to\_9}).
+\item[\textbf{D3}] \emph{Join-transport reassembly.} Each peeled level is recorded as a
+cone \texttt{coneExtend}, which is functorial for graph isomorphism
+(\texttt{coneExtend\_congr}); so an extremal $(5,21)$ graph is three nested cones over
+its $(2,9)$ base --- i.e.\ $J=K_{4,4,4}\ast(\text{base})$ --- and an isomorphism of bases
+lifts to an isomorphism of the reassembled graphs (\texttt{extremal21\_giso}).
+\item[\textbf{D4}] \emph{Base classification.} Every $9$-vertex triangle-free graph with
+$\alpha\le 4$, $e=17$ and $\Delta\le 4$ is isomorphic to one of exactly two graphs
+(\texttt{base\_classification}). This is proved by pure local counting --- the degree
+sequence is forced to $[2,4^8]$ or $[3,3,4^7]$; a degree-$2$ apex fixes the first, and
+an independence-squeeze on the two degree-$3$ vertices fixes the second --- with
+explicit \texttt{Equiv} witnesses, \emph{not} by graph enumeration.
+\end{itemize}
+Reassembling the two bases through the three cone layers yields exactly two isomorphism
+classes for $J$, the constructions \texttt{kpG} (internal parameter $\abs{A^\ast}=2$)
+and \texttt{kpG1} ($\abs{A^\ast}=1$; the naive $\abs{A^\ast}=3$ variant is isomorphic to
+it). The transport consuming the classification (\texttt{equality21\_transport}) is
+variant-agnostic, so the uniform $A/B$ structure of Corollary~\ref{cor:equality21}
+follows for either class. As an independent cross-check, canonical-form (nauty)
+enumeration confirms exactly these two classes at $(5,21)$ and the classification at
+five nearby parameter families.
+
+At the initial formalisation (repository tag \texttt{v1.0}) the result was
+\emph{conditional} on this classification, carried as the hypothesis
+\texttt{KPEqualityClassification}; the D1--D4 discharge above closed it the same day,
+removing the last mathematical hypothesis. The reservation this leaves is not
+mathematical but one of provenance: the discharge is a fresh, load-bearing
+formalisation produced by the same AI pipeline as the rest of the development
+(Section~\ref{sec:provenance}), and its D4 base step and construction witnesses rest on
+\texttt{native\_decide} (the axiom profile below). A reader who would rather not trust
+the new formalisation can audit the published classification of~\cite{KP05} directly and
+consume it through the still-exported conditional theorem.
 
 \subsection{Axiom profile}
-Running \texttt{\#print axioms Erdos617.erdos\_617\_r5} reports exactly:
+Running \texttt{\#print axioms Erdos617.erdos\_617\_r5\_unconditional} reports exactly:
 \[
   \texttt{propext},\quad \texttt{Classical.choice},\quad \texttt{Quot.sound}
 \]
-(the three standard Mathlib axioms), plus four named SAT-reflection axioms entering
-through \texttt{primFacts}. The latter are instances of \texttt{Lean.ofReduceBool}
-produced by \texttt{native\_decide}; this is the same trust base as Lean's
-\texttt{bv\_decide} tactic, and it means the kernel trusts the compiled Boolean
-evaluation of the LRAT-certificate checker on the four fixed certificates. No
-\texttt{sorryAx} appears; the axiom profile is unchanged by the discharge of Brouwer's
-bound (\texttt{kp\_saving} is axiom-clean). \texttt{KPEqualityClassification} is a
-hypothesis, so it is visible in the theorem's type rather than its axiom list. Thus
-the formal guarantee is precisely: \emph{granting the Kang--Pikhurko equality
-classification at $(5,21)$ and the \texttt{native\_decide} evaluation of four SAT
-certificates, Theorem~\ref{thm:main} holds, with everything else --- including
-Brouwer's bound --- checked by Lean's kernel.} This is a machine-checked conditional
-proof, not an unconditional formal one.
+(the three standard Mathlib axioms), plus fourteen named \texttt{native\_decide}
+reflection axioms --- \emph{seventeen} axioms in all. The fourteen are instances of
+\texttt{Lean.ofReduceBool}: four enter through \texttt{primFacts} (the SAT certificates,
+as before), and ten are the finite Kang--Pikhurko construction facts used by the D4
+discharge --- two cone-isomorphism witnesses (\texttt{kpG\_giso\_cone3},
+\texttt{kpG1\_giso\_cone3}) and the two $A/B$ complement structures (four axioms each).
+Each is a decidable check on a fixed graph on at most $21$ vertices. \texttt{ofReduceBool}
+is the same trust base as Lean's \texttt{bv\_decide} tactic: the kernel trusts the
+compiled Boolean evaluation of a decision procedure on fixed input --- for the four SAT
+facts, the LRAT-certificate checker; for the ten new facts, a direct adjacency
+computation on the explicit constructions. No \texttt{sorryAx} appears, and no
+mathematical hypothesis remains in the theorem's type. Thus the formal guarantee is
+precisely: \emph{granting the \texttt{native\_decide} evaluation of those fourteen fixed
+checks, Theorem~\ref{thm:main} holds, with everything else --- including Brouwer's bound
+and the equality classification --- checked by Lean's kernel.} This is a machine-checked
+proof modulo that reflection trust base --- unconditional in that it assumes no
+unformalised mathematical input, not a claim of a kernel-only proof. The still-exported
+conditional \texttt{erdos\_617\_r5} carries only the three standard axioms and the four
+SAT reflections, with \texttt{KPEqualityClassification} visible in its type.
 
 \subsection{How to check}
 Build with \texttt{lake exe cache get \&\& lake build} in \texttt{lean617/}; inspect
-the guarantees with \texttt{\#print axioms Erdos617.erdos\_617\_r5} (which should show
-the three standard axioms, the four SAT reflections, and no \texttt{sorryAx}, with
-\texttt{KPEqualityClassification} in the theorem's type). The DRAT path~(i) of
-Section~\ref{sec:certificates} is a solver-independent cross-check of the four SAT
-facts that does not rely on \texttt{native\_decide}.
+the guarantees with \texttt{\#print axioms Erdos617.erdos\_617\_r5\_\allowbreak
+unconditional} (which should show the three standard axioms, the fourteen
+\texttt{native\_decide} reflections, and no \texttt{sorryAx}, with no mathematical
+hypothesis in the theorem's type). Comparing with \texttt{\#print axioms
+Erdos617.erdos\_617\_r5} isolates the ten construction axioms the discharge adds. The
+DRAT path~(i) of Section~\ref{sec:certificates} is a solver-independent cross-check of
+the four SAT facts that does not rely on \texttt{native\_decide}.
 
 %% ===========================================================================
 \section{Provenance, verification, and limitations}\label{sec:provenance}
@@ -1708,9 +1781,12 @@ form presented in the repository's \texttt{review\_queue/}.
 framing and the reduction (Lemma~\ref{lem:chain}); the empirical structure-mining
 that identified the correct lemma statements (Appendix~\ref{app:phase}); the briefs
 handed to \texttt{gpt-5.6-sol}; the \capeleven{} toolkit exposition; the SAT
-encodings, certificates, and their re-verification; the Lean formalisation; and the
-adversarial reviews described next. This write-up was assembled by a Claude session
-from those frozen sources.
+encodings, certificates, and their re-verification; and the entire Lean formalisation
+--- the reduction, both lemmas, Brouwer's bound (\texttt{kp\_saving}), and the D1--D4
+discharge of the equality classification (Section~\ref{ssec:lean-brouwer}), this last
+carried out by a relay of Claude sessions --- together with the adversarial reviews
+described next. This write-up was assembled by a Claude session from those frozen
+sources.
 \end{itemize}
 
 \subsection{The adversarial-review chain}
@@ -1744,9 +1820,10 @@ confirmed faithful and all Tur\'an arithmetic recomputed.
 \emph{Verified (by us):} the reduction and both lemmas have each been (a) drafted or
 constructed, (b) checked line-by-line by the author session, (c) subjected to an
 independent adversarial review that re-derived the load-bearing content, and
-(d) formalised in Lean with no \texttt{sorry}s modulo the Kang--Pikhurko equality
-classification at $(5,21)$ (Section~\ref{sec:lean}). Every finite numerical claim is
-confirmed by exact
+(d) formalised in Lean with no \texttt{sorry}s and no remaining mathematical
+hypothesis --- Brouwer's bound and the Kang--Pikhurko equality classification at
+$(5,21)$ included (Section~\ref{sec:lean}). Every finite numerical claim is confirmed
+by exact
 recomputation; every SAT fact carries a DRAT certificate checked by
 \texttt{drat-trim} \emph{and} an LRAT certificate checked inside Lean; the external
 theorem is literature-verified.
@@ -1754,13 +1831,16 @@ theorem is literature-verified.
 \emph{Not yet verified:} the chain of author sessions, fresh-session adversarial
 reviewers, and machine checks is an \emph{internal} verification. It has not been
 refereed by an independent human expert, which for a result of this kind is the
-appropriate next standard. Two specific gaps to a fully self-contained formal object
-remain: (i) one classical statement, the Kang--Pikhurko equality classification at
-$(5,21)$, is an assumed hypothesis in the Lean development rather than a proved lemma
-(Brouwer's edge bound, formerly also assumed, is now proved; Section~\ref{ssec:lean-brouwer});
-and (ii) the SAT facts are trusted through \texttt{native\_decide}'s reflection axiom
-(with the independent \texttt{drat-trim} path as mitigation). We make no claim that
-the present internal certificate substitutes for expert human scrutiny; we invite it.
+appropriate next standard. Two features of the formal object a verifier should weigh
+remain: (i) the discharge of the equality classification
+(Section~\ref{ssec:lean-brouwer}), while it removes the last mathematical hypothesis,
+is itself a fresh, load-bearing formalisation by the same AI pipeline, reviewed only
+internally --- a reader who distrusts it can instead audit the published classical
+statement and use the still-exported conditional theorem; and (ii) the SAT facts and
+the finite Kang--Pikhurko construction facts are trusted through
+\texttt{native\_decide}'s reflection axiom (with the independent \texttt{drat-trim} path
+as mitigation for the SAT facts). We make no claim that the present internal
+certificate substitutes for expert human scrutiny; we invite it.
 
 \subsection{Why the argument should be believed, and where to attack it}
 The proof is elementary and self-contained modulo one classical theorem, and it uses
@@ -1769,8 +1849,10 @@ must, at $n=24$; Section~\ref{ssec:MH-n24} and Appendix~\ref{app:phase}), it doe
 prove too much (the pure-graph relaxations of both lemmas are false), and it is not
 suspiciously short. The most fragile-looking points --- and the ones a sceptical
 reader should probe first --- are the $n=21$ equality classification feeding
-Corollary~\ref{cor:equality21}, the correctness of the $L$-table recursion (whose
-affine bounds we verify pointwise), and the two repaired cases
+Corollary~\ref{cor:equality21} (now formalised by the D1--D4 cone descent of
+Section~\ref{ssec:lean-brouwer}, whose $(2,9)$ base step and \texttt{native\_decide}
+construction witnesses are the natural targets), the correctness of the $L$-table
+recursion (whose affine bounds we verify pointwise), and the two repaired cases
 (Sections~\ref{ssec:MH-K5free} and~\ref{ssec:MM-two}) that turn on the $\omega$-free
 $11$-vertex nonexistence. Each of these is exactly where an independent check would
 be most valuable.

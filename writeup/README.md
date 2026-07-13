@@ -25,7 +25,7 @@ or, equivalently,
 latexmk -pdf erdos617-r5.tex
 ```
 
-Output: `erdos617-r5.pdf` (~24 pages). The build is clean: no errors, no undefined
+Output: `erdos617-r5.pdf` (~25 pages). The build is clean: no errors, no undefined
 references, no overfull boxes above ~14 pt.
 
 ## What the paper contains
@@ -40,7 +40,7 @@ references, no overfull boxes above ~14 pt.
 | 6 | proof of Lemma [MM] (peeling; the {0,1,2,4}-K₅ case split; all four cases, including the repaired ν=7 closure) |
 | 7 | Theorem B: merged affine-plane colourings of K_{q²} never extend, all prime powers q≥3 |
 | 8 | the four SAT certificates (exact CNF statements, encoding, sizes, solver/checker versions, two independent verification paths, regeneration recipe) |
-| 9 | the Lean 4 formalization (what is proved — incl. Brouwer's bound `kp_saving`; the single remaining `KPEqualityClassification` hypothesis; the axiom profile; how to check) |
+| 9 | the Lean 4 formalization (the unconditional headline theorem `erdos_617_r5_unconditional`; Brouwer's bound `kp_saving`; the D1–D4 discharge of `KPEqualityClassification`, now proved not assumed; the 17-axiom profile; how to check) |
 | 10 | full AI-provenance disclosure, the owner's process-not-content status statement, the adversarial-review chain, and an honest account of what has and has not been verified |
 | App. A | the empirical phase-transition data (R6) that motivated the lemma statements |
 
@@ -68,10 +68,16 @@ what the paper presents: the ω-free 11-vertex nonexistence route in §5.4, and 
 Per the repository's ground rules and §10 of the paper, this is an **internal**
 verification chain (author sessions + fresh-session adversarial reviewers + exact
 recomputation + SAT certificates + a Lean formalization). It has **not** yet been
-refereed by an independent human expert, and the Lean development still carries one
-classical statement — the Kang–Pikhurko equality classification at (5,21),
-`KPEqualityClassification` — as an assumed hypothesis rather than a proved lemma.
-(Brouwer's edge bound, formerly also assumed, is now proved in Lean: `kp_saving`,
-axiom-clean. The axiom profile is unchanged: 3 standard + 4 SAT-reflection.) The
-paper states these points plainly; they are the appropriate next standard, not a
-defect hidden in the write-up.
+refereed by an independent human expert. The Lean development now carries **no
+mathematical hypothesis**: the Kang–Pikhurko equality classification at (5,21)
+(`KPEqualityClassification`), on which v1.0 was conditional, is discharged in Lean by
+the D1–D4 cone descent (`kp_equality_classification_proven`), and Brouwer's edge bound
+was already proved (`kp_saving`, axiom-clean). Two honest caveats remain and are
+load-bearing: (1) that discharge is a fresh formalization by the same AI pipeline,
+reviewed only internally; and (2) the axiom profile now reads 3 standard + 4 SAT + 10
+KP-construction `native_decide` reflections = **17 axioms**, no `sorryAx` — the same
+`ofReduceBool` compiler-trust base as `bv_decide`, extended to the construction facts.
+The still-exported conditional `erdos_617_r5` carries only 3 standard + 4 SAT axioms,
+for a reader who prefers to supply the classification as a cited hypothesis. The paper
+states these points plainly; they are the appropriate next standard, not a defect
+hidden in the write-up.

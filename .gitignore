@@ -23,3 +23,4 @@ tools/certgen/*.olean
 scratchpad/**/*.cnf
 scratchpad/**/*.drat
 scratchpad/**/*.lrat
+lean617_f9/
