@@ -100,10 +100,13 @@ jobs:
 
       - name: Build everything (kernel-checks the certificates via native_decide)
         working-directory: lean617
-        # -j 2: since the kernel-pure migration (2026-07-14), KPConstruction and
-        # JoinTransport are proved by kernel `decide` and peak ~6 GB RAM each;
-        # capping lake's parallelism keeps the hosted runner inside its memory.
-        run: lake build -j 2
+        # Memory note (kernel-pure migration, 2026-07-14): KPConstruction and
+        # JoinTransport are proved by kernel `decide` and peak ~6 GB RAM each.
+        # They sit on one dependency chain, so lake never builds them
+        # concurrently; peak build memory is ~6 GB + light modules, fine on a
+        # 16 GB hosted runner. (This Lake version has no jobs flag; on smaller
+        # machines, build the heavy module first: `lake build Lean617.KPConstruction`.)
+        run: lake build
 
       - name: Axiom audit of the four final theorems
         run: ./tools/axiom_audit.sh
