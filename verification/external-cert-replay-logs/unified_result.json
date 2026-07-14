@@ -1,0 +1,19 @@
+{
+ "full_cnf_sha256_match": true,
+ "full_clauses_match": true,
+ "full_variables_match": true,
+ "injective": true,
+ "old_in_range": true,
+ "counts_match": true,
+ "ids_increasing": true,
+ "ids_in_range": true,
+ "origin_reconstructs": true,
+ "origin_mismatches": 0,
+ "origin_ok": true,
+ "kissat_rc": 20,
+ "kissat_unsat": true,
+ "lrat_verified": true,
+ "lrat_additions": 144704,
+ "lrat_deletions": 0,
+ "all_ok": true
+}

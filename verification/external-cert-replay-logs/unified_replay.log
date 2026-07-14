@@ -1,0 +1,7 @@
+[1s] full parsed: 746314 clauses, 294008 vars, hash_match=True
+[1s] origin audit: injective=True reconstructs=True (mismatches=0) ok=True
+[7s] kissat compact: UNSAT
+[7s] replaying unified LRAT with our checker ...
+[12s] LRAT replay: verified=True add=144704 del=0 err=None
+[12s] UNIFIED all_ok = True
+wrote unified_result.json

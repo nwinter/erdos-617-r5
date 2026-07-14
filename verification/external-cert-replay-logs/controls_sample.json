@@ -1,0 +1,111 @@
+{
+ "cap66": {
+  "cadical_rc": 10,
+  "sat": true,
+  "our_score": {
+   "edge_count": 66,
+   "P": 25,
+   "e_W": 41,
+   "min_six": 1,
+   "max_six": 13,
+   "max_anchored_six": 11,
+   "min_exchange_margin": 0,
+   "exception_masks": [
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     4
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ]
+  },
+  "expected": {
+   "edge_count": 66,
+   "P": 25,
+   "e_W": 41,
+   "min_six": 1,
+   "max_anchored_six": 11,
+   "min_exchange_margin": 0
+  }
+ },
+ "cap12": {
+  "cadical_rc": 10,
+  "sat": true,
+  "our_score": {
+   "min_six": 1,
+   "max_six": 12,
+   "l": 0,
+   "b": 10,
+   "c": 2,
+   "defect": 14
+  },
+  "expected": {
+   "min_six": 1,
+   "max_six": 12,
+   "l": 0,
+   "b": 10,
+   "c": 2,
+   "defect": 14
+  }
+ },
+ "cadical_full_sample": [
+  {
+   "kind": "signature",
+   "key": "5",
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "signature",
+   "key": "2222_23444",
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "orbit",
+   "key": 0,
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "orbit",
+   "key": 4,
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "orbit",
+   "key": 10,
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "orbit",
+   "key": 20,
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "orbit",
+   "key": 30,
+   "cadical_rc": 20,
+   "unsat": true
+  },
+  {
+   "kind": "orbit",
+   "key": 50,
+   "cadical_rc": 20,
+   "unsat": true
+  }
+ ]
+}

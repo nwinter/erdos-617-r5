@@ -1,0 +1,10 @@
+--- leanchecker Lean617.Statements
+exit: 0
+--- leanchecker Lean617.Final
+exit: 0
+--- leanchecker Lean617.EqualityProof
+exit: 0
+--- leanchecker Lean617.JoinTransport
+exit: 0
+--- leanchecker Lean617.Primitives
+exit: 0

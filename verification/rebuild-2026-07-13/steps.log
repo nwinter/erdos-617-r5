@@ -1,0 +1,36 @@
+== [1/8] fresh local clone ==
+Cloning into '/private/tmp/claude-501/-Users-winter-research-erdos-617/6e908324-b2c0-4c6c-9413-c6d8812a5533/scratchpad/rebuild-t1/clone'...
+done.
+cbf204a r6 §A.1: confirm object A == balanced K_31 with class 0 tightened to alpha<=5
+== [2/8] supply gitignored LRAT certs (documented) ==
+== [3/8] toolchain + manifest fingerprint ==
+== [4/8] mathlib cache fetch ==
+No files to download
+Decompressed 8283 already-cached file(s)
+Completed successfully in 38410 ms!
+== [5/8] full clean lake build ==
+build exit: 0
+Note: This linter can be disabled with `set_option linter.unusedDecidableInType false`
+✔ [8496/8497] Built Lean617 (5.4s)
+Build completed successfully (8497 jobs).
+== [6/8] axiom prints (verbatim) ==
+axiom-print exit: 0
+== [7/8] leanchecker on final modules ==
+leanchecker done
+== [8/8] SAT-primitive re-checks ==
+M n=10 k=24: 98102 clauses, maxVar=1179
+CNF M10 sha256 OK: 24b4431b273af5d9a2fb866b14c7e2290033958a31a342f58f4f7d2f141cf005
+nonex n=11: 210375 clauses, maxVar=109
+CNF nonex11 sha256 OK: 3f6a6dca92110aca074ad9fdb577f3de576d045a563faf564df60ade4ae5e838
+nonex n=12: 420640 clauses, maxVar=131
+CNF nonex12 sha256 OK: 19e6554cf0ed45f465e076b894df7349a10a0285f9e9ce5a16b0c6eee27a1557
+CaDiCaL re-solve M9 exit=20 (20=UNSAT expected)
+CaDiCaL re-solve M10 exit=20 (20=UNSAT expected)
+== KP-witness numeric cross-checks ==
+ (n,r)=(9,4) p_r=29: #extremal iso classes=1  #construction iso classes=1  MATCH=True
+--- scratchpad/eq21_kpg1_check.py
+has K6: False  (want False)
+has independent 5-set: False  (want False)
+e_F(A)=9 (want 9), nonedges in A=[(4, 20)] (want exactly [(4,20)]), e_F(B)=6 (want 6), e_F(A∪B)=19 (want 19)
+ALL kpG1 D4 facts hold: True
+ALL DONE build=0 axioms=0

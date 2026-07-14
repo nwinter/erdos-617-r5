@@ -15,17 +15,29 @@ text follows unchanged.
 
 ## Machine inputs
 
-- **[MH″] (pending, data/sat/r5_n25_h4.out):** there is no balanced 5-colouring
-  of $K_{25}$ together with a colour $c$ and a 4-vertex set $T$ such that
-  $\alpha(G_c - T) \le 4$. (WLOG $c=0$, $T=\{0,1,2,3\}$ by relabelling; the SAT
-  instance encodes exactly this.)
-- **[MM] (pending, data/sat/lemma_m_60.log):** there is no graph $G$ on 25
-  vertices with $\alpha(G)\le 5$, every 6-set spanning $\le 11$ edges,
-  $e(G) \le 60$, together with a 5-set $T$, $\alpha(G-T)\le 4$, such that $T$
-  spans $\le 6$ edges of $G$. (Per review: what the CEGAR run establishes on
-  UNSAT is the *subset-capped relaxation* — only the lazily-added 6-set caps
-  are present — which implies the fully-capped [MM] a fortiori, and that is
-  all step 6 needs.)
+*[Status labels normalized 2026-07-14 per requirement 8 of the external adversarial review
+(`review_queue/reviews-received/review-of-our-r5-by-external-team.md`): the historical "pending"
+SAT-log references below are replaced by references to the reviewed lemma documents and their
+certificate records, resolving the presentation inconsistency the reviewer flagged (this section
+said "pending" while the header above records both hypotheses as discharged). House status language
+is retained — these are **reviewed candidates awaiting external scrutiny**, not a unilateral claim of
+proof completion.]*
+
+- **[MH″] — reviewed candidate (`review_queue/mh2-gpt56-candidate.md`, RESULTS.md R7; awaiting
+  external scrutiny):** there is no balanced 5-colouring of $K_{25}$ together with a colour $c$ and a
+  4-vertex set $T$ such that $\alpha(G_c - T) \le 4$. (WLOG $c=0$, $T=\{0,1,2,3\}$ by relabelling.)
+  Established as an informal theorem with its own fresh-session adversarial review, its load-bearing
+  finite facts machine-checked (see the **Certificate ledger** in `review_queue/mm-gpt56-candidate.md`),
+  and formalized sorry-free in Lean (`lean617/`, FORMAL.md F7).
+- **[MM] — reviewed candidate (`review_queue/mm-gpt56-candidate.md`, RESULTS.md R8; awaiting external
+  scrutiny):** there is no graph $G$ on 25 vertices with $\alpha(G)\le 5$, every 6-set spanning
+  $\le 11$ edges, $e(G) \le 60$, together with a 5-set $T$, $\alpha(G-T)\le 4$, such that $T$ spans
+  $\le 6$ edges of $G$. Established as an informal theorem with its own fresh-session adversarial
+  review (including the adopted r=7 repair, now integrated into the main body), resting on the four
+  machine-checked primitives `nonex11`/`nonex12`/`M9`/`M10` (Certificate ledger, same file), and
+  formalized sorry-free in Lean (FORMAL.md F8). (Historical note: the original CEGAR run established
+  only the *subset-capped relaxation*, which implies the fully-capped [MM] a fortiori — all step 6
+  needs; the current reviewed proof does not depend on that run.)
 
 ## Proof of the Theorem from [MH″] + [MM]
 
@@ -229,3 +241,22 @@ be machine-checkable and their prose matches their CNF via sound reductions
 No FATAL or validity-affecting FIXABLE issue found; only two cosmetic
 clarifications. The conditional theorem stands or falls entirely on the two
 pending UNSAT verdicts and their independent DRAT re-verification.
+
+---
+
+# 2026-07-14 punch-list integration (external review)
+
+Change applied to this document per the external adversarial review
+(`review_queue/reviews-received/review-of-our-r5-by-external-team.md`), Task C:
+
+- **Requirement 8 (normalize status language).** The "Machine inputs" section's historical "pending"
+  labels (`data/sat/r5_n25_h4.out`, `data/sat/lemma_m_60.log`) are replaced by exact references to the
+  reviewed lemma documents (`mh2-gpt56-candidate.md` / R7, `mm-gpt56-candidate.md` / R8), the
+  Certificate ledger, and the Lean formalization — resolving the inconsistency between that section
+  and this document's header (which already recorded both hypotheses as discharged). House status
+  language is retained: reviewed candidates awaiting external scrutiny, not a claim of proof
+  completion. (Review item 8.)
+
+The chain deduction itself was unchanged; the review found no FATAL or validity-affecting issue in it
+(only the status-label presentation inconsistency addressed here). The other seven requirements
+concern `mh2-gpt56-candidate.md` (items 5–7) and `mm-gpt56-candidate.md` (items 1–4).

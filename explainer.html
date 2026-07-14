@@ -153,8 +153,10 @@
 show all five? Erdős and Gyárfás conjectured no in 1999, and proved the analogous statements
 for three and four colours; five was the first open case. This page explains the result of a
 machine-checked candidate resolution — the answer is no, and 25 points is exactly the limit —
-along with the construction that achieves 25, the shape of the impossibility proof, and how
-the proof was produced and checked.</p>
+along with the construction that achieves 25, <em>two</em> independent proofs of the
+impossibility that were found by two separately-run AI systems, what happened when each
+was set loose on the other's work, and exactly how much of all this a careful reader
+still has to take on trust.</p>
 
 <h2>The question</h2>
 
@@ -250,10 +252,14 @@ merged direction colourings can never be extended by any one additional point �
 a 26th — and then the real question is whether some entirely different colouring of
 K<sub>26</sub> works instead.</p>
 
-<h2>Twenty-six points: why nothing works</h2>
+<h2>Twenty-six points: why nothing works — proof one</h2>
 
-<p>The impossibility proof runs by contradiction, and its skeleton fits in one diagram.
-Suppose some balanced 5-colouring of K<sub>26</sub> exists.</p>
+<p>There are now two independent proofs that no balanced colouring of K<sub>26</sub>
+exists. They were produced by two AI systems run separately (more on that below), they
+share no intermediate steps, and each has been machine-checked and adversarially reviewed
+by the other side. The first — the one this project found — runs by contradiction, and
+its skeleton fits in one diagram. Suppose some balanced 5-colouring of
+K<sub>26</sub> exists.</p>
 
 <figure class="plate">
   <div class="plate-body">
@@ -302,7 +308,120 @@ of careful bookkeeping. Their proofs are ordinary combinatorics — counting, ex
 theory, case analysis — but the cases are numerous and unforgiving, which is why every step
 was ultimately re-done inside a proof assistant.</p>
 
-<h2>How it was found</h2>
+<p>In one sentence: <em>delete a vertex, and balance forces the survivors to hand you five
+perfect five-point blocking sets — then the poorest colour can't afford its own blocking
+set, and the whole structure collapses.</em> The argument is local: it studies the
+neighbourhood structure around one deleted vertex.</p>
+
+<h2>The same theorem, a second way</h2>
+
+<p>The second proof never deletes a vertex. It goes straight at the poorest colour and
+squeezes it globally. Its central quantity: for a set Q of five mutually unjoined points
+in the poorest colour's graph, let P(Q) be the total number of that colour's edges leaving
+Q — the "boundary weight" of Q.</p>
+
+<figure class="plate">
+  <div class="plate-body">
+    <div class="chain">
+      <div class="step"><span class="tag">Suppose</span>A balanced 5-colouring of
+        K<sub>26</sub> exists. Its 325 edges split five ways, so the poorest colour has
+        at most 65 edges — call its graph G. Balance forces every 6-set to contain a
+        G-edge but never more than 11 of them: a narrow corridor.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Squeeze from below</span>Every independent
+        five-set Q of G has boundary weight P(Q) ≥ 25. This is a hand-fought case
+        analysis (P = 21, 22, 23, 24 each die separately — the hardest uses a
+        probabilistic transversal argument over five cliques).</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Squeeze from above</span>Somewhere, some
+        independent five-set has P(Q) ≤ 25. This comes from stability: G's complement
+        has ≥ 260 edges and no 6-clique, close enough to extremal that a degree-sum
+        theorem of Bollobás–Nikiforov (its <em>strict</em> form is load-bearing) plus
+        Brouwer's theorem locate a cheap five-set. A six-row table of cases, each
+        eliminated exactly.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Pinch</span>So some Q has P(Q) = 25 exactly,
+        while all have ≥ 25. Everything about that Q is now rigid: counting the degrees
+        toward Q leaves exactly eight possible "signatures" for how the other 21
+        vertices attach.</div>
+      <div class="arr">↓</div>
+      <div class="step"><span class="tag">Eight endgames</span>Seven signatures are
+        killed by SAT solvers with independently checkable certificates (the encodings
+        are deliberate over-relaxations, so unsatisfiability genuinely excludes the
+        graphs). The eighth falls to a counting argument built on one more certified
+        finite lemma. No signature survives; contradiction.</div>
+    </div>
+  </div>
+  <figcaption><span class="fig-no">Figure 4</span>The second proof: a pincer on the
+  poorest colour's boundary weights. In one sentence: <em>the poorest colour's
+  independent five-sets get squeezed between two degree bounds until one sits at
+  exactly 25 — and each of the eight ways that can happen dies separately.</em>
+  The argument is global: no vertex is ever deleted.</figcaption>
+</figure>
+
+<p>The two proofs use different classical ingredients, too. Proof one leans on Brouwer's
+1981 bound <em>plus</em> the Kang–Pikhurko equality classification; proof two replaces the
+classification with Bollobás–Nikiforov's degree-sum theorem and never needs it. Where
+proof one's hardest human steps were found by watching search experiments wall (the
+phase-transition data of Figure 5), proof two was engineered directly: its author built an
+industrial certificate pipeline — 65 load-bearing SAT certificates with dual independent
+checkers and deliberate perturbation controls (loosen any constraint by one unit and the
+formulas become satisfiable, proving the encodings aren't vacuous).</p>
+
+<h2>Two systems, one theorem: the experiment</h2>
+
+<p>The two proofs exist because the project's owner ran a deliberate control experiment.
+After the first proof was complete and internally reviewed, a second AI system
+(OpenAI's gpt-5.6-sol, running alone) was given the same starting scaffold — the same
+problem statement, the same referee script, and the truthful information that the theorem
+had already been proved by another system — and asked to confirm it independently, without
+reading the first team's repository and without being told the route.</p>
+
+<p>The comparison must be read honestly: the second run knew the answer was "no", knew a
+proof existed, and started from a polished scaffold after tractability was established.
+The first run was a cold open on a problem of unknown status that had to invent its own
+targets. So the timing figures below are characteristics of two different regimes —
+<em>discovery</em> versus <em>confirmation</em> — not a race result. One more wrinkle worth
+stating precisely: the same base model (gpt-5.6-sol) appears on both sides, in different
+roles — inside the first team it proved the two core lemmas from briefs written for it;
+in the control it worked alone end to end. The two <em>systems</em> — orchestration,
+methodology, verification pipelines — were entirely separate.</p>
+
+<div class="status">
+  <dl>
+    <dt>Route</dt><dd>First proof: local (delete a vertex, blocking sets, two lemmas).
+      Second proof: global (boundary-weight pincer, eight certified endgames).</dd>
+    <dt>Style</dt><dd>First: empirics-led — search experiments suggested the lemmas,
+      then proofs. Second: direct construction plus certificate industrialization.</dd>
+    <dt>Effort</dt><dd>First: ~7 days, 164 commits, cold open (discovery regime).
+      Second: ~2 days, 295 commits, confirmation brief (knew the theorem was true).</dd>
+    <dt>Formalization</dt><dd>First: hand-written Lean, ~15k lines; trust base 3
+      standard axioms + 4 disclosed SAT reflections (after this round's migration).
+      Second: generated Lean at scale, ~317k lines; exactly the 3 standard axioms —
+      its SAT certificates pass through Lean's kernel-checked LRAT path.</dd>
+    <dt>Cross-review</dt><dd>Each team adversarially reviewed the other's proof:
+      both verdicts SURVIVES, zero fatal findings either way. The second team's review
+      of the first proof independently rediscovered — and then verified the repairs
+      of — both weak spots the first team's internal reviews had already caught and
+      fixed. The first team replayed all 66 of the second's certificates with an
+      independently written checker: all verified, encoding audit clean.</dd>
+    <dt>Same theorem?</dt><dd>Kernel-checked: a Lean file proves the two
+      formalizations' statements are logically equivalent, so the two proofs provably
+      prove the same thing.</dd>
+  </dl>
+</div>
+
+<p>One detail from the independence audit deserves its own sentence. The control's only
+brush with the first team's work was accidental: a routine process listing showed a
+build command containing one of the first team's file names — <em>117 seconds after</em>
+the control had already committed and reviewed its own version of the same idea (both
+teams had independently converged on Brouwer's 1981 theorem from the literature). The
+control system noticed the exposure itself, disclosed it in its notes with exact
+timestamps, quarantined the string, and banned process listings for the rest of its
+run — and every claim in that self-audit checks out against the session logs to the
+minute.</p>
+
+<h2>How the first proof was found</h2>
 
 <p>The project ran as a loop between search and proof. Searching for balanced colourings of
 K<sub>25</sub> is easy — a local-search program finds one from a random start in seconds,
@@ -321,7 +440,7 @@ exactly:</p>
     <svg id="c-svg" viewBox="0 0 560 260" width="560" role="img"
          aria-label="Log-scale chart of search time to find witness colourings for 17 to 24 points, with none found at 25"></svg>
   </div>
-  <figcaption><span class="fig-no">Figure 4</span>Time to find a colouring with a four-point
+  <figcaption><span class="fig-no">Figure 5</span>Time to find a colouring with a four-point
   blocking set, by number of points. SAT solver up to n = 22 (about ×8 per added point);
   warm-started local search at 23 and 24; at n = 25, five independent searches each ran
   ≥18 hours (≥36 CPU-hours) and found nothing, each pinned at the same distance from
@@ -359,7 +478,7 @@ solutions.</p>
         certificate/computation reflections.</div>
     </div>
   </div>
-  <figcaption><span class="fig-no">Figure 5</span>The pipeline. Proofs, reviews, and
+  <figcaption><span class="fig-no">Figure 6</span>The pipeline. Proofs, reviews, and
   formalization were done by separate AI sessions with separate roles, on the theory that
   an author should never grade its own work; the formalization alone ran as a relay of 21
   sessions.</figcaption>
@@ -367,58 +486,74 @@ solutions.</p>
 
 <h2>Who did what</h2>
 
-<p>The project ran from 5 to 12 July 2026. It was prompted and directed by Nick Winter,
-who chose the problem, set the rules of engagement (falsify before proving; an untouchable
-referee script; adversarial review before anything counts), supplied the compute and
-accounts, and made the release decisions — and who has verified the process, not the
-mathematics. All mathematics, code, and prose were produced by the AI systems below. The
-roles are documented in the repository's research logs; the model versions and reasoning
-settings are as recorded in the owner's session logs.</p>
+<p>The first proof was produced 5–12 July 2026; the control run took 11–13 July; the
+mutual reviews, certificate replays, and rebuild audits ran 13–14 July. Everything was
+prompted and directed by Nick Winter, who chose the problem, set the rules of engagement
+(falsify before proving; an untouchable referee script; adversarial review before anything
+counts), commissioned the control experiment, supplied the compute and accounts, and made
+the release decisions — and who has verified the process, not the mathematics. All
+mathematics, code, and prose were produced by the AI systems below. The roles are
+documented in the repositories' research logs; the model versions and reasoning settings
+are as recorded in the owner's session logs.</p>
 
 <div class="status">
   <dl>
     <dt>Claude Fable&nbsp;5</dt><dd>(Anthropic; Claude Code agent sessions with extended
-      thinking.) Primary system: the search programs and SAT encodings, the
-      K<sub>25</sub> constructions and the non-extension theorem, the
+      thinking.) Primary system of the first proof: the search programs and SAT
+      encodings, the K<sub>25</sub> constructions and the non-extension theorem, the
       extension-obstruction chain, the briefs both lemmas were proved from, all
       verification infrastructure, the entire Lean formalization (a relay of 21 runner
-      sessions plus analysis agents), the write-up, and this page.</dd>
-    <dt>gpt-5.6-sol</dt><dd>(OpenAI; via the codex CLI at ultra reasoning effort.) Proved
-      Lemma 1 and Lemma 2 from written briefs — the two hardest single steps; served as
-      co-prover on Lean sub-lemmas and as an independent cross-checker. Also caught a
-      false claim in one of the briefs before it could do damage.</dd>
+      sessions plus analysis agents), the write-up, this page — and, in the verification
+      rounds, the independent replay of the second proof's 66 certificates and the
+      adversarial review of its mathematics.</dd>
+    <dt>gpt-5.6-sol</dt><dd>(OpenAI; via the codex CLI at ultra reasoning effort.) Two
+      distinct roles, stated precisely. Inside the first team: proved Lemma 1 and
+      Lemma 2 from written briefs — the two hardest single steps — served as co-prover
+      on Lean sub-lemmas, and caught a false claim in one of the briefs. Separately, as
+      the control run: produced the entire second proof solo (141 sessions, ~2 days),
+      including its certificate pipeline, its own Lean formalization, and its
+      adversarial review of the first team's proof.</dd>
     <dt>Claude Opus&nbsp;4.8</dt><dd>Independent audit that the formal Lean statement
       faithfully encodes the problem as stated at erdosproblems.com (run alongside an
       equivalent audit by gpt-5.6-sol; zero mismatches found).</dd>
     <dt>Fresh-session reviews</dt><dd>Every load-bearing proof was adversarially reviewed
-      by AI sessions that had no part in writing it and were briefed to break it. They
-      found two genuine gaps; both were repaired and the repairs re-verified.</dd>
+      by AI sessions that had no part in writing it and were briefed to break it. The
+      first team's internal reviews found two genuine gaps (both repaired); the mutual
+      cross-team reviews found zero fatal issues in either proof — and the second team's
+      review independently rediscovered the first team's two repaired spots and verified
+      the repairs.</dd>
   </dl>
 </div>
 
 <h2>What exactly has been established</h2>
 
-<p>The end state is a single machine-checked theorem: <em>no balanced 5-colouring of
-K<sub>26</sub> exists</em> — stated in Lean over an arbitrary 26-element vertex set,
-checked by the Lean kernel, with no remaining mathematical hypothesis. Trust reduces to the
-proof assistant's kernel, three standard axioms, and fourteen named reflection axioms
-covering the SAT certificates and a few concrete finite-graph computations, all disclosed
-and audited. The result has not yet been reviewed by an independent human mathematician,
-and until it is, it should be described as a machine-verified candidate: the honest
-strength of the claim is "a proof object exists and checks", not "the community has
-accepted it".</p>
+<p>The end state is one theorem with two independent machine-checked proofs: <em>no
+balanced 5-colouring of K<sub>26</sub> exists</em> — stated in Lean over an arbitrary
+26-element vertex set, with a kernel-checked equivalence showing both formalizations
+prove the same statement, and with no remaining mathematical hypothesis on either side.
+The first proof's trust base is the proof assistant's kernel, three standard axioms, and
+four named reflection axioms covering the SAT certificates (the finite-graph computations
+that formerly also used reflection are now checked by the kernel directly). The second
+proof's trust base is exactly the three standard axioms — its certificates pass through
+Lean's kernel-checked LRAT path. Neither proof has been reviewed by an independent human
+mathematician, and until one is, this should be described as a machine-verified
+candidate: the honest strength of the claim is "two independent proof objects exist,
+check, and survived each other's hostile review", not "the community has accepted
+it".</p>
 
 <div class="status">
   <dl>
     <dt>Result</dt><dd>N(5) = 25: the Erdős–Gyárfás conjecture holds at r = 5
-      (Erdős problem 617, first open case).</dd>
-    <dt>Theorem</dt><dd><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em">erdos_617_r5_unconditional</span> — Lean 4 + Mathlib, sorry-free, kernel-checked.</dd>
-    <dt>Trust base</dt><dd>3 standard Lean axioms + 4 SAT-certificate reflections + 10
-      finite-graph computation reflections (17 total, audited).</dd>
-    <dt>Authorship</dt><dd>AI throughout (two model families: proofs, adversarial reviews,
+      (Erdős problem 617, first open case). Two independent proofs.</dd>
+    <dt>Theorem</dt><dd><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em">erdos_617_r5_unconditional</span> — Lean 4 + Mathlib, sorry-free, kernel-checked (proof one; proof two has its own equivalent formalization).</dd>
+    <dt>Trust base</dt><dd>Proof one: 3 standard Lean axioms + 4 SAT-certificate
+      reflections (7 total, audited; was 17 before the kernel migration). Proof two:
+      the 3 standard axioms exactly.</dd>
+    <dt>Authorship</dt><dd>AI throughout (two model families; proofs, adversarial reviews,
       formalization), directed and process-verified by the project owner.</dd>
-    <dt>Review status</dt><dd>Internally cross-reviewed with two repaired gaps; no
-      independent human review yet.</dd>
+    <dt>Review status</dt><dd>Internally reviewed with two repaired gaps; mutual
+      cross-team adversarial reviews passed with zero fatal findings; no independent
+      human review yet.</dd>
     <dt>Package</dt><dd><span id="pkg-link"></span></dd>
   </dl>
 </div>

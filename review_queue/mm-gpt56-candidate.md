@@ -2,7 +2,66 @@
 
 The claim is true.
 
-A small toolkit caveat first: the phrase “any clique number” in the \(\alpha\le2\) part of (T4) cannot literally apply to the stated 9- and 10-vertex minima, since \(K_5\sqcup K_4\) and \(K_5\sqcup K_5\) are counterexamples. Below, every use of those \(\alpha\le2\) results occurs after \(\omega\le4\) has been established. When an added vertex could create a \(K_5\), that possibility is handled separately.
+## Toolkit (T2)–(T5): the granted finite facts, stated self-containedly
+
+*[Self-contained statements of (T2)–(T5) added 2026-07-14 per requirement 2 of the
+external adversarial review (`review_queue/reviews-received/review-of-our-r5-by-external-team.md`,
+"Define T2–T5 before Lemma 2 first uses them"). These are exactly the toolkit facts the [MM]
+brief supplies and that the reviewer reconstructed; each is verified against the usage below.
+Their certificate-grade provenance is recorded in the "Certificate ledger" section near the end
+of this document.]*
+
+Throughout, $G$ is a finite simple graph on $n=|V(G)|$ vertices with $e(G)$ edges, degrees
+$d_v=d_G(v)$, triangle count $\tau(G)$, neighbourhood $N(v)=N_G(v)$, and non-neighbourhood
+$W_v=V(G)\setminus(\{v\}\cup N(v))$. "Cap-11" means every 6-set spans at most 11 edges of $G$.
+
+- **(T2) — non-neighbourhood counting identity.** For every graph $G$,
+  \[
+  \sum_{v} e(G[W_v]) \;=\; n\,e(G) \;-\; \sum_v d_v^2 \;+\; 3\tau(G).
+  \]
+  Since $3\tau(G)=\sum_v e(G[N(v)])$, this is equivalently
+  $\sum_v e(G[W_v]) = n\,e(G)-\sum_v d_v^2+\sum_v e(G[N(v)])$, the form used in §2.
+  (Each edge $xy$ lies in $G[W_v]$ for exactly $n-d_x-d_y+|N(x)\cap N(y)|$ vertices $v$;
+  summing over edges and using $\sum_{xy\in E}|N(x)\cap N(y)|=3\tau(G)$ gives the identity.)
+
+- **(T3) — cap-11 neighbourhood bound.** If $G$ is cap-11 then for every vertex $v$,
+  \[
+  e(G[N(v)])\;\le\; f(d_v),\qquad
+  f(d)=\begin{cases}\binom d2,&d\le4\ \text{(small-degree convention)},\\[1mm]
+  \left\lfloor\dfrac{3d(d-1)}{10}\right\rfloor,&d\ge5.\end{cases}
+  \]
+  (For $d\ge5$: each 5-set $A\subseteq N(v)$ has $\{v\}\cup A$ cap-11, so $5+e(G[A])\le11$, i.e.
+  $e(G[A])\le6$; double-counting over the 5-subsets of $N(v)$,
+  $e(G[N(v)])\binom{d-2}{3}\le6\binom d5$, which gives the displayed floor.)
+
+- **(T4) — finite minima and the 11-vertex nonexistence primitive.** Let $G$ be cap-11 and put
+  $s=|V(G)|$.
+  - *(a) $M$-minima (require $\omega\le4$).* If $\alpha(G)\le2$ **and** $\omega(G)\le4$
+    (i.e. $G$ is $K_5$-free), then $e(G)\ge M(s)$, where $M(9)=19$, $M(10)=25$, and for $s\le8$,
+    $M(s)=\binom s2-\lfloor s^2/4\rfloor$ (the complement-Mantel floor).
+  - *(b) 11-vertex nonexistence (clique-number **free**).* No cap-11 graph on $11$ (or $12$)
+    vertices has $\alpha\le2$ — **regardless of clique number**. By monotonicity (an induced
+    subgraph inherits $\alpha\le2$ and cap-11) this rules out **every** $n\ge11$: equivalently,
+    a cap-11 graph with $\alpha\le2$ has at most $10$ vertices.
+  - *(c) $L$-minima (require $\omega\le4$).* If $\alpha(G)\le3$ **and** $\omega(G)\le4$, then
+    $e(G)\ge L(s)$, where
+    \[
+    \begin{array}{c|rrrrrrrr}
+    s&13&14&15&16&17&18&19&20\\ \hline L(s)&24&31&38&46&53&62&73&84,
+    \end{array}
+    \]
+    and for $s\le12$, $L(s)=\binom s2-\operatorname{ex}(s,K_4)$ (the complement-Turán floor).
+
+  The distinction between (a)/(c) — which genuinely need $\omega\le4$ — and (b), which is
+  $\omega$-free, is exactly the caveat below and is load-bearing throughout.
+
+- **(T5) — cross-graphs between $K_5$'s are matchings.** If $G$ is cap-11 and $Q$ is a $K_5$ in
+  $G$, then every vertex outside $Q$ has **at most one** neighbour in $Q$. (A vertex $x$ with two
+  neighbours in $Q$ makes $\{x\}\cup Q$ a 6-set with $10+2=12>11$ edges.) Consequently, for disjoint
+  $K_5$'s $Q,Q'$ the bipartite graph $G[Q,Q']$ is a matching, and every $t\in T$ has at most one
+  neighbour in each $K_5$.
+
+A small toolkit caveat, restated: the phrase “any clique number” in the \(\alpha\le2\) part of (T4) cannot literally apply to the stated 9- and 10-vertex minima (T4a), since \(K_5\sqcup K_4\) and \(K_5\sqcup K_5\) are counterexamples. Below, every use of those \(\alpha\le2\) results occurs after \(\omega\le4\) has been established. When an added vertex could create a \(K_5\), that possibility is handled separately. Only the 11-vertex nonexistence (T4b) is clique-number-free.
 
 Assume for contradiction that \(G,T\) satisfy (a)–(d). Put
 
@@ -538,13 +597,29 @@ We classify the possibilities.
 
 - If \(r=5\) or \(6\), then \(F\) contains two disjoint edges, so (25) gives \(D\ge12\), contradicting \(D\le10\) or \(11\).
 
-- If \(r=7\), then \(D=12\). The only nonnegative five-tuple of total weight 12 having at least seven pairs of sum at least six is
+- If \(r=7\), then \(D=12\). By the weight-vector lemma below, the only nonnegative five-tuple of total weight 12 having at least seven pairs of sum at least six is
 
   \[
   (0,0,0,6,6).
   \]
 
   The seven eligible pairs are precisely the edge joining the two weight-six vertices and their six edges to the zero-weight vertices. Hence a weight-six vertex paired with a zero-weight vertex has \(Z_i\) itself hitting every nonedge of \(B\).
+
+  **[Integrated from the 2026-07-10 adversarial review's adopted repair — see review ledger below. This closing contradiction was previously present only in the appended review section; requirement 1 of the external review requires it in the main proof body.]** Concretely, pick a weight-six vertex \(t_i\) (so \(d_i=|Z_i|=6\)) and a weight-zero vertex \(t_j\) (so \(Z_j=\varnothing\)). The pair \(ij\) is an \(F\)-edge, and since \(h=0\) it is hit, so
+  \[
+  B-(Z_i\cup Z_j)=B-Z_i
+  \]
+  is a clique; as \(|B-Z_i|=10-6=4\) and \(\omega(B)\le4\), it is a \(K_4\). Now consider \(X=B+t_i\), on \(11\) vertices. Then \(\alpha(X)\le2\): an independent triple would lie either in \(B\) (impossible, since \(\alpha(B)\le2\)) or be \(\{t_i,u,v\}\) with \(u,v\) nonadjacent to \(t_i\), i.e. \(u,v\in B-Z_i=K_4\), forcing \(u,v\) adjacent — impossible. As \(X\subseteq G\), \(X\) is cap-11. So \(X\) is an \(\alpha\le2\), cap-11 graph on \(11\) vertices, which does not exist by the clique-number-free 11-vertex primitive (T4b). This contradiction eliminates \(r=7\).
+
+  *(One may instead mirror the \(r=4\) branch: if \(X\) contains a \(K_5\) it runs through \(t_i\), and deleting it leaves a \(K_6\) by (T5), violating cap-11; if \(X\) is \(K_5\)-free the \(\omega\le4\) 11-vertex nonexistence applies. The \(\omega\)-free primitive (T4b) makes the split unnecessary.)*
+
+  **Weight-vector lemma (requirement 4 of the external review, hand-checkable).** *The only nonnegative integer five-tuple \((d_1,\dots,d_5)\) with \(\sum_i d_i=12\) in which at least seven of the ten pair-sums \(d_i+d_j\) (\(i<j\)) are \(\ge6\) is \((0,0,0,6,6)\), up to order.*
+  Proof. Order \(d_1\le\cdots\le d_5\) and call a pair *good* if its sum is \(\ge6\); we need \(\ge7\) good, i.e. \(\le3\) bad. A good pair has an endpoint \(\ge3\), so with \(H=\{i:d_i\ge3\}\), \(h=|H|\), the \(\binom{5-h}{2}\) pairs avoiding \(H\) are all bad, forcing \(\binom{5-h}{2}\le3\), i.e. \(h\ge2\).
+  - \(h\ge4\): four values \(\ge3\) sum to \(\ge12\), so with total \(12\) the tuple is \((0,3,3,3,3)\); its four pairs meeting the \(0\) sum to \(3\) — four bad pairs, too many. (And \(h=5\) needs sum \(\ge15\).) So \(h\in\{2,3\}\).
+  - \(h=3\): the two low values (\(\le2\)) give a bad pair. Let the highs be \(a\le b\le c\) (\(\ge3\)). If \(a=3\), then both pairs (smallest low, \(a\)) and (largest low, \(a\)) have sum \(\le5\), already \(3\) bad; the remaining four low–high pairs must all be good, forcing \(b,c\ge6-\text{(smaller low)}\), whence \(b+c\ge2(6-\text{low})\) contradicts \(b+c=9-\text{(low sum)}\). If \(a\ge4\), all highs \(\ge4\) sum \(\ge12\), so both lows are \(0\) and \(a=b=c=4\): tuple \((0,0,4,4,4)\), whose only good pairs are the three high–high ones — just \(3<7\). So \(h\ne3\).
+  - \(h=2\): the three lows (\(\le2\)) give \(\binom32=3\) bad pairs, so all seven other pairs are good; in particular the smaller high paired with the smallest low \(z\) is good, so both highs are \(\ge6-z\). If \(z\ge1\) the three lows sum to \(\ge3\) and the highs sum to \(\ge2(6-z)\ge10\), total \(\ge13>12\); so \(z=0\), both highs are \(\ge6\), forcing highs \(=6,6\) and lows \(=0,0,0\).
+  Hence \((0,0,0,6,6)\) is unique. \(\square\)
+  *(Independently confirmed by exhaustive enumeration of all nonnegative integer 5-tuples summing to 12; see the Certificate ledger's arithmetic entry.)*
 
 - If \(r=8\) or \(9\), then \(F\) contains a 5-cycle. Summing (25) around it gives \(D\ge15\), contradicting \(D\le13\) or \(14\).
 
@@ -659,6 +734,110 @@ The two boundary hypotheses enter essentially:
 
 - \(e(G[T])\le6\) gives \(r=10-e(G[T])\ge4\), supplying the necessary nonedges of \(T\) and driving all weighted hitting arguments.
 - \(e(G)\le60\) supplies the sharp budgets (1), (13), and (21); in the final two-\(K_5\) boundary it forces \(e(B)=25\) and exact equality throughout.
+
+---
+
+# Certificate ledger (finite/SAT primitives and arithmetic)
+
+*[Added 2026-07-14 per requirement 3 of the external adversarial review
+(`review_queue/reviews-received/review-of-our-r5-by-external-team.md`, "Give certificate-grade
+identifiers for every finite/SAT primitive"). This section gives, per primitive, the exact
+statement + encoding direction, the generator command, the CNF and LRAT identifiers, and the
+checker with its exact commands and observed outputs. The same ledger is referenced from
+`review_queue/mh2-gpt56-candidate.md`, which consumes the same four primitives. All identifiers are
+transcribed from `tools/certgen/checksums.txt` (canonical CNF hashes),
+`verification/rebuild-2026-07-13/cert-sha256.txt` (shipped LRAT hashes),
+`verification/rebuild-2026-07-13/sat-recheck.log`, and `lean617/Lean617/Primitives.lean`.]*
+
+## The four SAT primitives
+
+All four are encoded from the **same** Lean definitions the shipped proof kernel-checks
+(`nonexCNF` / `MCNF` in `lean617/Lean617/PrimEncoding.lean`), so the DIMACS fed to CaDiCaL is
+byte-for-byte the CNF the certificate is checked against — there is no second, drifting copy.
+Variables are edge variables (`edgeVarL`, value $a\cdot n+b$ for the ascending pair $[a,b]$).
+Encoding building blocks: `alphaClauses` = "$\alpha\le2$" (every 3-set spans an edge);
+`omegaClauses` = "$\omega\le4$" (every 5-set omits an edge); `capClauses` = cap-11 (every 6-set,
+every 12 of its 15 pairs, at least one non-edge); the $M$-instances add a Sinz sequential-counter
+"$\le k$ edges".
+
+| primitive | statement proved (UNSAT $\Rightarrow$) | $\omega$ hypothesis | CNF clauses | CNF maxVar | CNF sha256 (canonical) | LRAT bytes | LRAT sha256 (shipped) |
+|---|---|---|---|---|---|---|---|
+| **nonex11** | no graph on 11 vertices with $\alpha\le2$ and cap-11 | **none (clique-number-free)** | 210375 | 109 | `3f6a6dca…4ae5e838` | 340410882 | `50079df1…4122dfdf` |
+| **nonex12** | no graph on 12 vertices with $\alpha\le2$ and cap-11 | **none (clique-number-free)** | 420640 | 131 | `19e6554c…e27a1557` | 454795453 | `06a84af6…c69f3cdd` |
+| **M9** | every graph on 9 vertices with $\alpha\le2$, $\omega\le4$, cap-11 has $\ge19$ edges | **requires $\omega\le4$** | 39743 | 728 | `596ffcfb…e9d618cb` | 1767366 | `481ba393…606f3a69` |
+| **M10** | every graph on 10 vertices with $\alpha\le2$, $\omega\le4$, cap-11 has $\ge25$ edges | **requires $\omega\le4$** | 98102 | 1179 | `24b4431b…141cf005` | 18707983 | `50bbbe8c…053180b7` |
+
+(Full 64-hex hashes are in `tools/certgen/checksums.txt` and `verification/rebuild-2026-07-13/cert-sha256.txt`.)
+
+**Encoding direction, per primitive.**
+- **nonex11 / nonex12** encode `nonexCNF n` = `alphaClauses n ++ capClauses n` for $n=11,12$. A model
+  is exactly a graph on $\mathrm{Fin}\,n$ with $\alpha\le2$ and cap-11; **there is no
+  $\omega$/clique constraint**. UNSAT therefore means *no such graph exists* — the clique-number-free
+  11-vertex primitive (T4b). This is the load-bearing fact for §4 ("$\le10$ vertices"), §4.1, §4.2,
+  and the §5 $r=7$ / $r=4$ closures.
+- **M9 / M10** encode `MCNF n k` = `alphaClauses ++ omegaClauses ++ capClauses ++ Sinz-atMost-k` for
+  $(n,k)=(9,18)$ and $(10,24)$. A model is a graph on $\mathrm{Fin}\,n$ with $\alpha\le2$,
+  $\omega\le4$ (via `omegaClauses`), cap-11, and $\le k$ edges. UNSAT means every such graph has
+  $\ge k+1$ edges, i.e. $M(9)\ge19$ and $M(10)\ge25$. **These genuinely require $\omega\le4$**:
+  $K_5\sqcup K_4$ (9 vtx) and $K_5\sqcup K_5$ (10 vtx) are $\alpha\le2$ cap-11 graphs with fewer
+  edges but $\omega=5$, so the caveat at the top of this document is real.
+
+**Generator (path + exact command).** Driver: `tools/regen_certificates.sh [nonex11|nonex12|M9|M10]`
+(all four if no argument). Per primitive it runs, from `lean617/`:
+```
+# 1. emit canonical DIMACS from the Lean encoding (checksum-verified against the manifest):
+lake env lean --run ../tools/certgen/emit_cnf.lean nonex 11 <cnf>      # nonex11
+lake env lean --run ../tools/certgen/emit_cnf.lean nonex 12 <cnf>      # nonex12
+lake env lean --run ../tools/certgen/emit_cnf.lean M 9 18 <cnf>        # M9  (k=18 ⇒ ≥19)
+lake env lean --run ../tools/certgen/emit_cnf.lean M 10 24 <cnf>       # M10 (k=24 ⇒ ≥25)
+# 2. solve to an LRAT proof (exit 20 = UNSAT = success):
+cadical <cnf> <raw.lrat> --lrat --binary=false --quiet --shrink=0 --unsat --inprocessing=false
+# 3. trim + renumber to consecutive clause ids for Lean's checker:
+lake env lean --run ../tools/certgen/trim_lrat.lean <raw.lrat> <out.lrat>
+```
+The `--inprocessing=false` flag is required (otherwise CaDiCaL introduces fresh variables the Lean
+checker drops). The **CNF path** `<cnf>` is a scratch file (git-ignored); its canonical sha256 is
+pinned in the manifest. The **LRAT path** is `lean617/Lean617/certs/<primitive>.lrat` (git-ignored;
+sha256 in `cert-sha256.txt`).
+
+**Checker (name/version + exact commands + observed outputs).**
+- *Primary — Lean kernel replay.* Checker: **Lean 4.30.0** (`leanprover/lean4:v4.30.0`) with
+  `Std.Tactic.BVDecide`'s verified `verifyCert` (the sound public lemma
+  `verifyCert_correct : verifyCert cnf cert = true → cnf.Unsat`), reflected by `native_decide`.
+  In `lean617/Lean617/Primitives.lean`:
+  `theorem unsat_nonex11 : (nonexCNF 11).Unsat := verifyCert_correct (nonexCNF 11) (include_str "certs/nonex11.lrat") (by native_decide)` (and likewise `unsat_nonex12`, `unsat_M9` on `MCNF 9 18`, `unsat_M10` on `MCNF 10 24`). The graph statements (T4a/T4b) are then obtained via `nonex_of_unsat` / `M_of_unsat` (`PrimBridge`/`PrimMBridge`), assembled as `primFacts : PrimFacts`.
+  Commands / observed outputs: `cd lean617 && lake build` — clean, 8497 jobs, exit 0 on tracked HEAD `3fb4ca4`; `lake env leanchecker Lean617.Primitives` — **exit 0** (`verification/rebuild-2026-07-13/leanchecker.log`). Axiom footprint of `primFacts`: `propext, Classical.choice, Quot.sound` + the four per-computation `native_decide` axioms (`unsat_{nonex11,nonex12,M9,M10}`), no `sorryAx`.
+- *Independent re-solve.* `verification/rebuild-2026-07-13/sat-recheck.log`: for each primitive the
+  emitted CNF's sha256 **matches** the manifest ("CNF … sha256 OK"); CaDiCaL re-solve of M9 and M10
+  reported **exit 20** (UNSAT). (nonex11/nonex12 re-solve is minutes-to-hours and was not repeated
+  in the rebuild; their certificates are checked by the primary Lean route and by the DRAT
+  cross-check below.)
+- *Independent DRAT cross-check (older pipeline).* `data/sat/prim_*.drat` were checked by
+  `drat-trim`, giving `s VERIFIED` (e.g. `data/sat/prim_nonex11.check`: 210375 clauses,
+  `s VERIFIED`, 733 s; `data/sat/prim_M9_ge19.check`: `s VERIFIED`). This pipeline uses a packed
+  edge-variable numbering (55 vars for nonex11) rather than the Lean `edgeVarL` numbering
+  (maxVar 109), but the identical clause count (210375) confirms the same constraint set.
+
+## Arithmetic and weight-vector facts
+
+- **`tools/verify_gpt_arith.py`** — recomputes, by exact integer arithmetic, the $L$-table
+  $L(13..20)=24,31,38,46,53,62,73,84$ from the recursion, the $\Psi$-slack sequence, and the
+  conclusion $e(H)\ge58$ (used by [MH″]; the same $L$-values are consumed by (T4c) here).
+  Command: `python3 tools/verify_gpt_arith.py`. Rerun 2026-07-14: **all eight $L(s)$ match**; slacks
+  `32,21,11,4,1,0,0,2,6,14,23,34,48,63,79,97,117,139,163,188,214` all $\ge0$; $e\ge1092/19\Rightarrow\ge58$. Output sha256 `a52e73c00165c2da46e6fa8ab21cf6af8768b6971f7036862649b5f0a6d56c31`.
+- **`tools/verify_gpt_tables.py`** — SAT-recomputes the $M$/$L$ minima. Command:
+  `.venv/bin/python tools/verify_gpt_tables.py`. Rerun 2026-07-14: **$M(9)=19$ OK, $M(10)=25$ OK**;
+  $M(11)=$`None` — i.e. *no* $\alpha\le2$, $\omega\le4$, cap-11 graph exists on 11 vertices, which is
+  strictly **stronger** than the conservative "$\ge35$" floor the script compares against (hence the
+  script's cosmetic "MISMATCH" print). This matches the clique-number-free nonex11 primitive. Output
+  sha256 `8862628a686f3b59b088f4064461c13529c4f74da25f46840a29e25ec51dbc7d`. (The $s=12$ nonexistence
+  and the $L(13..16)$ SAT re-checks are expensive; those values are established by the recursion in
+  `verify_gpt_arith.py` and by the LRAT-certified primitives above.)
+- **`tools/verify_r7_weightvec.py`** — exhaustive enumeration corroborating the §5 $r=7$
+  weight-vector hand lemma. Command: `python3 tools/verify_r7_weightvec.py`. Rerun 2026-07-14: the
+  unique nonnegative integer 5-tuple summing to 12 with $\ge7$ pair-sums $\ge6$ is $(0,0,0,6,6)$
+  (exactly 7 such pairs). Output sha256
+  `d37fafdca37fb86cfc16a10f94e04583811ec969e08a6141f9671bba5e98b439`.
 
 ---
 
@@ -782,6 +961,10 @@ $d_{B[Z]}(z)\ge3$ $\forall z$, whence $12=2e(B[Z])\ge15$. Contradiction. Every c
 
 ### The r=7 repair (confirmed sound; written out)
 
+**[2026-07-14: this repair has now been integrated into the main proof body — see the §5 "If \(r=7\)"
+bullet, which carries the closing contradiction inline per requirement 1 of the external review.
+The write-out below is retained as the review trail.]**
+
 The submitted §5 r=7 bullet establishes the forced structure and stops. Here is the closing
 contradiction. It is verbatim the candidate's own r=4 zero-leaf argument, and rests only on
 already-verified facts.
@@ -845,3 +1028,35 @@ gives an immediate contradiction) is likewise adopted.
 
 **STATUS: [MM] is PROVED** (adversarially reviewed; arithmetic machine-verified; all α≤2
 uses audited against the ω-caveat; primitive SAT facts DRAT-certified in data/sat/prim_*).
+
+---
+
+# 2026-07-14 punch-list integration (external review)
+
+Changes applied to this document per the external adversarial review
+(`review_queue/reviews-received/review-of-our-r5-by-external-team.md`), Task C. Every change is
+also marked inline where it occurs. No mathematical content was changed beyond what the external
+review supplied and the 2026-07-13 verification round validated.
+
+- **Requirement 1 (integrate the r=7 repair).** The closing contradiction for the $r=7$ case —
+  previously present only in the appended "The r=7 repair" review section (this doc's review-trail,
+  unchanged) — is now inline in the §5 "If $r=7$" bullet, immediately after the forced-structure
+  paragraph. A pointer was added at the review-trail copy. (Review §"Exact requirements", item 1;
+  Expansion 4.)
+- **Requirement 2 (define T2–T5 before first use).** New "Toolkit (T2)–(T5)" section at the top,
+  stating the counting identity (T2), the cap-11 neighbourhood bound (T3), the $M$/$L$ minima and the
+  clique-number-free 11-vertex nonexistence primitive (T4a/b/c), and the $K_5$-matching fact (T5),
+  each verified against its usage. (Review item 2.)
+- **Requirement 3 (certificate-grade identifiers).** New "Certificate ledger" section: per primitive
+  (nonex11, nonex12, M9, M10) the exact statement + encoding direction, generator command, canonical
+  CNF hash/size/counts, shipped LRAT path/size/hash, and checker (Lean 4.30 `verifyCert` +
+  `native_decide`; leanchecker exit 0; CaDiCaL re-solve exit 20; drat-trim cross-check), plus the
+  arithmetic/weight scripts with rerun outputs and hashes. The $\omega$-free (nonex11/12) vs
+  $\omega\le4$ (M9/M10) distinction is stated explicitly. (Review item 3.)
+- **Requirement 4 (make the r=7 weight classification checkable).** A ~15-line hand lemma for the
+  uniqueness of $(0,0,0,6,6)$ is given inline in §5, with `tools/verify_r7_weightvec.py` as the
+  exhaustive-enumeration cross-check (command + output hash in the Certificate ledger). (Review item 4.)
+
+Requirements 5–8 concern other documents: 5–7 (mh2-gpt56-candidate.md), 8 (extension-chain.md).
+Requirement 7 (Brouwer/Kang–Pikhurko citation split) does not touch this document — [MM] does not
+invoke Brouwer's theorem.

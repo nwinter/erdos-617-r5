@@ -1,0 +1,15 @@
+--- scratchpad/coneextend_iso.py
+kpG base-slice matches: True (mismatches 0)
+kpG1 base-slice matches: True (mismatches 0)
+
+ALL D3 numeric checks pass: True
+--- scratchpad/eq21_validate.py
+ (n,r)=(8,3) p_r=20: #extremal iso classes=1  #construction iso classes=1  MATCH=True
+ (n,r)=(9,3) p_r=25: #extremal iso classes=2  #construction iso classes=2  MATCH=True
+ (n,r)=(8,4) p_r=22: #extremal iso classes=1  #construction iso classes=1  MATCH=True
+ (n,r)=(9,4) p_r=29: #extremal iso classes=1  #construction iso classes=1  MATCH=True
+--- scratchpad/eq21_kpg1_check.py
+has K6: False  (want False)
+has independent 5-set: False  (want False)
+e_F(A)=9 (want 9), nonedges in A=[(4, 20)] (want exactly [(4,20)]), e_F(B)=6 (want 6), e_F(A∪B)=19 (want 19)
+ALL kpG1 D4 facts hold: True

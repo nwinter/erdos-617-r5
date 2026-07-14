@@ -15,8 +15,10 @@ Turán graphs at $(r,n) = (5,21)$ — on which the result was previously conditi
 itself **proved** in Lean, via a cone-descent $(5,21)\to(4,17)\to(3,13)\to(2,9)$ and a
 finite $(2,9)$ base classification. (Brouwer's 1981 Turán bound was already proved.) What
 remains in the trust base is fully disclosed and audited: the three standard Lean axioms
-plus `native_decide` kernel reflection for four SAT certificates and a handful of finite
-graph-construction facts (the same `ofReduceBool` trust base as Lean's `bv_decide`).
+plus `native_decide` kernel reflection for the four SAT certificates (the same `ofReduceBool`
+trust base as Lean's `bv_decide`). The finite graph-construction facts that were formerly also
+`native_decide` are now kernel-checked by `decide` (ROUND-2026-07-14 kernel-pure migration),
+so the axiom profile dropped from 17 to **7**.
 
 > ### Please read this first — what "candidate" means
 >
@@ -26,9 +28,10 @@ graph-construction facts (the same `ofReduceBool` trust base as Lean's `bv_decid
 > (1) the entire Lean development — the two central lemmas AND the now-formalized
 > Kang–Pikhurko equality classification — was authored by an AI (gpt-5.6-sol and Claude
 > sessions) and reviewed only by fresh AI sessions, not (yet) by human referees; and (2)
-> the proof rests on `native_decide` (Lean's `ofReduceBool` kernel reflection) for four SAT
-> certificates and several finite graph-construction facts — a compiler-level trust
-> assumption, disclosed and audited in the axiom profile. The Kang–Pikhurko classification
+> the proof rests on `native_decide` (Lean's `ofReduceBool` kernel reflection) for the four
+> SAT certificates — a compiler-level trust assumption, disclosed and audited in the axiom
+> profile (the finite graph-construction facts that formerly also used it are now
+> kernel-checked by `decide`, ROUND-2026-07-14). The Kang–Pikhurko classification
 > the result was previously *conditional* on is now **proved** in Lean, so `Main` no longer
 > depends on any mathematical hypothesis — but that removes a mathematical assumption, not
 > the two caveats above.
@@ -110,15 +113,20 @@ Every one of the four final theorems must depend on **exactly** these axioms:
 ```
 
 - `propext, Classical.choice, Quot.sound` — the three standard Lean axioms.
-- the `native_decide` axioms — the `ofReduceBool` reflection trust base (the same as Lean's
-  `bv_decide`): four for the SAT certificates, plus — for the **unconditional**
-  `erdos_617_r5_unconditional` — ten for the finite Kang–Pikhurko construction facts (two
-  cone-isomorphism witnesses, two A/B complement structures). **17 axioms total.**
-- **No `sorryAx`.** `tools/axiom_audit.sh` fails if any `sorry` or any *other* axiom appears.
-- The still-available *conditional* `erdos_617_r5 (h : KPEqualityClassification)` takes the
-  classification as a hypothesis (so it carries only the 3 standard + 4 SAT axioms); the
-  unconditional theorem discharges that hypothesis with the proved
-  `kp_equality_classification_proven`, which is where the ten construction axioms enter.
+- the four `native_decide` axioms — the `ofReduceBool` reflection trust base (the same as
+  Lean's `bv_decide`), one per SAT certificate (`unsat_nonex11/nonex12/M9/M10`).
+  **7 axioms total, for BOTH the conditional and the unconditional theorems.**
+- **No `sorryAx`.** `tools/axiom_audit.sh` fails if any `sorry` or any *other* axiom appears
+  — the allowlist now uses four *tight per-primitive* SAT globs, so any other `native_decide`
+  (e.g. a regressed construction witness) also fails it.
+- The *conditional* `erdos_617_r5 (h : KPEqualityClassification)` takes the classification as
+  a hypothesis; the unconditional theorem discharges it with the proved
+  `kp_equality_classification_proven`. As of the ROUND-2026-07-14 kernel-pure migration, the
+  ten finite Kang–Pikhurko construction witnesses that discharge uses are proved by **kernel
+  `decide`, not `native_decide`** — so the unconditional theorem carries the *same* 7-axiom
+  profile as the conditional one (previously it added ten construction `native_decide` axioms,
+  for 17 total). See `FORMAL.md` → "KERNEL-PURE MIGRATION" for the full account, including why
+  the four SAT primitives could not also be migrated.
 
 ### Step 4 — Sorry gate
 
@@ -160,11 +168,17 @@ Keep these four points in view; they are the difference between "machine-checked
    `native_decide`. This trusts the Lean **compiler** (not just the kernel), exactly as
    `bv_decide` does. The certificates are regenerable from scratch (`tools/regen_certificates.sh`);
    the CNFs are emitted from the *same* Lean definitions the proof checks, so there is no
-   second, drifting encoding. **The unconditional theorem adds ten more `native_decide`
-   axioms** of the same kind: finite facts about the explicit Kang–Pikhurko constructions
-   `kpG`/`kpG1` (two cone-isomorphism witnesses and two A/B complement structures) used by
-   `kp_equality_classification_proven`. Same `ofReduceBool` compiler trust; each is a decidable
-   check on a fixed graph on ≤ 21 vertices.
+   second, drifting encoding. These four SAT axioms are the **only** `native_decide` left in
+   the final theorems: the ten Kang–Pikhurko construction facts used by
+   `kp_equality_classification_proven` (two cone-isomorphism witnesses, two A/B complement
+   structures on the explicit graphs `kpG`/`kpG1`) were migrated to **kernel `decide`** in the
+   ROUND-2026-07-14 kernel-pure pass, so they no longer contribute any reflection axiom. The
+   SAT primitives were *not* migratable: the kernel-pure LRAT route (Mathlib `lrat_proof`) is
+   proven axiom-clean on M9's core, but bridging it to our `CNF.Unsat` needs the kernel to
+   reduce `MCNF`/`nonexCNF` (built from `List.sublistsLen`), which times out (>400s for even a
+   size check), and nonex11/12's certificates are additionally too large (325/455 MB) to
+   replay as kernel proof terms. Full account + reproducible demo: `FORMAL.md` →
+   "KERNEL-PURE MIGRATION" and `lean617/KernelPureDemo/`.
 
 3. **The review chain is internal.** Correctness rests on: the author sessions'
    self-checks; **fresh-session adversarial reviews** (independent Claude sessions) of

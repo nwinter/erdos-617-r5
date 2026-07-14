@@ -1,0 +1,10 @@
+M n=9 k=18: 39743 clauses, maxVar=728
+CNF M9 sha256 OK: 596ffcfbfcb709d691a6d97fed415ce7d015f64f95c48cf963cbeb9be9d618cb
+M n=10 k=24: 98102 clauses, maxVar=1179
+CNF M10 sha256 OK: 24b4431b273af5d9a2fb866b14c7e2290033958a31a342f58f4f7d2f141cf005
+nonex n=11: 210375 clauses, maxVar=109
+CNF nonex11 sha256 OK: 3f6a6dca92110aca074ad9fdb577f3de576d045a563faf564df60ade4ae5e838
+nonex n=12: 420640 clauses, maxVar=131
+CNF nonex12 sha256 OK: 19e6554cf0ed45f465e076b894df7349a10a0285f9e9ce5a16b0c6eee27a1557
+CaDiCaL re-solve M9 exit=20 (20=UNSAT expected)
+CaDiCaL re-solve M10 exit=20 (20=UNSAT expected)

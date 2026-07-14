@@ -96,12 +96,12 @@ theorem kpG_compl_AB_structure :
       (∀ u ∈ B, ∀ w ∈ B, u ≠ w → kpGᶜ.Adj u w) ∧
       edgeCountIn kpGᶜ (A ∪ B) = 19 := by
   refine ⟨{4, 5, 6, 7, 20}, {0, 1, 2, 3}, by decide, by decide, by decide,
-    ⟨4, by decide, 20, by decide, by decide, by native_decide, by native_decide⟩,
-    by native_decide, ?_⟩
+    ⟨4, by decide, 20, by decide, by decide, by decide, by decide⟩,
+    by decide, ?_⟩
   -- edgeCountIn is noncomputable (Classical filter); bridge to the same filter with a
   -- computable instance (filter result is decidability-instance-irrelevant).
   have key : ((({4, 5, 6, 7, 20} : Finset (Fin 21)) ∪ {0, 1, 2, 3}).sym2.filter
-      (fun e => e ∈ kpGᶜ.edgeSet)).card = 19 := by native_decide
+      (fun e => e ∈ kpGᶜ.edgeSet)).card = 19 := by decide
   unfold edgeCountIn
   convert key using 2
   exact Finset.filter_congr_decidable _ _ _
@@ -173,10 +173,10 @@ theorem kpG1_compl_AB_structure :
       (∀ u ∈ B, ∀ w ∈ B, u ≠ w → kpG1ᶜ.Adj u w) ∧
       edgeCountIn kpG1ᶜ (A ∪ B) = 19 := by
   refine ⟨{4, 5, 6, 7, 20}, {0, 1, 2, 3}, by decide, by decide, by decide,
-    ⟨4, by decide, 20, by decide, by decide, by native_decide, by native_decide⟩,
-    by native_decide, ?_⟩
+    ⟨4, by decide, 20, by decide, by decide, by decide, by decide⟩,
+    by decide, ?_⟩
   have key : ((({4, 5, 6, 7, 20} : Finset (Fin 21)) ∪ {0, 1, 2, 3}).sym2.filter
-      (fun e => e ∈ kpG1ᶜ.edgeSet)).card = 19 := by native_decide
+      (fun e => e ∈ kpG1ᶜ.edgeSet)).card = 19 := by decide
   unfold edgeCountIn
   convert key using 2
   exact Finset.filter_congr_decidable _ _ _

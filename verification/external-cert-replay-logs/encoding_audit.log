@@ -1,0 +1,62 @@
+== primitive encoders: exhaustive truth-table (our own DPLL) ==
+  [OK ] totalizer_at_most encodes sum(inputs)<=bound (n<=6, model-extension)
+  [OK ] direct_leq encodes sum(left)<=sum(right) (exhaustive)
+  [OK ] repeated literal counted twice in totalizer (x weight 2, cap 1)
+
+== §9 seven-signature encoder: fixed structure + clause families ==
+  [OK ] 5: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 5: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 5: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 5: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 5: anchored_upper family present, anchored six-sets = 105 (caps only on anchored)
+  [OK ] 5: residual W budget = 65-25-internal = 10; flexible=W-W vars(180)
+  [OK ] 42: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 42: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 42: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 42: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 42: anchored_upper family present, anchored six-sets = 315 (caps only on anchored)
+  [OK ] 42: residual W budget = 65-25-internal = 13; flexible=W-W vars(183)
+  [OK ] 33: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 33: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 33: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 33: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 33: anchored_upper family present, anchored six-sets = 315 (caps only on anchored)
+  [OK ] 33: residual W budget = 65-25-internal = 13; flexible=W-W vars(183)
+  [OK ] 322_24444: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 322_24444: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 322_24444: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 322_24444: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 322_24444: anchored_upper family present, anchored six-sets = 1855 (caps only on anchored)
+  [OK ] 322_24444: residual W budget = 65-25-internal = 15; flexible=W-W vars(185)
+  [OK ] 322_33444: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 322_33444: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 322_33444: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 322_33444: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 322_33444: anchored_upper family present, anchored six-sets = 525 (caps only on anchored)
+  [OK ] 322_33444: residual W budget = 65-25-internal = 16; flexible=W-W vars(186)
+  [OK ] 2222_14444: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 2222_14444: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 2222_14444: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 2222_14444: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 2222_14444: anchored_upper family present, anchored six-sets = 10710 (caps only on anchored)
+  [OK ] 2222_14444: residual W budget = 65-25-internal = 16; flexible=W-W vars(186)
+  [OK ] 2222_23444: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 2222_23444: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 2222_23444: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 2222_23444: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 2222_23444: anchored_upper family present, anchored six-sets = 2065 (caps only on anchored)
+  [OK ] 2222_23444: residual W budget = 65-25-internal = 18; flexible=W-W vars(188)
+  [OK ] 2222_33344: fixed structure = Q-nonedges + ordinary unique/nonedges + cliques
+  [OK ] 2222_33344: exception_Q_degree == 'exactly d of 5 Q-edges' per exception
+  [OK ] 2222_33344: deficient_hit == OR(deficient-index edges) for deg<=4 exceptions only
+  [OK ] 2222_33344: nonempty_six == OR(var edges) over unfixed six-sets
+  [OK ] 2222_33344: anchored_upper family present, anchored six-sets = 735 (caps only on anchored)
+  [OK ] 2222_33344: residual W budget = 65-25-internal = 19; flexible=W-W vars(189)
+
+== §10 defect encoder: fixed structure + families (orbit 4 + unified) ==
+  [OK ] defect orbit4: fixed = 3 anchored K4 + exact masks + mixed-mask completion edges
+  [OK ] defect orbit4: a nonempty_six/six_upper family covers all C(18,6) six-sets
+  [OK ] defect unified: each X-X edge appears exactly twice in the weighted defect list
+  [OK ] defect unified: completion clauses == (x~q_i & x~q_large -> x~w) for all i in def, large, w
+
+=== ENCODING AUDIT: 55 checks, 0 FAIL ===

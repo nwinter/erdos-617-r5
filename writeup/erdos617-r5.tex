@@ -46,24 +46,43 @@
 \DeclareMathOperator{\Ncap}{N}
 \DeclareMathOperator{\ed}{e}
 
+%% ---- two-proofs scaffolding -----------------------------------------------
+% Marker placed at the head of every Proof B section: Proof B's exposition here
+% is the Proof A authors' rendering of the Proof B team's source document,
+% awaiting that team's accuracy pass.
+\newcommand{\pendingB}{%
+  \par\nobreak\smallskip\noindent
+  \textbf{[Pending accuracy pass by the proof's authors.]}\par\smallskip}
+% Centered part divider.
+\makeatletter
+\newcommand{\ppart}[1]{%
+  \bigskip\par\begin{center}\normalfont\scshape\large #1\end{center}%
+  \nopagebreak\medskip}
+\makeatother
+
 \begin{document}
 
-\title[Erd\H{o}s Problem 617 at $r=5$: a candidate resolution]{A candidate resolution of Erd\H{o}s Problem 617 for $r=5$:\\
-no balanced 5-colouring of $K_{26}$, with machine verification}
+\title[Erd\H{o}s Problem 617 at $r=5$: two candidate proofs]{Two independent machine-checked proofs that $K_{26}$\\
+has no balanced $5$-colouring\\[2pt]
+{\normalsize A candidate resolution of Erd\H{o}s Problem 617 for $r=5$}}
 
-\author{}
+\author{[Author list to be finalised --- see Section~\ref{ssec:authorship}]}
 \date{\today}
 
 \thanks{This document is a verification-ready report, not an authored announcement.
-The mathematics was produced and internally reviewed by AI systems; it is offered
-here for independent verification by mathematicians. See
-Section~\ref{sec:howto} for a verification guide and Section~\ref{sec:provenance}
-for a full account of provenance and what has and has not been checked.
-\emph{Version~1.1 (2026-07-12):} the Lean development now carries no mathematical
-hypothesis --- the Kang--Pikhurko equality classification at $(5,21)$, on which
-version~1.0 (earlier the same day) was conditional, has been discharged in Lean
-(Section~\ref{ssec:lean-brouwer}), at the cost of ten added \texttt{native\_decide}
-construction axioms (Section~\ref{sec:lean}).}
+It presents \emph{two} independent proofs of the same theorem, each produced and
+internally reviewed by AI systems and then adversarially cross-reviewed by the other
+effort; it is offered here for independent verification by mathematicians. Every
+section of Proof~B (Sections~\ref{sec:B-overview}--\ref{sec:B-exact}) is the Proof~A
+authors' faithful \emph{rendering} of the Proof~B team's source document and is marked
+\emph{pending an accuracy pass by its authors}; Proof~A's authors do not put words in
+the Proof~B team's mouth without that pass. See Section~\ref{sec:howto} for a
+verification guide, Section~\ref{sec:provenance} for provenance, and
+Appendix~\ref{app:methodology} for the full audit trail (mutual review, fresh-clone
+rebuilds, the kernel-checked statement equivalence, and the independence audit).
+\emph{Version~2.0 draft (2026-07-14):} two-proofs merge; Proof~B pending author
+accuracy pass. Proof~A descends unchanged in substance from the single-proof
+dossier version~1.1 of 2026-07-12.}
 
 \begin{abstract}
 A $5$-colouring of the edges of the complete graph $K_{26}$ is \emph{balanced} if
@@ -73,34 +92,43 @@ no balanced $r$-colouring; this is Erd\H{o}s Problem~$617$. They proved it for
 $r=3$ and $r=4$, noted that it fails for $r=2$, and observed that the
 corresponding statement for $K_{r^2}$ is false for infinitely many $r$, so any
 proof must use the ``$+1$'' essentially. We present a \emph{candidate resolution}
-of the first open case: a proof that there is no balanced $5$-colouring of
-$K_{26}$. Equivalently, the largest complete graph with a balanced $5$-colouring is
-$K_{25}$, realised by the affine plane $\mathrm{AG}(2,5)$.
+of the first open case: there is no balanced $5$-colouring of $K_{26}$.
+Equivalently, the largest complete graph with a balanced $5$-colouring is $K_{25}$,
+realised by the affine plane $\mathrm{AG}(2,5)$.
 
-The proof reduces, by an elementary vertex-deletion argument, to two statements
-about a single colour class on $25$ vertices, and these are established by a
-self-contained double-counting recursion driven by the ``every $6$ vertices span
-at most $11$ edges of one colour'' constraint, one classical extremal input
-(Brouwer's non-partite Tur\'an bound with the Kang--Pikhurko equality
-classification), and four finite graph facts certified by SAT and independently
-DRAT-checked. As a by-product we prove that the merged affine-plane colouring of
-$K_{q^2}$ admits no balanced one-vertex extension, for every prime power
-$q\ge 3$, so any counterexample to the conjecture must be non-affine.
+We give \emph{two independent proofs}, produced by two separate AI efforts that
+worked from the same problem scaffold but share no mathematical route.
+\emph{Proof~A} deletes a vertex and reduces, by an elementary partition argument, to
+two statements about a single colour class on $25$ vertices; these are closed by a
+double-counting recursion driven by the ``every $6$ vertices span at most $11$ edges
+of one colour'' constraint, Brouwer's non-partite Tur\'an bound with the
+Kang--Pikhurko equality classification, and four SAT-certified small-graph facts. As
+a by-product Proof~A shows the merged affine-plane colouring of $K_{q^2}$ has no
+balanced one-vertex extension for every prime power $q\ge 3$, so any counterexample
+must be non-affine. \emph{Proof~B} does not delete a vertex: it studies a minority
+colour's ``gap graph'' on $K_{26}$ directly and runs a pincer on the boundary
+$P(Q)=\sum_{q\in Q}\deg_G(q)$ over independent $5$-sets $Q$ --- a five-part
+transversal lemma forces $P(Q)\ge 25$ for \emph{every} such $Q$, while
+Bollob\'as--Nikiforov's strict clique degree-sum bound with Brouwer stability forces
+$P(Q)\le 25$ for \emph{some} $Q$ --- and then excludes the eight resulting
+exact-$P=25$ signatures, seven by LRAT-certified SAT and one by a certified counting
+lemma. The two proofs use disjoint extremal inputs (Proof~B uses no Kang--Pikhurko).
 
-The entire argument has been formalised in Lean~4, and the headline theorem
-\texttt{erdos\_617\_r5\_\allowbreak unconditional} carries \emph{no} mathematical hypothesis: it is
-\texttt{sorry}-free and unconditional in the exact sense that it rests only on a
-disclosed trust base --- the three standard Lean axioms together with
-\texttt{native\_decide} compiler-level reflection for four SAT certificates and a few
-finite graph-construction facts. The Kang--Pikhurko equality classification at $(5,21)$, on
-which the result was previously conditional, is now itself proved in Lean (as is
-Brouwer's edge bound), though a conditional form assuming that classification is
-retained for separate audit. This
-document is a verification-ready report rather than an authored announcement: the mathematics was produced and internally reviewed by AI systems and
-is offered here for independent verification. Section~\ref{sec:howto} gives a
-verification guide (a $30$-minute machine-checkable path and a $120$-minute reading
-path); Section~\ref{sec:provenance} discloses the role of the AI systems in full and
-states plainly what has and has not been checked.
+Both proofs are formalised in Lean~4 against the same
+\texttt{google\-deepmind/formal-conjectures} statement of the problem at $r=5$, and a
+kernel-checked equivalence proves the two formalised statements are the \emph{same}
+theorem. Each proof was subjected to independent adversarial review by the other
+effort; both survived with no fatal finding. This is a \emph{candidate}, not a
+community-accepted result: the mathematics of both proofs was produced and internally
+reviewed by AI systems and has not been refereed by a human expert. Neither proof
+rests on an unformalised mathematical hypothesis; each carries a disclosed trust base
+(Proof~A: three standard Lean axioms plus four \texttt{native\_decide} reflection axioms
+for its SAT certificates --- a migration this round moved its ten finite construction
+facts to kernel checking, leaving these four; Proof~B: the three standard axioms with SAT
+discharged through Mathlib's kernel-checked \texttt{lrat\_proof}). Section~\ref{sec:howto} is a verification guide;
+Section~\ref{sec:provenance} and Appendix~\ref{app:methodology} disclose provenance
+and the full cross-verification trail. Every section of Proof~B is marked pending an
+accuracy pass by its authors.
 \end{abstract}
 
 \maketitle
@@ -206,7 +234,43 @@ counterexample to Conjecture~\ref{conj:main}, if one existed, could not arise by
 adding a vertex to an affine colouring of $K_{25}$. It is strictly weaker than the
 $r=5$ case of the conjecture --- it does not rule out non-affine balanced
 colourings of $K_{25}$ --- but it is clean, uniform in $q$, and independent of the
-machinery behind Theorem~\ref{thm:main}.
+machinery behind Theorem~\ref{thm:main}. (Theorem~\ref{thm:affine} belongs to
+Proof~A; Proof~B establishes the sharper $\Ncap(5)=25$ directly and does not need it.)
+
+\subsection{Two independent proofs}\label{ssec:two-proofs}
+We give \emph{two} proofs of Theorem~\ref{thm:main}, obtained by two separate AI
+efforts (Section~\ref{sec:provenance}) that began from the same problem statement and
+referee but developed no shared mathematics. They attack the theorem by opposite
+strategies.
+
+\emph{Proof~A} (Sections~\ref{sec:reductionA}--\ref{sec:affine}) is \emph{local}: it
+deletes a vertex $x$ from a hypothetical balanced $K_{26}$, partitions the remaining
+$25$ vertices by the colour of their edge to $x$, and reduces the whole problem to two
+self-contained statements about a single colour class on $25$ vertices
+(Lemmas~\ref{lem:MH} and~\ref{lem:MM}). A \capeleven{} double-counting recursion, one
+classical extremal input (Brouwer's bound with the Kang--Pikhurko equality case), and
+four SAT facts about graphs on at most $12$ vertices then close it.
+
+\emph{Proof~B} (Sections~\ref{sec:B-overview}--\ref{sec:B-exact}) is \emph{global}: it
+never deletes a vertex. It fixes a minority colour, forms its ``gap graph'' $G$ on all
+$26$ vertices, and studies the boundary $P(Q)=\sum_{q\in Q}\deg_G(q)$ of independent
+$5$-sets $Q$. A ``five-part'' transversal argument shows $P(Q)\ge 25$ for \emph{every}
+independent $5$-set, while a stability argument built on Bollob\'as--Nikiforov's strict
+degree-sum theorem and Brouwer's Tur\'an stability shows $P(Q)\le 25$ for \emph{some}
+independent $5$-set; the two frontiers meet at $P=25$, and the resulting rigid structure
+splits into eight signatures, excluded by certified computation and a final counting
+lemma.
+
+The two proofs share only the lower-bound construction (the affine plane
+$\mathrm{AG}(2,5)$, Section~\ref{ssec:lowerbound}) and Brouwer's theorem; their extremal
+inputs otherwise differ (Proof~A uses the Kang--Pikhurko equality classification, which
+Proof~B never invokes; Proof~B uses Bollob\'as--Nikiforov, which Proof~A never invokes),
+and their reductions are structurally unrelated. We present both in one paper because
+the theorem then has a single citable reference, because the contrast between a local
+and a global attack is itself informative (Section~\ref{sec:comparison}), and because
+each effort served as an independent check on the other: the two teams adversarially
+reviewed each other's arguments and kernel-checked that their two Lean formalisations
+state the identical theorem (Appendix~\ref{app:methodology}).
 
 \subsection{Why \texorpdfstring{$r=5$}{r=5} resists the earlier method}\label{ssec:why}
 Erd\H{o}s and Gy\'arf\'as settled $r=3,4$ by attacking a \emph{minority} colour
@@ -221,8 +285,10 @@ matching upper-bound construction needs a projective plane of order $r+1=6$, whi
 does not exist, so even the finiteness statement available for $r=3,4$ is out of
 reach here.
 
-What makes the case go through is a change of object. The reduction of
-Section~\ref{sec:reduction} deletes a vertex and folds the surrounding colouring
+What makes the case go through is a change of object; both proofs make one, in
+different ways (Proof~A folds the problem onto a single colour class on $25$ vertices;
+Proof~B replaces the colouring by a single ``gap graph'' on $26$). Proof~A's reduction
+of Section~\ref{sec:reductionA} deletes a vertex and folds the surrounding colouring
 into two self-contained statements about a \emph{single} graph on $25$ vertices
 (Lemmas~\ref{lem:MH} and~\ref{lem:MM}); thereafter one classical extremal input ---
 Brouwer's non-partite Tur\'an bound with the Kang--Pikhurko equality case ---
@@ -238,75 +304,51 @@ oversized part where $20=4\cdot 5$ splits evenly (Section~\ref{ssec:MH-n24}). Th
 is where the argument uses the ``$+1$'' essentially, as any proof must: with the
 colouring forgotten, both lemmas become false (Appendix~\ref{app:phase}).
 
-\subsection{Method and provenance}\label{ssec:method}
-The proof of Theorem~\ref{thm:main} has three layers, described in outline here
-and in detail below.
-
-\emph{The reduction} (Section~\ref{sec:reduction}). Suppose $K_{26}$ had a
-balanced $5$-colouring. Delete a vertex $x$; the induced colouring of $K_{25}$ is
-balanced, and partitioning the $25$ remaining vertices by the colour of their edge
-to $x$ produces five sets $T_0,\dots,T_4$. An elementary argument
-(Lemma~\ref{lem:chain}) shows that two structural statements about the colour
-classes on $25$ vertices --- Lemmas~\ref{lem:MH} (``\textsf{[MH$''$]}'') and
-\ref{lem:MM} (``\textsf{[MM]}'') below --- force a contradiction. This step is short and
-entirely elementary.
-
-\emph{The two lemmas} (Sections~\ref{sec:MH} and~\ref{sec:MM}). Each is a
-statement about graphs on $\le 25$ vertices in which every $6$-set spans at most
-$11$ edges (we call this \capeleven), with prescribed independence numbers. Their
-proofs share a double-counting recursion (Section~\ref{sec:toolkit}) built from
-\capeleven{} and one classical theorem: Brouwer's bound on the number of edges in a
-$K_{r+1}$-free graph that is not $r$-partite, together with the Kang--Pikhurko
-classification of the extremal graphs~\cite{Brouwer81,KP05}. The recursion bottoms
-out in four finite facts about small graphs, which we verify by SAT.
-
-\emph{The certificates and formalisation} (Sections~\ref{sec:certificates}
-and~\ref{sec:lean}). The four finite facts are certified by DRAT/LRAT proofs,
-independently checked. The whole argument --- reduction, both lemmas, the
-recursion, the SAT facts (through Lean's verified certificate checker), Brouwer's
-edge bound, and the Kang--Pikhurko equality classification at $(5,21)$ --- has been
-formalised in Lean~4. The headline theorem \texttt{erdos\_617\_r5\_unconditional} is
-\texttt{sorry}-free and carries no mathematical hypothesis; it is unconditional in the
-exact sense that it depends only on the three standard Lean axioms and the
-\texttt{native\_decide} reflection axioms (four for the SAT certificates, ten for the
-finite Kang--Pikhurko construction facts). It is thus a machine-checked proof modulo
-that disclosed trust base, not an appeal to any unformalised input; a conditional form
-taking the classification as an explicit hypothesis is retained for readers who prefer
-to audit it against the literature (Section~\ref{ssec:lean-brouwer}).
-
-\medskip
-This document is a \emph{verification-ready report}, not an authored announcement,
-and its whole purpose is to be checked by others. The mathematics was produced and
-internally reviewed by AI systems, which we disclose in full in
+\subsection{Provenance and status in brief}\label{ssec:method}
+This document is a \emph{verification-ready report}, not an authored announcement, and
+its whole purpose is to be checked by others. The mathematics of \emph{both} proofs was
+produced and internally reviewed by AI systems, disclosed in full in
 Section~\ref{sec:provenance} in keeping with the norms of \cite{Bloom617}. In brief:
-the proofs of the two lemmas (Sections~\ref{sec:MH}--\ref{sec:MM}) were drafted by a
-large language model (OpenAI \texttt{gpt-5.6-sol}) from self-contained briefs; the
-reduction, the verification and review infrastructure, the SAT certification, and the
-Lean formalisation were produced by Claude (Anthropic) sessions; and each of the
-three links was subjected to an independent adversarial review by a fresh model
-session, whose findings we incorporate (both lemmas required a repair, and those
-repairs are what we present). This internal chain --- author sessions, adversarial
-reviewers, exact recomputation, and a Lean formalisation --- is a strong but
-\emph{not yet independently human-refereed} certificate. We make no claim that it
-substitutes for expert scrutiny; the document is offered precisely so that such
-scrutiny is easy to perform. Section~\ref{sec:howto} is a verification guide for the
-reader who wants to check the claim, at several depths.
+Proof~A was assembled by Claude (Anthropic) sessions --- the reduction, the toolkit, the
+SAT certification, the empirical structure-mining that fixed the lemma statements, and
+the Lean formalisation --- with the two hard lemmas
+(Sections~\ref{sec:MH}--\ref{sec:MM}) first drafted by OpenAI's \texttt{gpt-5.6-sol}
+from self-contained briefs and then repaired following adversarial review. Proof~B was
+produced independently by \texttt{gpt-5.6-sol} working solo in a separate repository,
+from the same problem scaffold, and is reproduced here (Part~II) as a rendering by
+Proof~A's authors of the Proof~B team's source document, \emph{pending an accuracy pass
+by that team}. The two efforts then reviewed each other adversarially and cross-checked
+their formalisations; Appendix~\ref{app:methodology} is the full audit trail. Because
+the same base model contributed to both proofs in different roles (as a lemma-prover
+inside Proof~A's team, and as the sole author of Proof~B), we are careful to state who
+did what precisely (Section~\ref{sec:provenance}); it is an interesting feature of the
+provenance, not a hidden dependency, since the two proofs share no mathematical route.
+
+This internal chain --- author sessions, fresh-session adversarial reviewers on each
+side, exact recomputation, two Lean formalisations, mutual review, and a kernel-checked
+statement equivalence --- is a strong but \emph{not yet independently human-refereed}
+certificate. We make no claim that it substitutes for expert scrutiny; the document is
+offered precisely so that such scrutiny is easy to perform. Section~\ref{sec:howto} is a
+verification guide, at several depths, for a reader who wants to check the claim.
 
 \subsection{Organisation}
-Section~\ref{sec:howto} is a verification guide: how to check the claim in $30$
-minutes (machine), in $120$ minutes (by reading), or exhaustively.
-Section~\ref{sec:reduction} fixes notation, records the elementary properties of
-balanced colourings, states the two lemmas, and proves Theorem~\ref{thm:main} from
-them. Section~\ref{sec:toolkit} develops the shared \capeleven{} toolkit
-(Brouwer's theorem, the counting identity, and the $M$- and $L$-tables).
-Sections~\ref{sec:MH} and~\ref{sec:MM} prove Lemmas~\ref{lem:MH} and~\ref{lem:MM}.
-Section~\ref{sec:affine} proves Theorem~\ref{thm:affine}.
-Section~\ref{sec:certificates} documents the four SAT certificates and the
-recipe to regenerate and re-check them. Section~\ref{sec:lean} describes the Lean
-formalisation and its axiom profile. Section~\ref{sec:provenance} gives the full
-provenance and an honest account of the argument's verification status.
-Appendix~\ref{app:phase} records the empirical phase-transition data that
-motivated the shape of the argument.
+Section~\ref{sec:howto} is a verification guide (a $30$-minute machine path, a reading
+path, and a completist audit). Section~\ref{sec:prelim} fixes notation, records the
+elementary properties of balanced colourings, and gives the shared lower-bound
+construction. \emph{Part~I} is Proof~A: Section~\ref{sec:reductionA} states the two
+lemmas and derives Theorem~\ref{thm:main} from them; Section~\ref{sec:toolkit} develops
+the shared \capeleven{} toolkit; Sections~\ref{sec:MH} and~\ref{sec:MM} prove
+Lemmas~\ref{lem:MH} and~\ref{lem:MM}; Section~\ref{sec:affine} proves
+Theorem~\ref{thm:affine}. \emph{Part~II} is Proof~B: Section~\ref{sec:B-overview} gives
+its gap-graph reduction and ingredients, Section~\ref{sec:B-lower} the lower frontier
+$P(Q)\ge 25$, Section~\ref{sec:B-upper} the upper frontier $P(Q)\le 25$, and
+Section~\ref{sec:B-exact} the exact boundary $P=25$ (eight signatures, certified).
+\emph{Part~III} compares the two proofs (Section~\ref{sec:comparison}), documents the
+Proof~A SAT certificates (Section~\ref{sec:certificates}) and Lean formalisation
+(Section~\ref{sec:lean}), and discloses provenance and verification status
+(Section~\ref{sec:provenance}). Appendix~\ref{app:methodology} is the full
+cross-verification trail; Appendix~\ref{app:phase} records the empirical
+phase-transition data behind Proof~A's lemma statements.
 
 %% ===========================================================================
 \section{How to verify this report}\label{sec:howto}
@@ -314,8 +356,20 @@ motivated the shape of the argument.
 
 Because this is a report offered for checking rather than a claim asking to be
 trusted, we describe up front how a reader can verify it, at three depths. The
-accompanying repository contains the Lean project, the SAT certificates, and the
-arithmetic scripts referenced below.
+accompanying repositories contain two Lean projects --- one per proof --- their SAT
+certificates, and the arithmetic scripts referenced below.
+
+There are \emph{two} machine-checked formalisations of the theorem, one per proof, and
+they are provably about the same statement. Proof~A's Lean development proves
+\texttt{erdos\_617\_r5\_unconditional} and Proof~B's proves the analogous statement (its
+\texttt{NoBalancedFiveColoring} interface); both are tied to the \texttt{erdos\_617}
+declaration of the \texttt{google\-deepmind/formal-conjectures} repository at $r=5$
+\cite{FC}, and a kernel-checked, axiom-pure Lean theorem
+(\texttt{interfaceB\_upstreamR5\_iff\_main} in \texttt{InterfaceCross.lean}) proves the
+two formalised statements equivalent (Appendix~\ref{app:methodology}). A reader
+therefore need not choose between them: agreement of the two, on a statement each
+side's formalisation certifies to match the upstream declaration, is itself part of the
+evidence. The fastest single check is the axiom audit of either theorem, below.
 
 \subsection*{The $30$-minute path (statement audit plus machine check)}
 This path certifies the theorem \emph{modulo} the two clearly delimited
@@ -330,11 +384,13 @@ step comes first.
 \item \emph{Build and check axioms.} In \texttt{lean617/}, run \texttt{lake exe cache
 get \&\& lake build} (a clean build), then \texttt{\#print axioms
 Erdos617.erdos\_617\_r5\_\allowbreak unconditional}. The result should be
-\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}, plus fourteen named
-\texttt{native\_decide} reflection axioms (four for the SAT certificates and ten for
-the finite Kang--Pikhurko construction facts) --- \emph{seventeen} in all --- with
-\emph{no} mathematical hypothesis in the theorem's type and, crucially, \emph{no}
-\texttt{sorryAx}. (The still-exported conditional \texttt{erdos\_617\_r5} instead
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}, plus four named
+\texttt{native\_decide} reflection axioms (one per SAT certificate) --- \emph{seven} in
+all --- with \emph{no} mathematical hypothesis in the theorem's type and, crucially,
+\emph{no} \texttt{sorryAx}. (The ten finite Kang--Pikhurko construction facts, reflected
+through \texttt{native\_decide} in earlier versions, are now checked by the kernel itself
+after this round's migration, Section~\ref{sec:lean}; they contribute no axioms.) (The
+still-exported conditional \texttt{erdos\_617\_r5} instead
 carries \texttt{KPEqualityClassification} as an explicit hypothesis and only the three
 standard plus four SAT axioms, for a reader who prefers to supply the classification
 themselves.) The absence of \texttt{sorryAx} is the definitive ``no admitted proof''
@@ -343,27 +399,45 @@ check; a textual grep for \texttt{sorry} finds the token only inside
 \end{enumerate}
 What this establishes, stated exactly: \emph{the headline theorem
 \texttt{erdos\_617\_r5\_unconditional} is \texttt{sorry}-free and carries no
-mathematical hypothesis, resting only on the three standard Lean axioms and fourteen
-\texttt{native\_decide} reflection axioms (seventeen in all).} It is
+mathematical hypothesis, resting only on the three standard Lean axioms and four
+\texttt{native\_decide} reflection axioms (seven in all).} It is
 ``unconditional'' strictly in that sense --- no unformalised mathematical input ---
-and not a claim of a kernel-only formal proof: the four SAT certificates and the ten
-finite Kang--Pikhurko construction facts are trusted through \texttt{native\_decide}'s
-compiler-level reflection (Section~\ref{sec:lean}). Both Brouwer's edge bound and the
-equality classification, formerly assumed, are now proved in Lean. What remains for a
-reader after this path is exactly to satisfy themselves of those
-\texttt{native\_decide} inputs --- the next two paths do that.
+and not a claim of a fully kernel-only formal proof: the four SAT certificates are
+trusted through \texttt{native\_decide}'s compiler-level reflection
+(Section~\ref{sec:lean}). Both Brouwer's edge bound and the equality classification,
+formerly assumed, are now proved in Lean, and the ten finite Kang--Pikhurko construction
+facts, formerly reflected, are now checked by the kernel. What remains for a reader after
+this path is exactly to satisfy themselves of those four \texttt{native\_decide} SAT
+inputs --- the next two paths do that.
 
-\subsection*{The $120$-minute path (read the mathematics)}
-The proof is elementary and self-contained apart from one classical theorem. Read
-Section~\ref{sec:reduction} (the reduction; short), then the two lemma proofs of
-Sections~\ref{sec:MH} and~\ref{sec:MM}, using Section~\ref{sec:toolkit} as needed.
-The only external input is Brouwer's theorem (Theorem~\ref{thm:brouwer}), a published
-result whose five uses are itemised in Section~\ref{sec:MH}; the only computational
-inputs are the four finite facts of Fact~\ref{fact:sat}, about graphs on at most $12$
-vertices. Everything else is by hand and is confirmed by exact recomputation
-(\texttt{tools/verify\_gpt\_arith.py}). A reader who follows this path and the
-statement audit above has checked the mathematics end to end, modulo trusting (a) the
-cited theorem and (b) the four SAT certificates --- both discharged next.
+Proof~B's formalisation, by contrast, is kernel-only on its computational inputs: its
+SAT facts are discharged through Mathlib's kernel-checked \texttt{lrat\_proof} command,
+so \texttt{\#print axioms} on Proof~B's theorem lists \emph{exactly} the three standard
+axioms \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound} and no
+reflection axiom (Section~\ref{sec:comparison}). Proof~A is now close behind: this round's
+migration moved its ten Kang--Pikhurko construction facts to kernel checking, dropping the
+profile above from seventeen axioms to \emph{seven} (three standard plus the four SAT
+reflections); those four remain only because their kernel-checked LRAT route cannot yet be
+bridged to Lean's \texttt{CNF.Unsat} shape (Section~\ref{sec:lean}). The seven-axiom
+profile is the one a reader should expect from Proof~A.
+
+\subsection*{The reading path (read the mathematics)}
+Either proof can be read on its own; a reader wanting the strongest human check reads
+both, since they share almost no mathematics. \emph{Proof~A} (about two hours) is
+elementary and self-contained apart from one classical theorem: read
+Section~\ref{sec:reductionA} (the reduction; short), then the two lemma proofs of
+Sections~\ref{sec:MH} and~\ref{sec:MM}, using Section~\ref{sec:toolkit} as needed. Its
+only external input is Brouwer's theorem (Theorem~\ref{thm:brouwer}), whose five uses
+are itemised in Section~\ref{sec:MH}; its only computational inputs are the four finite
+facts of Fact~\ref{fact:sat}, about graphs on at most $12$ vertices; everything else is
+confirmed by exact recomputation (\texttt{tools/verify\_gpt\_arith.py}). \emph{Proof~B}
+(Part~II) is also elementary apart from two published extremal theorems
+(Bollob\'as--Nikiforov and Brouwer stability) and its own certified finite lemmas; its
+route is the $P(Q)$ pincer of Sections~\ref{sec:B-lower}--\ref{sec:B-upper} and the
+eight-signature endgame of Section~\ref{sec:B-exact}. A reader who follows either
+reading path together with the statement audit above has checked that proof's
+mathematics end to end, modulo trusting the cited theorems and the SAT certificates ---
+both discharged next.
 
 \subsection*{The completist path (audit the machine inputs)}
 Two things are trusted by the shorter paths and can be checked directly.
@@ -376,27 +450,46 @@ development both are now \emph{proved} rather than assumed
 (Section~\ref{ssec:lean-brouwer}), so a reader who trusts that formalisation need audit
 neither, while a reader who would rather lean on the literature can check the published
 classification and consume it through the conditional theorem instead. A reader who
-completes all three paths has reduced the entire claim to the correctness of
+completes all three paths has reduced the Proof~A claim to the correctness of
 \texttt{drat-trim}, the Lean kernel, and \texttt{native\_decide}'s compiler-level
-reflection on the fourteen fixed certificates and construction facts.
+reflection on the four fixed SAT certificates (the ten construction facts now being
+checked by the kernel itself).
+
+For \emph{Proof~B} the corresponding completist audit is: its two extremal inputs
+(Bollob\'as--Nikiforov~\cite{BN05} and Brouwer stability~\cite{Brouwer81}) are
+literature-checked use-by-use, and its $66$ LRAT certificates for the eight-signature
+endgame were independently replayed --- every one to the empty clause under an
+independently written checker, with the encoding audited against the prose and both
+perturbation controls confirmed --- as documented in Appendix~\ref{app:methodology}.
+Because Proof~B discharges its SAT through Mathlib's kernel-checked \texttt{lrat\_proof},
+its completist audit reduces to the Lean kernel alone (plus the literature theorems), with
+no separate reflection-trust step.
 
 \subsection*{What is deliberately \emph{not} yet claimed}
 This report does \emph{not} claim the result is community-accepted or independently
-refereed by a human expert, nor that the Lean proof is free of a trust base: it is
-unconditional only in the sense that no \emph{mathematical} hypothesis remains, while
-the four SAT certificates and the ten finite Kang--Pikhurko construction facts are
-still trusted through \texttt{native\_decide}'s compiler-level reflection
-(Section~\ref{sec:lean}). The Kang--Pikhurko equality classification at $(5,21)$,
-formerly carried as the hypothesis \texttt{KPEqualityClassification}, is now discharged
-in Lean (Section~\ref{ssec:lean-brouwer}) --- but that discharge is a fresh,
-load-bearing formalisation authored by the same AI pipeline as the rest and reviewed
-only internally (Section~\ref{sec:provenance}). Those two --- the internal-only review
-and the \texttt{native\_decide} trust base --- are the gaps a third-party verifier is
+refereed by a human expert. Both proofs, and both Lean formalisations, were produced and
+reviewed by AI systems; the mutual adversarial review and the kernel-checked statement
+equivalence are strong corroboration but are \emph{not} a substitute for human
+refereeing, which is the appropriate next standard. Neither Lean proof carries a
+\emph{mathematical} hypothesis, but each rests on a disclosed trust base a verifier
+should weigh: Proof~A trusts four \texttt{native\_decide} reflections (its four SAT
+certificates); its ten finite Kang--Pikhurko construction facts are now discharged by
+kernel \texttt{decide} after this round's migration, and the equality classification at
+$(5,21)$, formerly the hypothesis \texttt{KPEqualityClassification}, is now discharged in
+Lean by a fresh, load-bearing formalisation reviewed only internally
+(Section~\ref{ssec:lean-brouwer}); a kernel-only route for the four SAT reflections is
+demonstrated but not yet bridgeable (Section~\ref{sec:lean}). Proof~B trusts Mathlib's
+kernel-checked \texttt{lrat\_proof} for its
+SAT and adds no reflection axiom. The internal-only review on both sides, and Proof~A's
+\texttt{native\_decide} trust base, are exactly the gaps a third-party verifier is
 invited to close or to press on.
 
 %% ===========================================================================
-\section{Definitions and the reduction}\label{sec:reduction}
+\section{Shared preliminaries}\label{sec:prelim}
 %% ===========================================================================
+This section fixes the notation and elementary facts common to both proofs and records
+the lower-bound construction they share. The problem-specific reductions begin in
+Section~\ref{sec:reductionA} (Proof~A) and Section~\ref{sec:B-overview} (Proof~B).
 
 \subsection{Notation and conventions}
 All graphs are finite and simple. For a graph $G$ we write $V(G)$, $e(G)=\abs{E(G)}$,
@@ -461,7 +554,44 @@ arbitrarily.)
 
 Note that \ref{it:cap} makes ``\capeleven'' and ``$K_6$-free'' standing hypotheses
 on \emph{every} class of a balanced $5$-colouring, and they are inherited by every
-induced subgraph.
+induced subgraph. (The ``hitter'' notion above is used only by Proof~A; \capeleven{} is
+used by both proofs, where Proof~B calls it the ``$1$--$11$ window''.)
+
+\subsection{The lower bound: \texorpdfstring{$\Ncap(5)\ge 25$}{N(5) >= 25}}\label{ssec:lowerbound}
+Both proofs use the same lower-bound construction, from the affine plane
+$\mathrm{AG}(2,5)$. Identify the $25$ vertices with the points of $\F_5^2$. The $6$
+\emph{directions} (five finite slopes and the vertical) each partition the $25$ points
+into five parallel lines of five points. Colour each edge by the direction of the line
+through its two endpoints, then \emph{merge two directions} into a single colour,
+leaving the other four directions as four colours. Each line is monochromatic, and any
+$6$-set --- having $6$ points among the $5$ parallel lines of any fixed direction ---
+contains a monochromatic pair of every colour; so the colouring is balanced, and
+$\Ncap(5)\ge 25$.
+
+Which two directions are merged is immaterial: all $\binom 62=15$ choices give balanced
+colourings, confirmed by the referee \texttt{tools/verify.py} (every one of the
+$\binom{25}{6}=177{,}100$ six-sets sees all five colours). Proof~B merges the horizontal
+and vertical directions (slopes $0$ and $\infty$); Proof~A's development merges two
+finite slopes; the two are related by an affine change of coordinates and both are
+committed certificates, the horizontal--vertical one as
+\texttt{data/candidates/ag25\_merge\_0\_inf.json}, which the referee reports
+\texttt{BALANCED}.\footnote{The Proof~B source names this witness
+\texttt{affine\_k25\_r5.json}; that filename is absent from the shared repository, and
+the mathematically identical committed certificate \texttt{ag25\_merge\_0\_inf.json}
+(slopes $0$ and $\infty$ merged) is what the referee was run on. This is finding~A1 of
+Section~\ref{sec:comparison} --- an artifact-naming point, not a mathematical one.}
+Combined with Theorem~\ref{thm:main} ($\Ncap(5)\le 25$) and the monotonicity of balanced
+colourings under vertex deletion, this gives $\Ncap(5)=25$.
+
+\ppart{Part I. Proof A: a local extension-obstruction proof}
+
+%% ===========================================================================
+\section{Proof A: the extension-obstruction reduction}\label{sec:reductionA}
+%% ===========================================================================
+Proof~A argues by contradiction from a balanced $5$-colouring of $K_{26}$. This section
+states the two lemmas the reduction rests on and derives Theorem~\ref{thm:main} from
+them; the lemmas are proved in Sections~\ref{sec:MH} and~\ref{sec:MM}, using the shared
+toolkit of Section~\ref{sec:toolkit}.
 
 \subsection{The two lemmas}
 The reduction turns Theorem~\ref{thm:main} into two statements that no longer
@@ -560,7 +690,7 @@ usability hypotheses). See Appendix~\ref{app:phase}.
 \end{remark}
 
 %% ===========================================================================
-\section{The \texorpdfstring{\capeleven}{cap-11} toolkit}\label{sec:toolkit}
+\section{Proof A: the \texorpdfstring{\capeleven}{cap-11} toolkit}\label{sec:toolkit}
 %% ===========================================================================
 
 Both lemmas are proved by bounding the number of edges of a \capeleven{} graph
@@ -823,7 +953,7 @@ $\binom 52=10$ edges of $Q$ plus at least $2$ more, exceeding $11$.
 \end{proof}
 
 %% ===========================================================================
-\section{Proof of Lemma \textsf{[MH\texorpdfstring{$''$}{''}]}}\label{sec:MH}
+\section{Proof A: Lemma \textsf{[MH\texorpdfstring{$''$}{''}]}}\label{sec:MH}
 %% ===========================================================================
 
 We prove the equivalent statement in Lemma~\ref{lem:MH}: there is no
@@ -1105,7 +1235,7 @@ $21=4\cdot 5+1$: the ``$+1$'' of the conjecture propagates down to force one
 oversized part where $20=4\cdot 5$ splits evenly.
 
 %% ===========================================================================
-\section{Proof of Lemma \textsf{[MM]}}\label{sec:MM}
+\section{Proof A: Lemma \textsf{[MM]}}\label{sec:MM}
 %% ===========================================================================
 
 Suppose, for contradiction, that $G$ on $25$ vertices and a $5$-set $T$ satisfy the
@@ -1432,7 +1562,7 @@ equalities in the final $k=2$, $\nu=4$ endgame.
 \end{remark}
 
 %% ===========================================================================
-\section{The affine near-miss never extends}\label{sec:affine}
+\section{Proof A: the affine near-miss never extends}\label{sec:affine}
 %% ===========================================================================
 
 We now prove Theorem~\ref{thm:affine}, which is independent of
@@ -1503,7 +1633,7 @@ pair give a one-vertex extension problem that a SAT solver reports unsatisfiable
 (Section~\ref{sec:certificates}).
 
 %% ===========================================================================
-\section{Computational certificates}\label{sec:certificates}
+\section{Proof A: computational certificates}\label{sec:certificates}
 %% ===========================================================================
 
 The proof uses computation in two sharply separated ways. \emph{All arithmetic}
@@ -1595,10 +1725,10 @@ one-vertex extension problem --- the computational shadow of Theorem~\ref{thm:af
 and Theorem~\ref{thm:main} (Appendix~\ref{app:phase}).
 
 %% ===========================================================================
-\section{Lean formalisation}\label{sec:lean}
+\section{Proof A: Lean formalisation}\label{sec:lean}
 %% ===========================================================================
 
-The entire argument of Sections~\ref{sec:reduction}--\ref{sec:MM} has been
+The entire argument of Proof~A (Sections~\ref{sec:reductionA}--\ref{sec:MM}) has been
 formalised in Lean~4 with Mathlib \texttt{v4.30.0} (toolchain
 \texttt{leanprover/lean4:v4.30.0}), in the project \texttt{lean617/} of the
 accompanying repository. We describe what is proved --- the headline theorem now
@@ -1710,8 +1840,9 @@ At the initial formalisation (repository tag \texttt{v1.0}) the result was
 removing the last mathematical hypothesis. The reservation this leaves is not
 mathematical but one of provenance: the discharge is a fresh, load-bearing
 formalisation produced by the same AI pipeline as the rest of the development
-(Section~\ref{sec:provenance}), and its D4 base step and construction witnesses rest on
-\texttt{native\_decide} (the axiom profile below). A reader who would rather not trust
+(Section~\ref{sec:provenance}). Its D4 base step and construction witnesses were reflected
+through \texttt{native\_decide} in earlier versions and are now discharged by kernel
+\texttt{decide} (the axiom profile below). A reader who would rather not trust
 the new formalisation can audit the published classification of~\cite{KP05} directly and
 consume it through the still-exported conditional theorem.
 
@@ -1720,35 +1851,451 @@ Running \texttt{\#print axioms Erdos617.erdos\_617\_r5\_unconditional} reports e
 \[
   \texttt{propext},\quad \texttt{Classical.choice},\quad \texttt{Quot.sound}
 \]
-(the three standard Mathlib axioms), plus fourteen named \texttt{native\_decide}
-reflection axioms --- \emph{seventeen} axioms in all. The fourteen are instances of
-\texttt{Lean.ofReduceBool}: four enter through \texttt{primFacts} (the SAT certificates,
-as before), and ten are the finite Kang--Pikhurko construction facts used by the D4
-discharge --- two cone-isomorphism witnesses (\texttt{kpG\_giso\_cone3},
-\texttt{kpG1\_giso\_cone3}) and the two $A/B$ complement structures (four axioms each).
-Each is a decidable check on a fixed graph on at most $21$ vertices. \texttt{ofReduceBool}
-is the same trust base as Lean's \texttt{bv\_decide} tactic: the kernel trusts the
-compiled Boolean evaluation of a decision procedure on fixed input --- for the four SAT
-facts, the LRAT-certificate checker; for the ten new facts, a direct adjacency
-computation on the explicit constructions. No \texttt{sorryAx} appears, and no
-mathematical hypothesis remains in the theorem's type. Thus the formal guarantee is
-precisely: \emph{granting the \texttt{native\_decide} evaluation of those fourteen fixed
-checks, Theorem~\ref{thm:main} holds, with everything else --- including Brouwer's bound
-and the equality classification --- checked by Lean's kernel.} This is a machine-checked
-proof modulo that reflection trust base --- unconditional in that it assumes no
-unformalised mathematical input, not a claim of a kernel-only proof. The still-exported
-conditional \texttt{erdos\_617\_r5} carries only the three standard axioms and the four
-SAT reflections, with \texttt{KPEqualityClassification} visible in its type.
+(the three standard Mathlib axioms), plus four named \texttt{native\_decide}
+reflection axioms --- \emph{seven} axioms in all. The four are instances of
+\texttt{Lean.ofReduceBool}, one per SAT certificate, entering through \texttt{primFacts}
+(\texttt{unsat\_nonex11}, \texttt{unsat\_nonex12}, \texttt{unsat\_M9}, \texttt{unsat\_M10}).
+\texttt{ofReduceBool} is the same trust base as Lean's \texttt{bv\_decide} tactic: the
+kernel trusts the compiled Boolean evaluation of the LRAT-certificate checker on fixed
+input. The ten finite Kang--Pikhurko construction facts used by the D4 discharge --- the
+two cone-isomorphism witnesses (\texttt{kpG\_giso\_cone3}, \texttt{kpG1\_giso\_cone3}) and
+the two $A/B$ complement structures --- were reflected through \texttt{native\_decide} in
+earlier versions; this round they were migrated to kernel \texttt{decide}, so they now
+contribute \emph{no} reflection axioms (a tight per-primitive regression guard in
+\texttt{tools/axiom\_allowlist.txt} fails the audit if any of them, or any other axiom,
+regresses to \texttt{native\_decide}). No \texttt{sorryAx} appears, and no mathematical
+hypothesis remains in the theorem's type. Thus the formal guarantee is precisely:
+\emph{granting the \texttt{native\_decide} evaluation of those four fixed SAT checks,
+Theorem~\ref{thm:main} holds, with everything else --- including Brouwer's bound, the
+equality classification, and all ten construction facts --- checked by Lean's kernel.}
+This is a machine-checked proof modulo that reflection trust base --- unconditional in that
+it assumes no unformalised mathematical input, not (yet) a claim of a fully kernel-only
+proof. The still-exported conditional \texttt{erdos\_617\_r5} carries the same three
+standard $+$ four SAT axioms, differing only in that \texttt{KPEqualityClassification} is
+visible in its type as a hypothesis rather than discharged.
+
+\begin{remark}[the kernel-purity migration this round]
+The goal of driving Proof~A to the three standard axioms alone was pursued this round with
+a partial result. The ten Kang--Pikhurko construction witnesses were migrated from
+\texttt{native\_decide} to kernel \texttt{decide} and are now checked by the kernel,
+dropping the profile from seventeen axioms to the seven above. The four SAT reflections
+\emph{remain}: their kernel-checked LRAT route (Mathlib's \texttt{lrat\_proof}) is
+demonstrated axiom-clean end-to-end on the $M9$ core (a pure three-axiom
+\texttt{lrat\_proof}, at roughly $495$\,s and $14$\,GB), but it cannot be bridged back to
+the \texttt{CNF.Unsat} shape that \texttt{primFacts} consumes: the kernel reduction of the
+\texttt{List.sublistsLen}-generated \texttt{MCNF}/\texttt{nonexCNF} is kernel-irreducible in
+practice (it times out), and \texttt{nonex11}/\texttt{nonex12} additionally exceed memory.
+The residual gap is thus encoding-bridge engineering, not a question of checker trust, and
+in mitigation those four facts are independently DRAT-checked outside Lean
+(Section~\ref{sec:certificates}).
+Proof~B, whose SAT is small enough to pass through \texttt{lrat\_proof} directly, attains
+the kernel-only profile for its SAT (Section~\ref{sec:comparison}). Closing the last four
+axioms for Proof~A is a matter of engineering (or of a faster kernel reduction), not of
+mathematics, and does not change the theorem.
+\end{remark}
 
 \subsection{How to check}
 Build with \texttt{lake exe cache get \&\& lake build} in \texttt{lean617/}; inspect
 the guarantees with \texttt{\#print axioms Erdos617.erdos\_617\_r5\_\allowbreak
-unconditional} (which should show the three standard axioms, the fourteen
-\texttt{native\_decide} reflections, and no \texttt{sorryAx}, with no mathematical
-hypothesis in the theorem's type). Comparing with \texttt{\#print axioms
-Erdos617.erdos\_617\_r5} isolates the ten construction axioms the discharge adds. The
+unconditional} (which should show the three standard axioms, the four
+\texttt{native\_decide} SAT reflections, and no \texttt{sorryAx}, with no mathematical
+hypothesis in the theorem's type). After this round's migration the conditional
+\texttt{Erdos617.erdos\_617\_r5} carries the same seven-axiom profile, differing only in
+the \texttt{KPEqualityClassification} hypothesis visible in its type;
+\texttt{tools/axiom\_audit.sh} checks all four exported theorems against the
+per-primitive fixture \texttt{tools/axiom\_allowlist.txt}. The
 DRAT path~(i) of Section~\ref{sec:certificates} is a solver-independent cross-check of
 the four SAT facts that does not rely on \texttt{native\_decide}.
+
+\ppart{Part II. Proof B: a global degree-boundary proof}
+
+%% ===========================================================================
+\section{Proof B: overview, ingredients, and the gap-graph reduction}\label{sec:B-overview}
+%% ===========================================================================
+\pendingB
+
+Part~II presents the second proof.\footnote{\emph{Global note on Part~II.} The exposition
+of Proof~B in Sections~\ref{sec:B-overview}--\ref{sec:B-exact} is the Proof~A authors'
+faithful \emph{rendering} of the Proof~B team's source document
+(\texttt{review\_queue/external-candidate-B/candidate-proof.md}) and of Proof~A's
+adversarial review of it. It is \emph{pending an accuracy pass by the Proof~B team}, who
+have not signed off on this prose. We have tried not to put words in their mouth: the
+mathematics, the constants, and the route are theirs, transcribed and lightly condensed;
+the section and equation labels here are ours. Where Proof~A's review found a
+presentational slip we present the corrected form and credit the finding in a footnote,
+altering none of their mathematics.} Unlike Proof~A it never deletes a vertex: it works
+throughout on the $26$ vertices of a hypothetical balanced $K_{26}$.
+
+\subsection{Ingredients}
+Beyond the elementary facts of Section~\ref{sec:prelim}, Proof~B uses two published
+extremal theorems, each stated for a graph and its complement.
+\begin{itemize}[nosep]
+\item \emph{Bollob\'as--Nikiforov, strict clique degree-sum} \cite{BN05}: if an
+$n$-vertex, $m$-edge graph is \emph{non-regular} and $m\ge t_r(n)$, then it has an
+$r$-clique whose ambient degree sum is \emph{strictly} greater than $2rm/n$.
+\item \emph{Brouwer's Tur\'an stability} \cite{Brouwer81}: if $\alpha(F)\le t$, $n>2t$,
+and $e(F)\le T(n,t)+\lfloor n/t\rfloor-2$ --- where $T(n,t)$ is the minimum number of
+edges of an $n$-vertex graph with $\alpha\le t$ --- then $F$ is a disjoint union of $t$
+cliques.
+\end{itemize}
+The second is the complement form of the bound in Theorem~\ref{thm:brouwer}; crucially,
+Proof~B uses Brouwer but \emph{not} the Kang--Pikhurko equality classification. The
+strictness in Bollob\'as--Nikiforov is load-bearing (Section~\ref{sec:B-upper}): the
+degree sum computes to exactly $80$ at the application, and only ``$>80$'' yields the
+bound $\sigma\le 19$ on which the entire upper-frontier argument rests.
+
+\subsection{The gap-graph reduction}
+Suppose $K_{26}$ has a balanced $5$-colouring. Its $\binom{26}{2}=325$ edges are split
+among five colours, so one colour spans at most $65$ edges; let $G$ be that
+\emph{minority} colour class. Every $6$-set spans at least one $G$-edge (else it misses
+colour $G$) and at most $11$ (else at most $3$ of its $15$ edges remain for the other
+four colours, one of which is then absent). Thus $G$ satisfies
+\begin{equation}
+  \abs{V(G)}=26,\qquad e(G)\le 65,\qquad 1\le e(S)\le 11\ \text{for every }\abs S=6.
+  \tag{GAP}
+\end{equation}
+Call a graph with these three properties a \emph{gap graph}. It suffices to show no gap
+graph exists.
+
+\subsection{The independence number and the boundary}\label{ssec:B-boundary}
+The lower cap of (GAP) gives $\alpha(G)\le 5$; in fact $\alpha(G)=5$, for if
+$\alpha(G)\le 4$ the complement is $K_5$-free and Tur\'an gives
+$e(G)\ge\binom{26}{2}-t_4(26)=325-253=72>65$. Fix an independent $5$-set
+$Q=\{q_0,\dots,q_4\}$ and put $W=V(G)\setminus Q$, $\abs W=21$. Its \emph{boundary} is
+\[
+  P(Q)=e(Q,W)=\sum_{q\in Q} d_G(q),
+\]
+the last equality because $Q$ is independent. Every $w\in W$ has a $Q$-neighbour (else
+$Q\cup\{w\}$ is an independent $6$-set), so $P(Q)\ge 21$. If $P(Q)=21$, each $w$ has a
+\emph{unique} $Q$-neighbour; the classes $R_i=\{w:N_Q(w)=\{q_i\}\}$ are cliques (two
+non-adjacent members with $Q\setminus\{q_i\}$ would be independent) of size $\le 4$ (five
+members with $q_i$ make a $K_6$), and five sets of size $\le 4$ cannot cover $21$
+vertices. Hence
+\begin{equation}
+  P(Q)\ge 22\quad\text{for every independent $5$-set }Q. \tag{$\ast$}
+\end{equation}
+The proof is a pincer on $P(Q)$: a \emph{lower frontier} $P(Q)\ge 25$ for \emph{every}
+independent $5$-set (Section~\ref{sec:B-lower}) and an \emph{upper frontier}
+$P(Q)\le 25$ for \emph{some} independent $5$-set (Section~\ref{sec:B-upper}). The two meet
+at $P=25$, and Section~\ref{sec:B-exact} shows the resulting rigid configuration cannot
+occur.
+
+%% ===========================================================================
+\section{Proof B: the lower frontier \texorpdfstring{$P(Q)\ge 25$}{P(Q)>=25}}\label{sec:B-lower}
+%% ===========================================================================
+\pendingB
+
+We prove $P(Q)\ge 25$ for \emph{every} independent $5$-set $Q$ --- not only for an
+optimised one, because the exchange argument of Section~\ref{sec:B-exact} needs the bound
+universally. By ($\ast$) it remains to exclude $P(Q)\in\{22,23,24\}$. The engine is a
+transversal lemma.
+
+\begin{lemma}[five-part transversal]\label{lem:B-fivepart}
+Suppose five parts have sizes $3$ in $a$ cases and $4$ in the other $5-a$ cases, with
+$0\le a\le 3$; every cross-graph between parts is a matching; and there are at most
+$13-a$ cross-edges in total. Then the parts admit an independent transversal.
+\end{lemma}
+
+The proof picks a transversal uniformly at random: an edge between parts of sizes $s,t$ is
+selected with probability $1/(st)$, and a union bound controls the expected number of
+selected edges --- at most $13/16<1$ for $a=0$, at most $1$ for $a\in\{1,2\}$ (with the
+equality cases dispatched by hand). The delicate case is $a=3$, where an exact
+inclusion--exclusion over the $27$ small transversals gives $U=27-3k+w-t$ ($k$ = number of
+small--small edges, $w$ = number of degree-$2$ vertices, $t$ = number of triangles, with
+$3t\le w$ and $w\ge 2k-9$), and the comparison $16U>36(10-k)$ for $k\in\{6,7,8,9\}$ yields
+an independent transversal.\footnote{The $a=3$ inclusion--exclusion $U=27-3k+w-t$ and its
+closing comparison were among the steps Proof~A's review recomputed and confirmed exactly;
+see Appendix~\ref{app:methodology}.}
+
+\paragraph{$P=22$.} The excess of the $21$ positive $Q$-degrees over $1$ is one: one
+exceptional vertex of $Q$-degree $2$ and twenty ordinary vertices of $Q$-degree $1$, so
+all five ordinary groups are $K_4$'s. The \capeleven{} ``fixed-$K_5$'' rule --- a vertex
+outside $\{q_i\}\cup R_i=K_5$ has at most one neighbour in it --- makes every cross-graph
+a matching and lets the exceptional $x$ be deleted from the (at most three) groups it
+meets; Lemma~\ref{lem:B-fivepart} then supplies an independent transversal, which with $x$
+is an independent $6$-set. Contradiction.
+
+\paragraph{$P=23$.} The excess is two: either one exceptional of $Q$-degree $3$, or two of
+$Q$-degree $2$. In the first, three matched $K_4$ groups have a low-weight random
+transversal, which with $x$ and the two unmet $Q$-vertices is independent. In the second,
+the ordinary sizes are $3,4,4,4,4$; both exceptionals are forced to meet the small group
+$R_0$ and be complete to it, and then $\{z_1,z_2\}\cup(\{q_0\}\cup R_0)$ spans
+$6+4+4=14>11$ edges, violating \capeleven.
+
+\paragraph{$P=24$.} The excess is three, with exceptional-degree pattern $[4]$, $[3,2]$,
+or $[2,2,2]$. Two lemmas (both by greedy transversal plus an independent-$6$-set
+contradiction) drive it: a \emph{large-neighbour lemma} --- a degree-$\le 4$ exceptional
+all of whose neighbour groups are large yields an independent $6$-set, so every such
+exceptional meets a deficient group --- and a \emph{completion lemma} --- an exceptional
+with exactly one deficient neighbour group is complete to it. The patterns $[4]$, $[3,2]$,
+and $[2,2,2]$ with sizes $2,4,4,4,4$ close by a $14$- or $12$-edge cap violation around a
+fixed clique. The one substantial case is sizes $3,3,4,4,4$ (deficient groups $A=R_0$,
+$B=R_1$), handled by four elementary rules on the bipartite graph $H=G[A,B]$ --- a
+``missing rectangle'', a ``pair cap'', a ``cross cap'' forbidding $K_{3,2}$ and $K_{2,3}$,
+and a ``partition'' rule --- run across the exceptional-type multisets $\{0L,1L,01\}$,
+$\{0L,01,01\}$, and $\{01,01,01\}$; each forces $H$ complete (a $K_6$, hence $15>11$
+edges) or a direct cap violation. Combining the three cases,
+\begin{equation}
+  P(Q)\ge 25\quad\text{for every independent $5$-set }Q. \tag{L}
+\end{equation}
+
+%% ===========================================================================
+\section{Proof B: the upper frontier --- some \texorpdfstring{$5$-set has $P(Q)\le 25$}{5-set has P(Q)<=25}}\label{sec:B-upper}
+%% ===========================================================================
+\pendingB
+
+Let $H=\overline G$ be the complement; $H$ is $K_6$-free (as $\alpha(G)\le 5$) and has
+$e(H)\ge\binom{26}{2}-65=260$ edges. We show some independent $5$-set of $G$ has
+$P\le 25$, in two cases.
+
+\emph{Regular case.} If $H$ is regular, Tur\'an gives $260\le e(H)\le t_5(26)=270$, and
+regularity makes $e(H)$ a multiple of $13$; so $e(H)=260$, $H$ is $20$-regular, $G$ is
+$5$-regular, and every independent $5$-set has $P=25$.
+
+\emph{Non-regular case.} Here $e(H)\ge 260>t_4(26)=253$, so the \emph{strict}
+Bollob\'as--Nikiforov theorem yields an $H$-clique $A$ of order $4$ with ambient
+$H$-degree sum strictly above $8e(H)/26\ge 80$, hence at least $81$. Then $A$ is
+independent in $G$ and
+\[
+  \sigma:=\sum_{a\in A}d_G(a)=100-\sum_{a\in A}d_H(a)\le 19.
+\]
+Let $C$ be the set of vertices outside $A$ with no $G$-neighbour in $A$ (the common
+$H$-neighbourhood of $A$). A four-set intersection bound gives $c:=\abs C\ge 22-\sigma$;
+an $H$-edge inside $C$ would complete $A$ to an $H$-$K_6$, so $C$ is a $G$-clique and
+$c\le 5$, whence $17\le\sigma\le 19$. With $D=V(G)\setminus(A\cup C)$, the edge partition
+$e(G)=\sigma+\binom c2+e(C,D)+e(D)$ and the complementary-Tur\'an floor $L_5(\abs D)$ for
+$e(D)$ give, for the minimum-$D$-degree vertex $x\in C$, the following bound on
+$P(A\cup\{x\})$:
+\[
+  \begin{array}{c|c|c|c|c|c}
+    \sigma & c & \abs D & L_5(\abs D) & \max e(C,D) & \max P(A{+}x)\\\hline
+    17 & 5 & 17 & 21 & 17 & 24\\
+    18 & 4 & 18 & 24 & 17 & 25\\
+    18 & 5 & 17 & 21 & 16 & 25\\
+    19 & 3 & 19 & 27 & 16 & 26\\
+    19 & 4 & 18 & 24 & 16 & 26\\
+    19 & 5 & 17 & 21 & 15 & 26
+  \end{array}
+\]
+Were every independent $5$-set to have $P\ge 26$ (the negation of what we want), only the
+$\sigma=19$ rows survive; so $\sigma=19$ and every $x\in C$ has $d_G(x)\ge 7$. The three
+cases $c\in\{3,4,5\}$ are then excluded by a common device: Brouwer stability forces
+$G[D]$ to be a union of cliques $D=K_4^{\,i}+K_3^{\,j}$, and one produces an independent
+transversal all of whose ``masks'' $M(v)=N(v)\cap C$ are small, contradicting a
+colour-counting observation (five distinct $A$-colours cannot come from the four vertices
+of $A$).\footnote{In the $c=3$ analysis the source's blanket ``at most $16$ incidences''
+is too loose for the $(5,4,4,3,3)$ sub-case, where the naive budget $16-10=6$ does not
+strictly beat the $6$ an unchosen $K_3$ would need. The argument is rescued --- and should
+be stated --- with the \emph{forced exact value} $e(C,D)=15$ in that sub-case (which
+follows from $e(D)=28$), giving budget $5<6$. This is finding~E1 of Proof~A's review
+(Section~\ref{sec:comparison}): the mathematics is correct, and the corrected constant is
+$15$.} Hence the assumption fails, and
+\begin{equation}
+  \text{some independent $5$-set }Q\text{ has }P(Q)\le 25. \tag{U}
+\end{equation}
+Together, (L) and (U) force
+\begin{equation}
+  P(Q)=25\ \text{for some independent $5$-set, while every independent $5$-set has }P\ge 25.
+  \tag{$\dagger$}
+\end{equation}
+
+%% ===========================================================================
+\section{Proof B: the exact boundary \texorpdfstring{$P=25$}{P=25}}\label{sec:B-exact}
+%% ===========================================================================
+\pendingB
+
+Fix $Q$ with $P(Q)=25$ as in ($\dagger$), put $W=V\setminus Q$, and let the ordinary
+groups $R_i$ be as before (cliques of order $\le 4$). The positive $Q$-degrees sum to
+$25$, an excess of $4$ over one; the partitions of $4$ give exceptional-degree patterns
+$[5],[4,2],[3,3],[3,2,2],[2,2,2,2]$, and distributing the ordinary deficit over five
+groups yields exactly eight \emph{signatures} --- \texttt{5}, \texttt{42},
+\texttt{33}, \texttt{322\_24444}, \texttt{322\_33444}, \texttt{2222\_14444},
+\texttt{2222\_23444}, and \texttt{2222\_33344} --- where each label records the
+exceptional degrees and then the ordinary group sizes. Every
+degree-$\le 4$ exceptional meets a deficient group (large-neighbour lemma). One inequality
+is used throughout: for $w\in R_i$, the set $(Q\setminus\{q_i\})\cup\{w\}$ is independent,
+so by (L) its boundary is $\ge 25=P(Q)$, giving $d(w)\ge d(q_i)$ and hence the
+\emph{exchange inequality}
+\begin{equation}
+  d_{W\setminus R_i}(w)\ \ge\ s_i, \tag{E}
+\end{equation}
+where $s_i$ is the number of exceptionals meeting $q_i$. This is the one place the
+\emph{universal} lower frontier (L) is used, and it is what makes the certified branches
+below sound.
+
+\subsection{Seven signatures by certified SAT}
+The first seven signatures are excluded by a certified finite computation.
+
+\begin{lemma}[seven-signature lemma]\label{lem:B-seven}
+No graph satisfying \textup{(GAP)}, \textup{($\dagger$)}, and any one of the first seven
+signatures exists.
+\end{lemma}
+
+The reduction to \textsc{unsat} is explicit and is a \emph{relaxation in the safe
+direction}: for each signature an encoder fixes the forced structure (the $Q$--$Q$
+non-edges; each ordinary vertex's unique $Q$-edge and four $Q$-non-edges; the within-group
+clique edges; each exceptional's exact $Q$-degree; and the clause that each degree-$\le 4$
+exceptional meets a deficient index), makes every other edge a Boolean variable, and adds
+only \emph{necessary} conditions of a real gap graph: a global budget $e(W)\le 40$ (from
+$P=25$ and $e(G)\le 65$); the exchange inequality (E) as direct comparison clauses; a
+positive clause for every six-set with no fixed edge; and an $\le 11$ cardinality bound on
+every six-set that contains a fixed anchored clique. Upper caps on \emph{unanchored}
+six-sets, and other valid consequences, are deliberately omitted, so every real gap graph
+of the signature yields a satisfying assignment; \textsc{unsat} therefore excludes the
+signature. Each formula is refuted by an LRAT proof that a strict RUP-with-hints checker
+replays to the empty clause, and the compact core is reconstructed from the full formula
+by an injective variable renaming recorded in a committed origin map, so
+compact-\textsc{unsat} implies full-\textsc{unsat} without trusting the solver or the core
+extractor.\footnote{Proof~A independently replayed \emph{all} of Proof~B's certificates
+for this section ($66$ in total): every LRAT proof reaches the empty clause under a
+from-scratch checker; every compact renaming is verified injective; every full formula
+regenerates byte-for-byte to its recorded hash; the encoding was audited clause-by-clause
+against the prose ($55$ checks, zero divergence); and both ``perturbation controls'' flip
+to \textsc{sat} exactly as the prose predicts. See Appendix~\ref{app:methodology}.} As
+fault-diversity checks (not additional trust), each formula is also re-solved
+\textsc{unsat} by a second solver, and Mathlib's kernel-checked \texttt{lrat\_proof}
+elaborates the committed proofs with only its standard axiom profile.
+
+\subsection{The eighth signature by a certified counting lemma}
+The last signature \texttt{2222\_33344} --- three deficient groups $S_0,S_1,S_2$ of size
+$3$, two large groups, and four degree-$2$ exceptionals $X$ --- is excluded by hand from a
+certified finite lemma. Write $s_i$ for the number of exceptionals meeting $q_i$,
+$l=s_3+s_4$, $b=e(X,S_0\cup S_1\cup S_2)$, and $c=e(X)$.
+
+\begin{lemma}[three-$K_3$ defect lemma]\label{lem:B-defect}
+Under the induced premises on the $18$-vertex core, $l+b+2c\ge 15$.
+\end{lemma}
+
+This lemma is itself certified, not a bare solver verdict: the symmetry group
+$S_3\times S_2\times S_4$ acting on the $9^4=6561$ labelled degree-$2$ mask assignments
+has exactly $58$ orbits (a count reproduced two independent ways), and for each orbit a
+forward-totalizer CNF encoding the exact structure together with the negation
+$l+b+2c\le 14$ has a compact LRAT refutation accepted by the strict checker. Granting the
+lemma, sum the exchange inequality (E) over all ordinary vertices: since $\sum_i s_i=8$,
+the ordinary external incidence satisfies
+\[
+  D\ \ge\ 3(s_0+s_1+s_2)+4(s_3+s_4)=3(8-l)+4l=24+l.
+\]
+Writing $a$ for cross-group ordinary--ordinary edges and $t$ for exception--ordinary edges
+into the two large groups, one has $D=2a+b+t$ and $R=a+b+t+c$ for the number $R$ of
+non-internal $W$-edges, so $2R=D+b+t+2c$ and hence
+\[
+  2R\ \ge\ D+b+2c\ \ge\ (24+l)+b+2c\ =\ 24+(l+b+2c)\ \ge\ 24+15\ =\ 39,
+\]
+i.e.\ $R\ge 20$. But the global budget with $P=25$ gives $R\le 65-25-21=19$, a
+contradiction. So the eighth signature is impossible.
+
+All eight signatures are excluded, so no gap graph with $P=25$ exists; with ($\dagger$)
+this contradicts the pincer. Hence no gap graph exists, and no balanced $5$-colouring of
+$K_{26}$ exists. This completes Proof~B.
+
+\ppart{Part III. Comparison, and disclosure}
+
+%% ===========================================================================
+\section{Comparison of the two proofs}\label{sec:comparison}
+%% ===========================================================================
+The two proofs resolve the same theorem by genuinely different routes, with different
+extremal inputs, discovery styles, and formal trust bases. We summarise the contrast, and
+then state plainly the caveats that make raw effort figures a poor capability comparison.
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}p{0.15\textwidth}p{0.38\textwidth}p{0.38\textwidth}@{}}
+\toprule
+ & \textbf{Proof A} (local) & \textbf{Proof B} (global)\\
+\midrule
+Route & delete a vertex; partition the other $25$ by colour; a hitter lemma
+\textsf{[MH$''$]} and a minority-class lemma \textsf{[MM]} on a single colour class &
+no deletion; a minority ``gap graph'' on $K_{26}$; a pincer on the boundary $P(Q)$, then
+eight exact-$P=25$ signatures\\
+Extremal input & Brouwer's bound \cite{Brouwer81} \emph{with} Kang--Pikhurko equality
+\cite{KP05} & Brouwer stability \cite{Brouwer81} \emph{with} Bollob\'as--Nikiforov strict
+\cite{BN05}; \emph{no} Kang--Pikhurko\\
+Finite/SAT facts & four small-graph facts (graphs on $\le 12$ vertices) & $66$ LRAT
+certificates (seven signatures, $58$ defect orbits, one unified core)\\
+Discovery style & empirics-first: affine-plane mining and a phase transition
+(Appendix~\ref{app:phase}) suggested the lemma thresholds, then proofs & pincer-direct,
+with an industrialised certificate pipeline (dual checkers, perturbation controls, origin
+maps)\\
+Lean profile & $\approx\!15$k lines, hand-written; $3$ standard $+\,4$ SAT
+\texttt{native\_decide} $=7$ axioms (the $10$ construction facts kernel-migrated this
+round) & $\approx\!317$k lines, mostly generated; \emph{exactly} $3$ standard axioms; SAT
+via kernel-checked \texttt{lrat\_proof}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Route, inputs, and discovery}
+The routes are opposite in spirit. Proof~A is \emph{local}: it removes a vertex and studies
+one colour class at a time, forcing a contradiction from edge-count floors on graphs of
+$\le 25$ vertices. Proof~B is \emph{global}: it keeps all $26$ vertices, replaces the
+colouring by a single minority ``gap graph'', and squeezes a degree-boundary functional
+$P(Q)$ between two frontiers. Their extremal inputs are disjoint apart from Brouwer's
+theorem: Proof~A leans on the Kang--Pikhurko \emph{equality} classification (which Proof~B
+never invokes), Proof~B on Bollob\'as--Nikiforov's \emph{strict} degree-sum bound (which
+Proof~A never invokes). Their discovery styles differ too: Proof~A read its lemma
+thresholds off an empirical phase transition and only then proved them, whereas Proof~B
+drove the pincer directly and industrialised its endgame into a $66$-certificate pipeline
+with dual checkers, perturbation controls, and per-clause origin maps.
+
+\subsection{Formal trust bases}
+Both formalisations are \texttt{sorry}-free and carry no mathematical hypothesis, but they
+trust different things at the bottom. Proof~A now trusts four \texttt{native\_decide}
+reflections (its four SAT certificates), the same \texttt{ofReduceBool} compiler-trust base
+as Lean's \texttt{bv\_decide}; this round's migration moved its ten finite Kang--Pikhurko
+construction facts to kernel \texttt{decide}, dropping the profile from seventeen axioms to
+$3+4=7$ (Section~\ref{sec:lean}). The four SAT reflections remain only because their
+kernel-checked LRAT route cannot yet be bridged to Lean's \texttt{CNF.Unsat} shape (a
+performance limit, not a mathematical one); they are independently DRAT-checked. Proof~B
+attains the kernel-only profile for its computation: its SAT is discharged through
+Mathlib's kernel-checked \texttt{lrat\_proof}, so \texttt{\#print axioms} on its theorem
+lists \emph{exactly} \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. Proof~B's development is far larger
+($\approx\!317$k lines versus $\approx\!15$k) but mostly generated, reflecting the
+certificate-heavy endgame.
+
+\subsection{The mutual adversarial review}
+Each effort reviewed the other under the same standard it applied to its own lemmas
+(Appendix~\ref{app:methodology}). Proof~A's review of Proof~B returned \textsc{survives},
+with two non-fatal findings --- \textbf{E1} (a loose constant in the $c=3$ stability
+sub-case, rescued by the forced value $e(C,D)=15$, which we have applied in
+Section~\ref{sec:B-upper}) and \textbf{A1} (a stale filename for the $\Ncap(5)\ge 25$
+witness, whose committed equivalent passes the referee, Section~\ref{ssec:lowerbound}) ---
+and five publication requirements, all documentational. Proof~B's review of Proof~A
+returned \textsc{survives} on all three of its documents with zero fatal findings; notably
+it independently rediscovered both of Proof~A's two historically-repaired weak spots (the
+two-$K_5$ endgame of \textsf{[MH$''$]} and the $\nu=7$ case of \textsf{[MM]}) and verified
+the repairs, and it vendored and re-checked all five uses of Kang--Pikhurko. Both proofs
+survived the other's hostile scrutiny.
+
+\subsection{Effort, and why it is not a race}
+For the record, Proof~A was developed over roughly seven days (2026-07-05 to 07-12, some
+$164$ commits), reaching a complete argument (later made hypothesis-free, in the disclosed
+sense of Section~\ref{sec:lean}) and its first Lean statement partway through; Proof~B was developed in about two days and four hours (2026-07-11 to
+07-13, some $295$ commits), with a heavily industrialised certificate pipeline. \emph{These
+figures describe two different regimes and are not a capability comparison.} Proof~A was a
+cold open on a problem of unknown status: it had to discover that the case was tractable at
+all, invent the reduction target $\Ncap(5)=25$, and mine the empirics that fixed the lemma
+thresholds. Proof~B was, by design, a \emph{confirmation} experiment: it was told the
+theorem was already proved and which way it resolves, and it started from the same polished
+problem scaffold and referee, after tractability had been established. A confirmation run
+that knows an answer exists and knows the ground rules is a different task from a discovery
+run that does not; the wall-clock and commit counts reflect that difference, not a contest.
+
+\subsection{Two formalisations, one theorem}
+Both proofs are formalised against the same upstream declaration ---
+\texttt{Erdos617.erdos\_617} at $r=5$ in the \texttt{google\-deepmind/formal-conjectures}
+repository \cite{FC}. A machine-checked, \emph{axiom-pure} Lean theorem,
+\texttt{interfaceB\_upstreamR5\_iff\_main} (in \texttt{InterfaceCross.lean}), transcribes
+Proof~B's statement verbatim and proves it equivalent to Proof~A's \texttt{Main}; so the
+two developments provably state the \emph{same} theorem, and Proof~A's completed
+\texttt{erdos\_617\_r5\_unconditional} even discharges Proof~B's statement outright (with
+Proof~A's disclosed axiom profile), while Proof~B's own development proves the converse
+direction with the three standard axioms. Neither equivalence adds a mathematical axiom;
+each is pure logic plus the transport between an arbitrary $26$-element vertex type and
+$\mathrm{Fin}\,26$ (Appendix~\ref{app:methodology}). That two independently produced
+formalisations, of two independently produced proofs, are kernel-certified to be about the
+identical statement is --- short of human refereeing --- among the strongest corroboration
+this format can offer.
 
 %% ===========================================================================
 \section{Provenance, verification, and limitations}\label{sec:provenance}
@@ -1759,40 +2306,54 @@ This work was produced with heavy use of AI systems. Following the norms of
 has and has not been verified.
 
 \subsection{Status of this report}
-We state the framing plainly. The mathematics in this document --- both lemma proofs,
-the reduction, the toolkit, the certificates, and the Lean formalisation --- was
-\emph{produced and internally reviewed by AI systems}. The human owner of this effort
-has verified the \emph{process} (that the reduction is sound, that the reviews were
-independent and adversarial, that the certificates check, that the Lean build is
-clean with the stated axiom profile) but does \emph{not} assert having personally
-verified the mathematical content of the two lemma proofs, and is not posting a
-personal claim that the theorem is established. The document is therefore offered as
-a verification-ready report for independent mathematician review, not as an authored
-announcement. Section~\ref{sec:howto} is the guide to performing that review.
+We state the framing plainly. The mathematics in this document --- \emph{both} proofs,
+their reductions, toolkits, certificates, and Lean formalisations --- was
+\emph{produced and internally reviewed by AI systems}, and then cross-reviewed
+adversarially by the two efforts. The human owner has verified the \emph{process} (that
+the reductions are sound in shape, that the reviews were independent and adversarial,
+that the certificates check, that both Lean builds are clean with the stated axiom
+profiles, and that the two formalisations are kernel-certified equivalent) but does
+\emph{not} assert having personally verified the mathematical content of the hard lemmas
+of either proof, and is not posting a personal claim that the theorem is established. The
+document is therefore offered as a verification-ready report for independent
+mathematician review, not as an authored announcement. Section~\ref{sec:howto} is the
+guide to performing that review, and Appendix~\ref{app:methodology} is the full audit
+trail.
 
 \subsection{Who did what}
-\begin{itemize}[nosep]
-\item The proofs of Lemma~\ref{lem:MH} (\textsf{[MH$''$]}) and Lemma~\ref{lem:MM}
-(\textsf{[MM]}) --- the two hard combinatorial arguments of
-Sections~\ref{sec:MH}--\ref{sec:MM} --- were drafted by OpenAI's
-\texttt{gpt-5.6-sol} (via the \texttt{codex} CLI) from self-contained briefs, in the
-form presented in the repository's \texttt{review\_queue/}.
-\item Everything else was produced by Claude (Anthropic) sessions: the problem
-framing and the reduction (Lemma~\ref{lem:chain}); the empirical structure-mining
-that identified the correct lemma statements (Appendix~\ref{app:phase}); the briefs
-handed to \texttt{gpt-5.6-sol}; the \capeleven{} toolkit exposition; the SAT
-encodings, certificates, and their re-verification; and the entire Lean formalisation
---- the reduction, both lemmas, Brouwer's bound (\texttt{kp\_saving}), and the D1--D4
-discharge of the equality classification (Section~\ref{ssec:lean-brouwer}), this last
-carried out by a relay of Claude sessions --- together with the adversarial reviews
-described next. This write-up was assembled by a Claude session from those frozen
-sources.
-\end{itemize}
+\emph{Proof~A} was produced by Claude (Anthropic) sessions, with one exception: the two
+hard combinatorial lemmas, \textsf{[MH$''$]} (Lemma~\ref{lem:MH}) and \textsf{[MM]}
+(Lemma~\ref{lem:MM}), were first drafted by OpenAI's \texttt{gpt-5.6-sol} (via the
+\texttt{codex} CLI) from self-contained briefs, then repaired following adversarial
+review. Everything else on the Proof~A side --- the problem framing and reduction
+(Lemma~\ref{lem:chain}); the empirical structure-mining that fixed the lemma statements
+(Appendix~\ref{app:phase}); the briefs; the \capeleven{} toolkit; the SAT certificates
+and their re-verification; the entire Lean formalisation (both lemmas, Brouwer's bound
+\texttt{kp\_saving}, and the D1--D4 discharge of the equality classification,
+Section~\ref{ssec:lean-brouwer}); and this write-up --- was produced by Claude sessions.
 
-\subsection{The adversarial-review chain}
-Each of the three links was reviewed by a \emph{fresh} model session instructed to
-attack it, working independently of the author session and re-deriving or
-re-checking every load-bearing step.
+\emph{Proof~B} was produced independently by \texttt{gpt-5.6-sol} working solo (via
+\texttt{codex}) in a separate repository seeded from the same problem scaffold: its own
+reduction, its $P(Q)$ pincer, its $66$-certificate endgame, and its Lean formalisation.
+Its exposition in Part~II is a Claude rendering of that team's source document, pending
+their accuracy pass.
+
+\emph{A deliberate note on the shared base model.} The same base model,
+\texttt{gpt-5.6-sol}, played two different roles: lemma-prover inside Proof~A's team
+(drafting \textsf{[MH$''$]} and \textsf{[MM]} from Claude's briefs) \emph{and} sole author
+of Proof~B. We flag this precisely because it is easy to misread, and it is \emph{not} a
+shared dependency between the two proofs. The two proofs share no mathematical route ---
+disjoint reductions, disjoint extremal inputs (Section~\ref{sec:comparison}); the Proof~B
+effort never read Proof~A's repository (Appendix~\ref{app:methodology}); and the lemma
+drafts the model produced for Proof~A were pinned by Claude's briefs to a completely
+different argument from Proof~B's global route. It is an interesting feature of the
+provenance, stated here so no reader has to infer it, and neither embarrassing nor
+load-bearing.
+
+\subsection{The adversarial-review chains}
+On the \emph{Proof~A} side, each of the three links was reviewed by a \emph{fresh} model
+session instructed to attack it, working independently of the author session and
+re-deriving or re-checking every load-bearing step.
 \begin{itemize}[nosep]
 \item The reduction (Lemma~\ref{lem:chain}) was reviewed and \textsc{accepted}: all
 six steps and both lemma interfaces were found sound.
@@ -1812,50 +2373,87 @@ case scan~\eqref{eq:MM-16}, and the finite graph facts on independent encodings.
 independent exhaustive check at $q=3$.
 \end{itemize}
 The repaired proofs are the ones presented in this paper. In addition, the one
-external theorem (Theorem~\ref{thm:brouwer}) was checked against the primary sources
-\cite{KP05} and a secondary statement of Brouwer's bound~\cite{RWWY}, with all five of its uses
-confirmed faithful and all Tur\'an arithmetic recomputed.
+external theorem of Proof~A (Theorem~\ref{thm:brouwer}) was checked against the primary
+sources \cite{KP05} and a secondary statement of Brouwer's bound~\cite{RWWY}, with all
+five of its uses confirmed faithful and all Tur\'an arithmetic recomputed.
+
+On the \emph{Proof~B} side, the analogous internal chain reviewed the structural
+reduction, each of the $P=22,23,24$ eliminations, the stability argument and its two
+literature specialisations, the defect certificate, and the standalone exact-$P=25$
+exclusion, each in a fresh session, all \textsc{pass}. Beyond these two internal chains,
+the two efforts then reviewed \emph{each other} adversarially, and their two Lean
+formalisations were kernel-checked to state the identical theorem; that mutual round ---
+its verdicts, the findings each surfaced, the fresh-clone rebuilds, the independent
+certificate replay, and the independence audit --- is documented in full in
+Appendix~\ref{app:methodology}.
 
 \subsection{What has and has not been verified}
-\emph{Verified (by us):} the reduction and both lemmas have each been (a) drafted or
-constructed, (b) checked line-by-line by the author session, (c) subjected to an
-independent adversarial review that re-derived the load-bearing content, and
-(d) formalised in Lean with no \texttt{sorry}s and no remaining mathematical
-hypothesis --- Brouwer's bound and the Kang--Pikhurko equality classification at
-$(5,21)$ included (Section~\ref{sec:lean}). Every finite numerical claim is confirmed
-by exact
-recomputation; every SAT fact carries a DRAT certificate checked by
-\texttt{drat-trim} \emph{and} an LRAT certificate checked inside Lean; the external
-theorem is literature-verified.
+\emph{Verified (by us):} each proof has been (a) drafted or constructed, (b) checked by
+its author sessions, (c) subjected to an independent adversarial review that re-derived
+its load-bearing content, (d) formalised in Lean with no \texttt{sorry}s and no
+mathematical hypothesis, and (e) reviewed a second time, adversarially, by the other
+effort, which found no fatal error. Every finite numerical claim of Proof~A is confirmed
+by exact recomputation; each of its SAT facts carries a DRAT certificate checked by
+\texttt{drat-trim} \emph{and} an LRAT certificate checked inside Lean; and Proof~A's one
+external theorem is literature-verified, including the Kang--Pikhurko equality
+classification at $(5,21)$ (Section~\ref{sec:lean}). All $66$ of Proof~B's certificates
+were independently replayed to the empty clause, its encoding audited against its prose,
+and its two external theorems literature-verified; and the two formalisations were
+kernel-checked to state the same theorem (Appendix~\ref{app:methodology}).
 
-\emph{Not yet verified:} the chain of author sessions, fresh-session adversarial
-reviewers, and machine checks is an \emph{internal} verification. It has not been
-refereed by an independent human expert, which for a result of this kind is the
-appropriate next standard. Two features of the formal object a verifier should weigh
-remain: (i) the discharge of the equality classification
-(Section~\ref{ssec:lean-brouwer}), while it removes the last mathematical hypothesis,
-is itself a fresh, load-bearing formalisation by the same AI pipeline, reviewed only
-internally --- a reader who distrusts it can instead audit the published classical
-statement and use the still-exported conditional theorem; and (ii) the SAT facts and
-the finite Kang--Pikhurko construction facts are trusted through
-\texttt{native\_decide}'s reflection axiom (with the independent \texttt{drat-trim} path
-as mitigation for the SAT facts). We make no claim that the present internal
-certificate substitutes for expert human scrutiny; we invite it.
+\emph{Not yet verified:} the whole chain --- author sessions on each side, fresh-session
+adversarial reviewers, machine checks, the mutual review, and the kernel-checked
+equivalence --- is an \emph{internal} verification. It has \emph{not} been refereed by an
+independent human expert, which for a result of this kind is the appropriate next
+standard; no amount of mutual AI review substitutes for it. Two features of the formal
+objects a verifier should weigh remain. (i)~Proof~A's four SAT facts are trusted through
+\texttt{native\_decide}'s reflection axiom (with the independent \texttt{drat-trim} path as
+mitigation, and a kernel-only route demonstrated but not yet bridgeable,
+Section~\ref{sec:lean}); its ten finite Kang--Pikhurko construction facts, formerly also
+reflected, are now checked by the kernel after this round's migration. Its equality-class
+discharge (Section~\ref{ssec:lean-brouwer}), while it removes the last mathematical
+hypothesis, is a fresh internal formalisation, and a reader who distrusts it can instead
+audit the published classical statement and use the still-exported conditional theorem.
+(ii)~Proof~B carries no reflection axiom (its SAT is discharged by Mathlib's
+kernel-checked \texttt{lrat\_proof}), so its remaining trust base is the Lean kernel and
+its two cited theorems. We make no claim that the present internal certificate substitutes
+for expert human scrutiny; we invite it.
 
-\subsection{Why the argument should be believed, and where to attack it}
-The proof is elementary and self-contained modulo one classical theorem, and it uses
-the hypotheses essentially: it distinguishes $r^2$ from $r^2+1$ (it fails, as it
-must, at $n=24$; Section~\ref{ssec:MH-n24} and Appendix~\ref{app:phase}), it does not
-prove too much (the pure-graph relaxations of both lemmas are false), and it is not
-suspiciously short. The most fragile-looking points --- and the ones a sceptical
-reader should probe first --- are the $n=21$ equality classification feeding
+\subsection{Why the two proofs should be believed, and where to attack them}
+Both proofs are elementary and self-contained modulo one or two classical theorems, both
+use the hypotheses essentially (Proof~A distinguishes $r^2$ from $r^2+1$ by failing, as it
+must, at $n=24$; Section~\ref{ssec:MH-n24} and Appendix~\ref{app:phase}), neither proves
+too much (the pure-graph relaxations of Proof~A's lemmas are false), and neither is
+suspiciously short. That they agree, by disjoint routes with disjoint extremal inputs, is
+itself evidence.
+
+For \emph{Proof~A}, the most fragile-looking points --- the ones a sceptical reader should
+probe first --- are the $n=21$ equality classification feeding
 Corollary~\ref{cor:equality21} (now formalised by the D1--D4 cone descent of
 Section~\ref{ssec:lean-brouwer}, whose $(2,9)$ base step and \texttt{native\_decide}
-construction witnesses are the natural targets), the correctness of the $L$-table
-recursion (whose affine bounds we verify pointwise), and the two repaired cases
+construction witnesses are the natural targets), the correctness of the $L$-table recursion
+(whose affine bounds we verify pointwise), and the two repaired cases
 (Sections~\ref{ssec:MH-K5free} and~\ref{ssec:MM-two}) that turn on the $\omega$-free
-$11$-vertex nonexistence. Each of these is exactly where an independent check would
+$11$-vertex nonexistence. For \emph{Proof~B}, they are the load-bearing \emph{strictness}
+of Bollob\'as--Nikiforov (the degree sum is exactly $80$, so only ``$>80$'' gives
+$\sigma\le 19$), the six-row stability table of Section~\ref{sec:B-upper} and its
+$c\in\{3,4,5\}$ endgames (where finding~E1 lives), and the fidelity of the SAT encodings to
+the eight-signature semantics (independently replayed and audited,
+Appendix~\ref{app:methodology}). Each of these is exactly where an independent check would
 be most valuable.
+
+\subsection{Authorship and attribution}\label{ssec:authorship}
+\emph{[This block is a placeholder to be finalised.]} The author list has not been fixed.
+The intended attribution, subject to the finaliser's decision, records: the Proof~A
+development (Claude Fable~5 orchestration, the reduction, toolkit, SAT certification, and
+Lean formalisation, with \texttt{gpt-5.6-sol} contributing the first drafts of
+Lemmas~\ref{lem:MH} and~\ref{lem:MM} from briefs); the Proof~B development
+(\texttt{gpt-5.6-sol}, solo); and the human collaborator's role, which was to
+\emph{commission} both efforts and to verify the \emph{process} --- that the reductions
+are sound in shape, the reviews independent, the certificates checking, the builds clean,
+and the two formalisations equivalent --- \emph{not} to verify the mathematical content of
+the hard lemmas of either proof. The final author list and the precise wording of the
+attribution will be settled before any submission.
 
 %% ===========================================================================
 \section*{Acknowledgements}
@@ -1867,10 +2465,130 @@ and the authors of kissat, cadical, \texttt{drat-trim}, Lean, and Mathlib.
 
 %% ===========================================================================
 \appendix
-\section{The empirical phase transition}\label{app:phase}
+\section{Verification methodology: the full audit trail}\label{app:methodology}
 %% ===========================================================================
 
-The lemma statements were not guessed; they were extracted from computation, which
+This appendix records the cross-verification performed on the two proofs, beyond the
+per-proof checks of Sections~\ref{sec:howto}, \ref{sec:certificates}
+and~\ref{sec:lean}. None of it is human expert refereeing
+(Section~\ref{sec:provenance}); it is the internal and mutual machine-and-model
+verification, set out so that a human verifier can see exactly what was and was not done.
+All dates are in 2026.
+
+\subsection{Internal adversarial review, with repairs}
+Each proof was first reviewed internally by fresh model sessions instructed to attack it.
+Proof~A's three links were reviewed as recorded in Section~\ref{sec:provenance}: the
+reduction \textsc{accepted}; \textsf{[MH$''$]} \textsc{accepted} after replacing an
+unreconstructable clique bound with the $\omega$-free $11$-vertex nonexistence; and
+\textsf{[MM]} \textsc{accepted} after supplying the missing $\nu=7$ closure. The repaired
+arguments are what Part~I presents. Proof~B's own internal chain reviewed its structural
+reduction, the $P=22/23/24$ eliminations, the stability argument with its two literature
+specialisations, the defect certificate, and the standalone exact-$P=25$ exclusion, each
+in a fresh session, all \textsc{pass}.
+
+\subsection{The mutual hostile review round (07-13/07-14)}
+The two efforts then reviewed each other, each applying the standard it had applied to its
+own lemmas, with provenance withheld from the reviewers so that only the mathematics was
+judged.
+
+\emph{Proof~A's review of Proof~B} used two independent reviewers with disjoint mandates
+(one on the internal mathematical chain, recomputing every number by script; one on
+literature faithfulness and the certificate-reduction semantics). Verdict:
+\textsc{survives} --- no fatal error and no genuine gap within scope. Every recomputed
+constant reproduced: the boundary bounds, the five-part transversal lemma (all four
+$a$-cases, including the exact $a=3$ inclusion--exclusion), the $P=23/24$ eliminations, the
+six-row stability table, the exhaustive enumerations behind the $c=3$ case, the
+eight-signature exhaustiveness, the exchange inequality, and the final $2R\ge 39$ versus
+$R\le 19$ count. Two non-fatal findings were recorded --- E1 (the loose $c=3$ incidence
+constant, rescued by the forced value $e(C,D)=15$; applied in Section~\ref{sec:B-upper})
+and A1 (the stale $\Ncap(5)\ge 25$ certificate filename; the committed equivalent passes
+the referee, Section~\ref{ssec:lowerbound}) --- together with five documentational
+publication requirements. The two machine-checked lemmas (the seven-signature and
+three-$K_3$ defect lemmas) were treated as given in this round and audited separately
+below.
+
+\emph{Proof~B's review of Proof~A} returned \textsc{survives} on all three of Proof~A's
+documents with zero fatal findings. Notably it \emph{independently rediscovered} both of
+Proof~A's two historically-repaired weak spots --- the two-$K_5$ endgame of
+\textsf{[MH$''$]} and the $\nu=7$ case of \textsf{[MM]} --- and verified that the committed
+repairs close them; it vendored the Kang--Pikhurko source and confirmed all five of its
+uses faithful; and it listed publication-blocking documentation items (certificate-grade
+identifiers, self-contained toolkit statements), all since integrated. Neither review
+found a counterexample or a mathematical gap in the other proof.
+
+\subsection{Fresh-clone rebuilds}
+Each Lean development was rebuilt from a \emph{fresh \texttt{git clone}}, with the Mathlib
+cache fetched as any third party would. Proof~A's clone built cleanly (\texttt{lake exe
+cache get \&\& lake build}, $8{,}497$ jobs, exit $0$; $8{,}498$ with the interface
+cross-check module added); the toolchain-bundled \texttt{leanchecker} re-checked the core
+modules (exit $0$); all four CNFs re-emitted from the Lean definitions matched the
+canonical checksums (the encoding-drift guard); and $M9/M10$ were fully re-solved
+\textsc{unsat} for fault diversity. The last \emph{completed} such fresh-clone rebuild
+(2026-07-13) recorded the then-current profiles verbatim --- the unconditional pair at
+three standard $+\,14$ \texttt{native\_decide} $=17$, no \texttt{sorryAx}; the conditional
+pair at three standard $+\,4$ SAT. This round's kernel-purity migration drops the
+unconditional profile to seven (three standard $+\,4$ SAT), enforced by the per-primitive
+regression guard \texttt{tools/axiom\_allowlist.txt} and measured in \texttt{FORMAL.md}; a
+fresh-clone rebuild re-confirming the seven-axiom profile was completing at the time of
+writing. Proof~B's development was likewise rebuilt from a fresh clone ($989$ modules),
+with both of its certificate paths re-run.
+
+\subsection{Independent certificate replay (Proof~B)}
+Proof~B's $66$ load-bearing LRAT certificates (seven signatures, $58$ defect orbits, one
+unified core) were replayed with \emph{no} reliance on any checker, solver verdict, or
+reconstruction routine from Proof~B's own bundle. A from-scratch strict RUP-with-hints
+checker --- with a self-test that accepts a genuine proof and rejects three corruptions of
+it --- replayed all $66$ to the empty clause; every compact core was reconstructed from its
+full formula and its variable renaming verified \emph{injective} (the exact requirement for
+compact-\textsc{unsat} to imply full-\textsc{unsat}); every full formula regenerated
+byte-for-byte to the SHA-256 recorded in its origin map (including a $746{,}314$-clause
+unified formula); a second solver re-solved every compact formula \textsc{unsat}; and an
+encoding-semantics audit ($55$ independent checks) found the emitted clauses to be faithful
+\emph{necessary} conditions, with zero divergence. Both ``perturbation controls'' behaved
+as the prose predicts: raising the global edge cap by one, and raising the six-set cap by
+one, each flip the relevant formula to \textsc{sat}, with independently recomputed witness
+scores matching the reported values. This closes requirement~5 of Proof~A's review of
+Proof~B (independent certificate replay) --- the one part of the trust chain that the
+mutual-review round had treated as given.
+
+\subsection{The kernel-checked statement equivalence}
+That the two formalisations are about the \emph{same} theorem is itself a Lean theorem, in
+\texttt{InterfaceCross.lean}. Proof~B's statement interface was transcribed verbatim and
+proved equivalent to Proof~A's \texttt{Main}:
+\texttt{interfaceB\_\allowbreak upstreamR5\_\allowbreak iff\_main} and
+\texttt{interfaceB\_\allowbreak noBalanced\_\allowbreak iff\_main}
+are \texttt{sorry}-free and \emph{axiom-pure} (the three standard axioms only), and two
+corollaries transport Proof~A's completed \texttt{erdos\_617\_r5\_unconditional} onto
+Proof~B's targets (carrying whatever disclosed profile that theorem carries ---
+Section~\ref{sec:lean}). Both interfaces pin the same
+upstream declaration \texttt{Erdos617.erdos\_617} at $r=5$; the definitions agree
+clause-for-clause (identical $u\ne v$ / \texttt{Sym2} diagonal handling, cardinalities
+$26=5^2+1$ and $6=5+1$, \texttt{Fin 5} colours); the only bridges are ``sees a colour'' as
+an existential versus a negated universal (one classical step) and an arbitrary
+$26$-element vertex type versus $\mathrm{Fin}\,26$ (a transport). No off-by-one, and no
+serious discrepancy, was found.
+
+\subsection{The independence audit}
+The two efforts ran in separate repositories, and the Proof~B effort was forbidden from
+reading any other repository on the machine or asking for the route; it was told only that
+the theorem had already been proved and which way it resolves. Its sole meaningful
+exposure to Proof~A's work, established from its own session logs, was incidental: a
+concurrent \texttt{lake build} of a Proof~A module named \texttt{BrouwerInduction} appeared
+in a routine process listing at 15:26:56 on 07-11 --- \emph{117 seconds after} the Proof~B
+effort had already committed its own Brouwer-stability route (15:11) and had it reviewed
+(15:25). The effort then noticed the exposure itself, disclosed it in its notes with the
+exact commit hashes, quarantined the observed string, banned system-wide process listings
+for the remainder of its run, and enforced that ban on a subagent that violated it the next
+day. Every claim in that self-audit checks against the session logs to the minute; the two
+efforts' convergence on Brouwer's $1981$ report was genuine independent literature
+convergence, not contamination. This audit is offered as part of the provenance, not as a
+guarantee: a human verifier who wishes to may reconstruct it from the committed logs.
+
+%% ===========================================================================
+\section{The empirical phase transition behind Proof A's lemmas}\label{app:phase}
+%% ===========================================================================
+
+Proof~A's lemma statements were not guessed; they were extracted from computation, which
 also explains why the argument bites at $n=25$ and not below. We record the data
 here as motivation and as a falsification guard.
 
@@ -1914,6 +2632,13 @@ $16$ vertices.
 T.~F. Bloom,
 \emph{Erd\H{o}s Problem \#617},
 \url{https://www.erdosproblems.com/617}, accessed 2026-07-11.
+
+\bibitem{BN05}
+B.~Bollob\'as and V.~Nikiforov,
+\emph{The sum of degrees in cliques},
+arXiv:\,math/0410218 (2004), Theorem~2 (the strict clique degree-sum bound used by
+Proof~B); published version in \emph{Combin. Probab. Comput.}, venue/year to be confirmed.
+\url{https://arxiv.org/abs/math/0410218}.
 
 \bibitem{Brouwer81}
 A.~E. Brouwer,

@@ -9,28 +9,46 @@
 #   glob:<pattern>   — a shell glob the axiom name must match (for the
 #                      machine-generated native_decide axiom names)
 #
-# CURRENT EXPECTED PROFILE (D-CAMPAIGN COMPLETE, 2026-07-12): the three standard Lean
-#   axioms + native_decide reflection axioms only. NO sorryAx, NO mathematical hypothesis.
-# The conditional theorems `erdos_617_r5`/`_upstream` still take `KPEqualityClassification`
-# as a hypothesis variable (so it does not appear as an axiom for them; profile = 3
-# standard + 4 SAT). The UNCONDITIONAL theorems `erdos_617_r5_unconditional`/
-# `_upstream_unconditional` (AxiomAudit.lean) discharge that hypothesis via the PROVEN
-# `kp_equality_classification_proven` (Lean617.JoinTransport, D1–D4 descent + join-transport
-# + the (2,9) base classification). This introduces the KP-construction native_decide
-# witnesses — 2 cone-iso axioms (`kpG_giso_cone3`, `kpG1_giso_cone3`) + 8 AB21-complement
-# axioms (`kpG_compl_AB_structure`, `kpG1_compl_AB_structure`, ax_1_{1..4} each) — so the
-# unconditional profile is 3 standard + 4 SAT + 10 D-campaign = 17 axioms. ALL native_decide
-# axioms (SAT + D-campaign) are matched by the single `glob:*native_decide*` entry below, so
-# the audit passes on the exact observed set with no per-axiom edits needed.
+# CURRENT EXPECTED PROFILE (KERNEL-PURE MIGRATION, ROUND-2026-07-14): the three
+#   standard Lean axioms + the FOUR SAT-primitive native_decide reflection axioms
+#   ONLY. NO sorryAx, NO mathematical hypothesis, and — the point of this round —
+#   NO KP-construction native_decide axioms: the 10 KP witnesses
+#   (kpG/kpG1 cone-isos + kpG/kpG1 A/B-complement structures) are now proved by
+#   kernel `decide`, so they contribute ZERO reflection axioms.
+# The conditional theorems `erdos_617_r5`/`_upstream` take `KPEqualityClassification`
+#   as a hypothesis variable (not an axiom), so their profile is 3 standard + 4 SAT.
+# The UNCONDITIONAL theorems `erdos_617_r5_unconditional`/`_upstream_unconditional`
+#   discharge that hypothesis via the PROVEN `kp_equality_classification_proven`;
+#   after WS1 their profile is ALSO exactly 3 standard + 4 SAT = 7 axioms.
+#
+# WHY THE FOUR SAT native_decide AXIOMS REMAIN (exact accounting): the SAT
+#   primitives are kernel-checked LRAT certificates (verifyCert + native_decide).
+#   The kernel-pure route (Mathlib `lrat_proof`/from_lrat) is proven to WORK and be
+#   axiom-clean on M9's core, but bridging it back to our `CNF.Unsat` shape needs
+#   the kernel to materialize `nonexCNF`/`MCNF` (built from `List.sublistsLen`), and
+#   that reduction is infeasible (`(MCNF 9 18).clauses.size = 39743 by rfl` times
+#   out >400s at maxRecDepth 1e6). nonex11/12 are additionally infeasible on memory
+#   (M9's 17k-lemma core already costs 14GB in from_lrat). See FORMAL.md
+#   "KERNEL-PURE MIGRATION" for the full measurement log.
+#
+# REGRESSION GUARD: the SAT globs below are TIGHT (per-primitive). Any OTHER
+#   native_decide axiom — e.g. a KP witness regressing to native_decide, or a new
+#   one elsewhere — will NOT match and the audit FAILS. This is how WS1's KP
+#   kernel-purity is regression-checked from here on.
 
 exact:propext
 exact:Classical.choice
 exact:Quot.sound
 
 # The four SAT-primitive certificates, reflected by native_decide (ofReduceBool) —
-# one axiom per certificate, name of the form Erdos617.unsat_<prim>._native.native_decide.ax_1_1
-glob:*native_decide*
+# one axiom per certificate, name Erdos617.unsat_<prim>._native.native_decide.ax_1_1.
+# TIGHT per-primitive globs (NOT a blanket *native_decide*): a KP-witness or any
+# other native_decide axiom does not match these and therefore FAILS the audit.
+glob:Erdos617.unsat_nonex11.*native_decide*
+glob:Erdos617.unsat_nonex12.*native_decide*
+glob:Erdos617.unsat_M9.*native_decide*
+glob:Erdos617.unsat_M10.*native_decide*
 
 # Each standard axiom above should appear at least once; at least one native_decide
-# axiom should appear. tools/axiom_audit.sh enforces both, so an empty/parse-failed
-# audit cannot pass silently.
+# axiom (one of the four SAT globs) should appear. tools/axiom_audit.sh enforces
+# both, so an empty/parse-failed audit cannot pass silently.

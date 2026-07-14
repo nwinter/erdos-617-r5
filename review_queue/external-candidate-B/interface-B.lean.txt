@@ -1,0 +1,129 @@
+/-
+Copyright 2026.
+
+Interface and definition-fidelity lemmas for Erdős Problem 617 at r = 5.
+-/
+
+import Mathlib
+
+set_option autoImplicit false
+
+namespace Erdos617
+
+/-- A set of vertices sees `k` when one of its unordered edges has color `k`. -/
+def SeesColor {r : ℕ} {V : Type} (coloring : Sym2 V → Fin r)
+    (S : Finset V) (k : Fin r) : Prop :=
+  ∃ u ∈ S, ∃ v ∈ S, u ≠ v ∧ coloring s(u, v) = k
+
+/--
+A coloring is balanced when every `(r + 1)`-set of vertices sees every one of
+the `r` colors.  This is the working definition pinned by `PROBLEM.md`.
+-/
+def Balanced {r : ℕ} {V : Type} (coloring : Sym2 V → Fin r) : Prop :=
+  ∀ S : Finset V, S.card = r + 1 → ∀ k : Fin r, SeesColor coloring S k
+
+/-- Auditable expansion of the clean balanced definition. -/
+theorem balanced_iff_every_set_sees_every_color {r : ℕ} {V : Type}
+    (coloring : Sym2 V → Fin r) :
+    Balanced coloring ↔
+      ∀ S : Finset V, S.card = r + 1 → ∀ k : Fin r,
+        ∃ u ∈ S, ∃ v ∈ S, u ≠ v ∧ coloring s(u, v) = k :=
+  Iff.rfl
+
+/-- The missing-color conclusion used verbatim in the public upstream theorem. -/
+def HasMissingColor {r : ℕ} {V : Type} (coloring : Sym2 V → Fin r) : Prop :=
+  ∃ (S : Finset V) (k : Fin r),
+    S.card = r + 1 ∧
+    ∀ u ∈ S, ∀ v ∈ S, u ≠ v → coloring s(u, v) ≠ k
+
+/--
+The exact outer binder order and conclusion of the public
+`Erdos617.erdos_617` declaration, represented as a proposition so that the
+interface itself introduces no unproved theorem or axiom.  The hypothesis
+`hr` is retained even though it does not occur in the conclusion, exactly as
+in the upstream declaration.
+-/
+def UpstreamStatement (r : ℕ) (_hr : r ≥ 3) : Prop :=
+  ∀ {V : Type} [Fintype V] [DecidableEq V],
+    Fintype.card V = r^2 + 1 →
+    ∀ coloring : Sym2 V → Fin r,
+      ∃ (S : Finset V) (k : Fin r),
+        S.card = r + 1 ∧
+        ∀ u ∈ S, ∀ v ∈ S, u ≠ v → coloring s(u, v) ≠ k
+
+/--
+Definitional audit of `UpstreamStatement`: the right side is the exact type of
+the public upstream declaration after its theorem name.
+-/
+theorem upstreamStatement_iff_literal (r : ℕ) (hr : r ≥ 3) :
+    UpstreamStatement r hr ↔
+      ∀ {V : Type} [Fintype V] [DecidableEq V],
+        Fintype.card V = r^2 + 1 →
+        ∀ coloring : Sym2 V → Fin r,
+          ∃ (S : Finset V) (k : Fin r),
+            S.card = r + 1 ∧
+            ∀ u ∈ S, ∀ v ∈ S, u ≠ v → coloring s(u, v) ≠ k :=
+  Iff.rfl
+
+/-- The clean working statement for the `r = 5`, `|V| = 26` target. -/
+def NoBalancedFiveColoring : Prop :=
+  ∀ {V : Type} [Fintype V] [DecidableEq V],
+    Fintype.card V = 26 →
+    ∀ coloring : Sym2 V → Fin 5, ¬Balanced coloring
+
+/-- Missing a color is exactly the negation of the pinned balanced condition. -/
+theorem hasMissingColor_iff_not_balanced {r : ℕ} {V : Type}
+    (coloring : Sym2 V → Fin r) :
+    HasMissingColor coloring ↔ ¬Balanced coloring := by
+  classical
+  constructor
+  · rintro ⟨S, k, hcard, hmissing⟩ hbalanced
+    obtain ⟨u, hu, v, hv, huv, hcolor⟩ := hbalanced S hcard k
+    exact hmissing u hu v hv huv hcolor
+  · intro hnot
+    by_contra hnoMissing
+    apply hnot
+    intro S hcard k
+    by_contra hnotSees
+    apply hnoMissing
+    refine ⟨S, k, hcard, ?_⟩
+    intro u hu v hv huv hcolor
+    exact hnotSees ⟨u, hu, v, hv, huv, hcolor⟩
+
+/-- The public upstream statement instantiated at `r = 5`. -/
+def UpstreamStatementR5 : Prop :=
+  UpstreamStatement 5 (by norm_num)
+
+/--
+Fidelity theorem: the exact upstream `r = 5` interface is logically
+equivalent to the clean working definition, including `26 = 5^2 + 1` and
+`6 = 5 + 1`.
+-/
+theorem upstreamStatementR5_iff_noBalancedFiveColoring :
+    UpstreamStatementR5 ↔ NoBalancedFiveColoring := by
+  constructor
+  · intro hupstream V instFintype instDecidableEq hcard coloring
+    apply (hasMissingColor_iff_not_balanced coloring).mp
+    apply hupstream (V := V)
+    · norm_num at hcard ⊢
+      exact hcard
+  · intro hclean V instFintype instDecidableEq hcard coloring
+    apply (hasMissingColor_iff_not_balanced coloring).mpr
+    apply hclean (V := V)
+    · norm_num at hcard ⊢
+      exact hcard
+
+/--
+The intended outermost wrapper for an eventual proof of the clean target.
+Its conclusion and binders after `hclean` are the literal upstream `r = 5`
+specialization.
+-/
+theorem upstreamR5_of_clean (hclean : NoBalancedFiveColoring)
+    {V : Type} [Fintype V] [DecidableEq V]
+    (hV : Fintype.card V = 5^2 + 1) (coloring : Sym2 V → Fin 5) :
+    ∃ (S : Finset V) (k : Fin 5),
+      S.card = 5 + 1 ∧
+      ∀ u ∈ S, ∀ v ∈ S, u ≠ v → coloring s(u, v) ≠ k := by
+  exact (upstreamStatementR5_iff_noBalancedFiveColoring.mpr hclean) hV coloring
+
+end Erdos617

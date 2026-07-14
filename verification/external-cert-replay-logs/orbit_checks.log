@@ -1,0 +1,3 @@
+### 58-orbit count reproduced independently (labelled 6561 and multisets 495 -> 58)
+### trivial-orbit soundness: 37 trivial cores <=> 37 orbits with a fixed six-set >=12 (perfect correspondence)
+### non-trivial orbits (21): max fixed six-set = 11

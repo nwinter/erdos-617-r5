@@ -1,0 +1,16 @@
+# Machine/OS fingerprint (2026-07-14T04:46:47Z)
+Darwin Mac-Studio 25.6.0 Darwin Kernel Version 25.6.0: Thu Jun 18 00:38:56 PDT 2026; root:xnu-12377.160.73.0.5~11/RELEASE_ARM64_T6000 arm64
+ProductName:		macOS
+ProductVersion:		26.6
+BuildVersion:		25G5052e
+Apple M1 Ultra
+20
+68719476736
+# lean-toolchain:
+leanprover/lean4:v4.30.0
+# elan/lean/lake versions:
+elan 4.2.3 (b6cec7e10 2026-06-08)
+Lean (version 4.30.0, arm64-apple-darwin24.6.0, commit d024af099ca4bf2c86f649261ebf59565dc8c622, Release)
+Lake version 5.0.0-src+d024af0 (Lean version 4.30.0)
+# Mathlib rev from lake-manifest.json:
+[('mathlib', 'c5ea00351c28e24afc9f0f84379aa41082b1188f'), ('plausible', 'a456461b368b71d2accd95234832cd9c174b5437'), ('LeanSearchClient', 'c5d5b8fe6e5158def25cd28eb94e4141ad97c843'), ('importGraph', '515cf9d0c00ece5e661f6de4326a53dedc1e8ea1'), ('proofwidgets', 'a84b3e2475d5c5ab979567b1ad8aea21b764bcf8'), ('aesop', '558915ae105bfd8074e22d597613d1961822adc2'), ('Qq', 'a6e6c34c4ef182f83b219a3a5a385f51f44bdc4c'), ('batteries', '32dc18cde3684679f3c003de608743b57498c56f'), ('Cli', '6b907cf12b2e445ccb7c24bc208ef04a1f39e84c')]

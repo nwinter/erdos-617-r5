@@ -24,3 +24,20 @@ scratchpad/**/*.cnf
 scratchpad/**/*.drat
 scratchpad/**/*.lrat
 lean617_f9/
+
+# r=6 ladder: compiled binaries (built from tracked .c) + transient search state
+tools/locsearch6
+tools/score6
+data/r6/logs/
+data/r6/candidates/chain_*
+data/r6/candidates/hunt_*
+data/r6/candidates/n28_*
+data/r6/candidates/objA_n*
+data/r6/candidates/*.tmp
+
+# External candidate B's imported certificate bundle (44MB; their work product,
+# imported 2026-07-14 for the independent replay — see verification/external-cert-replay.md,
+# which records per-file SHA-256s as the reproducibility anchor). Not committed:
+# large binaries stay out of history (release-asset pattern) and the bundle is
+# the external team's artifact to publish.
+review_queue/external-candidate-B/cert-bundle/

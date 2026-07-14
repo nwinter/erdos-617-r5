@@ -4,8 +4,13 @@
 #
 # Passes iff every axiom every final theorem depends on is one of:
 #   - an entry in the expected-axioms fixture tools/axiom_allowlist.txt
-#     (currently: exact propext/Classical.choice/Quot.sound + the native_decide
-#      SAT-reflection axioms via a glob).
+#     (currently: exact propext/Classical.choice/Quot.sound + FOUR TIGHT
+#      per-primitive globs for the SAT-reflection axioms unsat_{nonex11,nonex12,
+#      M9,M10}). After the ROUND-2026-07-14 kernel-pure migration the globs are
+#      deliberately per-primitive (NOT a blanket *native_decide*), so the 10
+#      KP-construction witnesses — now kernel `decide`, contributing no reflection
+#      axioms — are regression-checked: if any regresses to native_decide its
+#      axiom name will not match and the audit FAILS.
 # FAILS on any `sorry`/`sorryAx`, or any other (unexpected) axiom.
 #
 # The expected list lives entirely in the fixture, so if R1 discharges

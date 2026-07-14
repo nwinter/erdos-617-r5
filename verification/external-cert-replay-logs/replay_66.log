@@ -1,0 +1,16 @@
+[sig 5           ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (1s)
+[sig 42          ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (2s)
+[sig 33          ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (2s)
+[sig 322_24444   ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (3s)
+[sig 322_33444   ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (4s)
+[sig 2222_14444  ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (6s)
+[sig 2222_23444  ] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (8s)
+[orbit 00] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (9s)
+[orbit 10] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (23s)
+[orbit 20] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (35s)
+[orbit 30] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (46s)
+[orbit 40] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (57s)
+[orbit 50] full_hash=OK origin=OK lrat=UNSAT kissat=UNSAT (67s)
+
+=== 65/65 fully verified (hash+origin+lrat+kissat) in 74s ===
+wrote replay_66.json

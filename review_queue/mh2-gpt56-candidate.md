@@ -9,6 +9,16 @@ In fact, we prove the stronger statement:
 
 Applying this to the \(21\) vertices outside \(T\) proves MH\(^{\prime\prime}\).
 
+*[Standing-hypothesis note added 2026-07-14 per requirement 5 of the external adversarial review.]*
+The independence bounds \((4,5,5,5,5)\) already deliver balance and cap-11, so no separate hypothesis
+is needed: \(\alpha(G_i)\le5\) for all five colours means every \(6\)-set contains an edge of every
+colour, i.e. every \(6\)-set sees all five colours (balance); and a \(6\)-set with \(\ge12\) edges of
+one colour has \(\le3\) edges left for the other four colours, so it could see at most four colours —
+hence every colour graph is cap-11 (every \(6\)-set spans \(\le11\) edges) and \(K_6\)-free on the
+\(21\)-set. (The post-review "header fix" below lists cap-11/\(K_6\)-freeness as standing hypotheses;
+by this remark they are consequences of the stated independence bounds, so that weakening is harmless
+but unnecessary, as the reviewer notes.)
+
 We use (F1), (F2), and one classical refinement of Turán’s theorem. Facts (F3) and (F5) are not needed; (F4) is checked explicitly at the end.
 
 ## 1. Reduction to \(21\) vertices
@@ -49,14 +59,37 @@ Conversely, this condition for every \(v\) is equivalent to \(\alpha(H)\le4\): a
 
 ## 2. A classical non-partite Turán theorem
 
-We use the following theorem of Brouwer, together with its equality classification by Kang and Pikhurko.
+We use the following bound, due to **Brouwer**, together with its **equality classification by Kang
+and Pikhurko**.
 
-> If \(Y\) is an \(n\)-vertex \(K_{r+1}\)-free graph with \(\chi(Y)>r\), where \(n\ge2r+1\), then
+> **(Bound — Brouwer 1981.)** Let \(r\ge2\) and \(n\ge2r+1\). If \(Y\) is an \(n\)-vertex
+> \(K_{r+1}\)-free graph that is not \(r\)-partite (equivalently \(\chi(Y)>r\)), then
 > \[
 > e(Y)\le t_r(n)-\left\lfloor\frac nr\right\rfloor+1.
 > \]
+> **(Equality — Kang–Pikhurko 2005.)** Every graph attaining this bound arises from an explicit
+> construction \(G(\mathbf n)\) (a complete \(r\)-partite graph on parts \(N_1,\dots,N_r\) with
+> \(\sum|N_i|=n-1\), plus one added vertex and a deleted matching-like edge set), with the part-size
+> vector \(\mathbf n\) ranging over an explicit short list.
 
-The extremal graphs are also explicitly classified. We only use the cases \(r=5\), \(n=15,16,21\). A proof and the equality classification appear in [Kang–Pikhurko, *Maximum \(K_{r+1}\)-free graphs which are not \(r\)-partite*](https://matstud.org.ua/texts/2005/24_1/24_1_012_020.pdf).
+*[Citation split added 2026-07-14 per requirement 7 of the external adversarial review
+(`review_queue/reviews-received/review-of-our-r5-by-external-team.md`): the bound and the equality
+classification are cited separately, with the exact hypotheses \(K_{r+1}\)-free, \(\chi(Y)>r\),
+\(n\ge2r+1\).]*
+
+- **Bound:** A. E. Brouwer, *Some lotto numbers from an extension of Turán's theorem*, Math. Centrum
+  report ZW152, Amsterdam (1981), 6 pp. (The 1981 report is a Mathematisch Centrum technical note and
+  is not readily fetchable; the bound is quoted in this exact form and attributed to Brouwer by Ren,
+  Wang, Wang, and Yang, *Extremal triangle-free graphs with chromatic number at least four*,
+  arXiv:2404.07486, Thm 1.3.)
+- **Equality classification:** M. Kang and O. Pikhurko, *Maximum \(K_{r+1}\)-free graphs which are
+  not \(r\)-partite*, Matematychni Studii **24** (2005), no. 1, 12–20 (DOI 10.30970/ms.24.1.12-20),
+  [PDF](https://matstud.org.ua/texts/2005/24_1/24_1_012_020.pdf) — Theorem 1 (the bound, with the
+  regime \(r\le\frac{n-1}2\iff n\ge2r+1\)), Theorem 4, and Lemma 5 (the extremal graphs). Retrieved
+  and read in full; see `papers/brouwer-kang-pikhurko.md` for the use-by-use verification.
+
+We only use the cases \(r=5\), \(n\in\{15,16,21\}\), all of which satisfy \(n\ge2r+1=11\). Below,
+"Brouwer's theorem" refers to the bound and "the Kang–Pikhurko classification" to the equality case.
 
 ## 3. Every ordinary colour has at least \(38\) edges on \(S\)
 
@@ -194,7 +227,16 @@ u(d):=\min\{b(d),\operatorname{ex}(d,K_4)\}. \tag{4.4}
 
 ### 4.1 Graphs with \(\alpha\le2,\omega\le4\)
 
-Let \(Z\) have \(\alpha(Z)\le2\) and \(\omega(Z)\le4\). Its complement \(J\) is triangle-free with \(\alpha(J)\le4\). Therefore \(\Delta(J)\le4\), giving
+*[Standing-hypothesis note added 2026-07-14 per requirement 5 of the external adversarial review.]*
+**Standing hypothesis for §§4.1–4.3.** Every graph and induced subgraph appearing in this recursion
+— the instances \(Z\) (§4.1) and \(X\) (§4.2) whose minima \(M(\cdot),L(\cdot)\) are being bounded,
+together with the neighbourhoods \(G[N(v)]\), non-neighbourhoods \(G[W_v]\), and all their
+sub-instances — is **cap-11**. This is inherited: a \(6\)-subset of any induced subgraph of \(H\) is a
+\(6\)-subset of \(S\), hence a \(6\)-subset of the ambient balanced \(K_{25}\), so it spans at most
+\(11\) edges of every colour. The cap-11 bound (4.3) and the \(M\)/\(L\) minima below are applied only
+to such graphs.
+
+Let \(Z\) have \(\alpha(Z)\le2\) and \(\omega(Z)\le4\) (and, per the standing hypothesis, cap-11). Its complement \(J\) is triangle-free with \(\alpha(J)\le4\). Therefore \(\Delta(J)\le4\), giving
 
 \[
 e(Z)\ge
@@ -212,6 +254,16 @@ M(9)=19,\qquad M(10)=25,\qquad M(11)=35, \tag{4.6}
 \]
 
 and no such cap-11 graph exists on \(12\) vertices.
+
+*[Certificate pointer added 2026-07-14 per requirement 3 of the external review.]* The values
+\(M(9)=19\) and \(M(10)=25\) (which require \(\omega\le4\)) and the \(11\)- and \(12\)-vertex
+nonexistence (clique-number-free) are the SAT primitives `M9`, `M10`, `nonex11`, `nonex12`; their
+certificate-grade identifiers — exact statement and encoding direction, generator command, canonical
+CNF hash/size/counts, shipped LRAT path/size/hash, and checker (Lean 4.30 `verifyCert` +
+`native_decide`, leanchecker exit 0, CaDiCaL re-solve exit 20, drat-trim `s VERIFIED`) — are recorded
+in the **Certificate ledger** of `review_queue/mm-gpt56-candidate.md`. As proved there, \(M(11)\) and
+\(M(12)\) are in fact *nonexistence* results (stronger than the "\(=35\)" floor used here), and
+\(\S5\)'s Case B is closed either by the elementary route above or by that nonexistence.
 
 For \(s=9\), equality \(e(Z)=18\) would make \(J\) triangle-free and \(4\)-regular. Choose \(v\in J\), let \(A=N_J(v)\), and let \(B\) be the remaining four vertices. Then \(A\) is independent, \(e_J(A,B)=12\), and \(e_J(B)=2\). If \(xy\in E(J[B])\), the \(A\)-neighbourhoods of \(x,y\) are disjoint. Writing \(q_x=d_B(x)\), their \(A\)-degrees are \(4-q_x\), so disjointness requires \(q_x+q_y\ge4\). This is impossible when the two edges of \(J[B]\) form either a matching or a \(P_3\). Thus \(e(Z)\ge19\).
 
@@ -372,7 +424,15 @@ If \(H[X]\) is \(K_5\)-free, (4.8) gives
 e(H[X])\ge46.
 \]
 
-Otherwise let \(R\subset X\) be another \(H\)-\(K_5\), and put \(L=X\setminus R\), so \(|L|=11\). Then \(\alpha(H[L])\le2\): an independent triple in \(L\), together with suitably chosen nonadjacent vertices of \(Q\) and \(R\), would form an independent \(5\)-set. Moreover \(\omega(H[L])\le4\); otherwise a third \(K_5\) in \(L\), together with (5.1), would force an \(H\)-\(K_6\). Thus
+Otherwise let \(R\subset X\) be another \(H\)-\(K_5\), and put \(L=X\setminus R\), so \(|L|=11\). Note \(L\) is disjoint from both \(Q\) and \(R\), so by (5.1) every vertex of \(L\) has at most one neighbour in \(Q\) and at most one in \(R\), and the bipartite \(H\)-graph between the disjoint cliques \(Q,R\) is a matching.
+
+**[Expansion adopted from the external adversarial review, 2026-07-14 (Expansion 3), replacing the two compressed claims \(\alpha(H[L])\le2\) and \(\omega(H[L])\le4\) with their elementary justification.]**
+
+*\(\alpha(H[L])\le2\).* Suppose \(I\subseteq L\) were an independent triple. Each of its three vertices has at most one neighbour in \(Q\) (by (5.1)), so at most three vertices of \(Q\) are adjacent to \(I\), and at least two vertices of \(Q\) avoid all of \(I\); likewise at least two vertices of \(R\) avoid all of \(I\). Since the \(Q\)–\(R\) graph is a matching, these two \(\ge2\)-element avoider sets cannot be completely joined, so there is a nonadjacent pair \(q\in Q,\ r\in R\), both avoiding \(I\). Then \(I\cup\{q,r\}\) is an independent \(5\)-set, contradicting \(\alpha(H)\le4\). Hence \(\alpha(H[L])\le2\).
+
+*\(\omega(H[L])\le4\).* Suppose \(L\) contained a third \(H\)-\(K_5\), say \(P\), and let \(D=L\setminus P\) be the remaining six vertices (i.e. the vertices of \(X\) outside \(Q\cup R\cup P\)). If some \(u,v\in D\) were nonadjacent, choose vertices successively from \(Q,R,P\), each avoiding \(u,v\) and all earlier choices: by (5.1) the pair \(u,v\) forbids at most two vertices of the current \(K_5\) and each earlier choice at most one, so the three stages forbid at most \(2,3,4\) vertices respectively, leaving \(3,2,1\ (\ge1)\) available. The resulting \(q,r,p\) together with \(u,v\) form an independent \(5\)-set, again contradicting \(\alpha(H)\le4\). Hence \(D\) is a \(K_6\), a six-set spanning \(15>11\) edges, violating cap-11. Therefore \(\omega(H[L])\le4\).
+
+With \(\alpha(H[L])\le2\), \(\omega(H[L])\le4\), and cap-11, the \(M\)-values (4.6) give \(e(H[L])\ge M(11)\ge35\). (This elementary route uses only the \(\omega\le4\) minimum \(M(11)\ge35\); Lemma 1 does not require the clique-number-free 11-vertex nonexistence primitive that Lemma 2 uses — see the Certificate ledger in `review_queue/mm-gpt56-candidate.md`. Equivalently, the route taken by the post-review repair and the Lean formalization observes that an \(\alpha\le2\) cap-11 graph on 11 vertices does not exist at all, so this case is vacuous; either route closes it.) Thus
 
 \[
 e(H[L])\ge35,
@@ -454,7 +514,9 @@ Therefore the \(120\) edges of \(K_{16}\) would satisfy
 120\ge46+4\cdot20=126,
 \]
 
-impossible. Hence
+impossible.
+
+**[Explicit degree-\(\le4\) statement added 2026-07-14 per requirement 6 of the external review.]** The same contradiction covers every \(d_H(v)\le4\), not only \(d_H(v)=4\): if \(d_H(v)<4\) then \(|W_v|=20-d_H(v)>16\), so select any \(16\) vertices of \(W_v\); on that \(K_{16}\) the induced special graph still has \(\alpha\le3,\ \omega\le4\) and hence at least \(46\) edges by (4.8), while each ordinary colour is \(K_4\)-free and hence has at least \(20\) edges, again totalling \(46+4\cdot20=126>120=\binom{16}{2}\). Hence
 
 \[
 \delta(H)\ge5. \tag{7.1}
@@ -863,3 +925,34 @@ Per the adversarial review's ACCEPTED MODULO verdict:
 
 STATUS: with these repairs, [MH″] is PROVED (adversarially reviewed; every
 load-bearing number machine-verified; external theorem literature-verified).
+
+---
+
+# 2026-07-14 punch-list integration (external review)
+
+Changes applied to this document per the external adversarial review
+(`review_queue/reviews-received/review-of-our-r5-by-external-team.md`), Task C. Every change is
+also marked inline where it occurs. No mathematical content was changed beyond what the external
+review supplied (its Expansions 2–3 and the citation split) and the 2026-07-13 verification round.
+
+- **Requirement 5 (clarify Lemma 1's standing hypotheses).** (i) A one-sentence note after the boxed
+  stronger statement explaining that the independence bounds \((4,5,5,5,5)\) already imply balance and
+  cap-11/\(K_6\)-freeness, so no separate hypothesis is needed. (ii) A "Standing hypothesis for
+  §§4.1–4.3" note at the start of §4.1 stating that every graph and induced subgraph in the recursion
+  is cap-11 (inherited from the ambient balanced \(K_{25}\)). (Review item 5.)
+- **Requirement 6 (expand Lemma 1's terse steps).** (i) The two-\(K_5\) step in §5 (the previously
+  compressed \(\alpha(H[L])\le2\) and \(\omega(H[L])\le4\) claims) is replaced by the reviewer's
+  elementary Expansion 3, attributed inline. (ii) An explicit sentence in §7.1 that \(d_H(v)\le4\)
+  (not only \(=4\)) is handled by a \(16\)-subset of \(W_v\), with the \(46+4\cdot20=126>120\) count.
+  (Review item 6; Expansion 3.)
+- **Requirement 7 (cite Brouwer separately).** §2 now cites Brouwer 1981 in full for the bound and
+  Kang–Pikhurko 2005 for the equality classification, with the exact hypotheses \(K_{r+1}\)-free,
+  \(\chi(Y)>r\), \(n\ge2r+1\). (Review item 7.)
+- **Requirement 3 (certificate pointer).** At the \(M\)-values (4.6), a pointer to the Certificate
+  ledger in `review_queue/mm-gpt56-candidate.md`, which documents the `M9`/`M10`/`nonex11`/`nonex12`
+  primitives this document consumes, with the \(\omega\le4\) vs \(\omega\)-free distinction. (Review
+  item 3.)
+
+Requirements 1–2, 4 concern `mm-gpt56-candidate.md`; requirement 8 concerns `extension-chain.md`.
+The writeup `writeup/erdos617-r5.tex` already states the Brouwer/Kang–Pikhurko split with the exact
+hypotheses (Theorem `thm:brouwer`, bibitems `Brouwer81`/`KP05`) and was left unchanged.

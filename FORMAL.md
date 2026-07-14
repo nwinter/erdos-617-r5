@@ -1786,3 +1786,78 @@ stated lemmas, Mathlib API hunting, and repairing failed compiles (give it the f
 + error output). Claude session/subagents: statement design, integration, compile
 loop, review, commits. All agent-produced Lean must compile locally before commit;
 no trust without `lake build`.
+
+## KERNEL-PURE MIGRATION (ROUND-2026-07-14, Task A)
+
+Goal: drive `#print axioms Erdos617.erdos_617_r5_unconditional` (and `_upstream_`)
+toward the three standard Lean axioms only, by replacing the 14 `native_decide`
+reflection axioms (10 KP-construction witnesses + 4 SAT primitives) with
+kernel-checked verification.
+
+**Outcome (measured, this machine — Apple Silicon, 64GB):** the 10 KP witnesses were
+migrated to kernel `decide` (all reflection axioms removed); the 4 SAT primitives were
+re-solved fresh + independently re-verified and their kernel-pure route was validated,
+but they **retain `native_decide`** because bridging the kernel-pure certificate back to
+our `CNF.Unsat` shape is infeasible (proof below). New unconditional profile:
+`[propext, Classical.choice, Quot.sound, unsat_nonex11/nonex12/M9/M10 native_decide]`
+= **7 axioms (was 17)**. This is partial purity with exact accounting — full purity is
+unreachable without reimplementing the SAT CNF machinery in a kernel-reducible form.
+
+### WS1 — 10 KP-construction witnesses → kernel `decide` (DONE, all axioms removed)
+
+The witnesses are finite facts on explicit graphs over `Fin 21`, so `decide` (kernel
+evaluation) replaces `native_decide` (compiler reflection) directly:
+- `KPConstruction.kpG_compl_AB_structure` / `kpG1_compl_AB_structure` — 4 `native_decide`
+  sites each (the `¬Adj` non-edge, the A/B-uniqueness iff over A×A, the `∀u,w∈B` clique,
+  and the `sym2.filter (·∈ Fᶜ.edgeSet)` card = 19). Plain `by decide` compiles;
+  `KPConstruction` builds in **132s / 5.6GB**.
+- `JoinTransport.kpG_giso_cone3` / `kpG1_giso_cone3` — the 441-pair `GIso` adjacency
+  identity `∀ a b, kpG.Adj a b ↔ (coneExtend³ base9A2).Adj (σ a) (σ b)`. Needs
+  `set_option maxRecDepth 10000` (the `coneExtend³` `Decidable` instance nests deeply)
+  and `maxHeartbeats 4000000`; `JoinTransport` builds in **38s / 5.4GB**.
+
+Full `lake build` + `AxiomAudit.lean`: exit 0; the 10 `kpG*`/`kpG1*` axioms are gone.
+`tools/axiom_allowlist.txt` was tightened from a blanket `glob:*native_decide*` to four
+TIGHT per-primitive SAT globs, so any KP witness regressing to `native_decide` now FAILS
+the audit (regression-checked purity).
+
+### WS2 — 4 SAT primitives: re-solved & validated, `native_decide` RETAINED
+
+**(a) Re-solve fresh + independent re-verify (closes the "never re-solved" caveat).**
+Each canonical CNF (re-emitted from the Lean `nonexCNF`/`MCNF` defs, sha256-checked
+against `tools/certgen/checksums.txt`) was re-solved with CaDiCaL 3.0.0 to a DRAT proof
+(`--inprocessing=false`), then verified + backward-core-trimmed with `ext/drat-trim`
+(present and built in-repo). M9/M10: `s VERIFIED`, cores 17010 / 92452 lemmas
+(2.9MB / 19MB). nonex11/nonex12: re-solved (logs in `verification/rebuild-kernel-pure/`).
+
+**(b) Kernel-pure route works and is axiom-clean (validated on M9).**
+Mathlib's `lrat_proof` (`Mathlib.Tactic.Sat.FromLRAT`) replays an LRAT by BUILDING a proof
+term the kernel typechecks — no `ofReduceBool`. On M9's core:
+`#print axioms m9_kernel_pure = [propext, Classical.choice, Quot.sound]`. Cost **495s wall,
+14.0GB peak** for 17010 lemmas. Reproducible: `lean617/KernelPureDemo/` (Demo.lean +
+committed M9.cnf/M9.core.lrat + README).
+
+**(c) Why it can't be wired into `primFacts` — the bridge obstruction.**
+`primFacts` consumes `Std.Sat.CNF.Unsat (MCNF 9 18)`. `lrat_proof`'s theorem is about
+Mathlib's own `Sat.Fmla` (parsed from the DIMACS string). Any bridge between them makes the
+KERNEL materialize our CNF and match it to the certificate's — but `MCNF`/`nonexCNF` are
+built from `List.sublistsLen` over `List.finRange`, which does not kernel-reduce at scale:
+
+    set_option maxRecDepth 1000000 in
+    example : (MCNF 9 18).clauses.size = 39743 := by rfl        -- TIMES OUT >400s
+
+(`lean617/KernelPureDemo/BridgeInfeasibilityProbe.lean`.) This is the SAME reason the
+primitives use `native_decide` originally. `lrat_proof`'s `ctx` also comes from parsing, so
+the round-trip cost cannot be dodged by feeding the CNF differently without forking
+Mathlib's checker onto our representation.
+
+**(d) Memory ceiling for the two large primitives.** Even if the bridge existed,
+nonex11/nonex12 (325MB/455MB raw certs, hundreds of thousands of lemmas) are out of reach:
+M9's mere 17010-lemma core already costs 14GB in `lrat_proof`; a linear extrapolation puts
+the nonex primitives well past 64GB.
+
+**Decision.** The four SAT primitives keep `native_decide`, documented here and in
+`tools/axiom_allowlist.txt`. A full kernel-pure SAT integration is future work requiring a
+kernel-reducible re-encoding of `PrimEncoding` + a proof-producing LRAT checker over
+`Std.Sat.CNF`. The kernel route's soundness/purity is nonetheless demonstrated end-to-end
+by the M9 `KernelPureDemo`.

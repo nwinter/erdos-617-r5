@@ -295,13 +295,19 @@ def sigmaW : Fin 21 ≃ Fin 21 where
   left_inv := by decide
   right_inv := by decide
 
-/-- **Witness 1:** `kpG ≅ coneExtend³ base9A2` (the `|A*|=2` class). -/
+set_option maxHeartbeats 4000000 in
+set_option maxRecDepth 10000 in
+/-- **Witness 1:** `kpG ≅ coneExtend³ base9A2` (the `|A*|=2` class).
+Kernel-checked `decide` (was `native_decide`): the adjacency identity is a finite check on
+`Fin 21 × Fin 21`, so the kernel evaluates it directly — no `ofReduceBool` reflection axiom. -/
 theorem kpG_giso_cone3 : GIso kpG (coneExtend (coneExtend (coneExtend base9A2))) :=
-  ⟨sigmaW, by native_decide⟩
+  ⟨sigmaW, by decide⟩
 
-/-- **Witness 2:** `kpG1 ≅ coneExtend³ base9A1` (the `|A*|=1` class). -/
+set_option maxHeartbeats 4000000 in
+set_option maxRecDepth 10000 in
+/-- **Witness 2:** `kpG1 ≅ coneExtend³ base9A1` (the `|A*|=1` class). Kernel-checked `decide`. -/
 theorem kpG1_giso_cone3 : GIso kpG1 (coneExtend (coneExtend (coneExtend base9A1))) :=
-  ⟨sigmaW, by native_decide⟩
+  ⟨sigmaW, by decide⟩
 
 /-! ## The reassembly: `extremal21 J → J ≅ kpG ∨ J ≅ kpG1` -/
 
