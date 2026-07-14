@@ -1,0 +1,28 @@
+'Erdos617.erdos_617_r5' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Erdos617.unsat_M10._native.native_decide.ax_1_1,
+ Erdos617.unsat_M9._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex11._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex12._native.native_decide.ax_1_1]
+'Erdos617.erdos_617_r5_upstream' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Erdos617.unsat_M10._native.native_decide.ax_1_1,
+ Erdos617.unsat_M9._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex11._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex12._native.native_decide.ax_1_1]
+'Erdos617.erdos_617_r5_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Erdos617.unsat_M10._native.native_decide.ax_1_1,
+ Erdos617.unsat_M9._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex11._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex12._native.native_decide.ax_1_1]
+'Erdos617.erdos_617_r5_upstream_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Erdos617.unsat_M10._native.native_decide.ax_1_1,
+ Erdos617.unsat_M9._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex11._native.native_decide.ax_1_1,
+ Erdos617.unsat_nonex12._native.native_decide.ax_1_1]

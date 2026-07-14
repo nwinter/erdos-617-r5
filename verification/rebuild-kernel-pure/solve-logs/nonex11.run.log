@@ -1,0 +1,5 @@
+[nonex11] Tue Jul 14 08:51:50 PDT 2026 start cadical DRAT re-solve
+[nonex11] cadical exit 20 (20=UNSAT expected)
+[nonex11] Tue Jul 14 09:27:34 PDT 2026 start drat-trim verify + core LRAT
+[nonex11] drat-trim exit 0 ; core LRAT: 407943596 bytes
+[nonex11] Tue Jul 14 10:14:02 PDT 2026 done

@@ -1,0 +1,19 @@
+s UNSATISFIABLE
+     2574.66 real      2354.60 user        40.10 sys
+          1187823616  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              503643  page reclaims
+                  20  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 359  voluntary context switches
+             4220610  involuntary context switches
+       5760677155384  instructions retired
+       7225819763831  cycles elapsed
+          1067730216  peak memory footprint

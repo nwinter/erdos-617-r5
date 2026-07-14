@@ -1,0 +1,46 @@
+== [1/9] fresh local clone ==
+dde4017 CI fix: this Lake has no -j flag; plain build is safe (heavy kernel-decide modules are dependency-chained, never concurrent)
+== [2/9] supply gitignored LRAT certs ==
+  copied 4 certs; sha256 -> cert-sha256.txt
+== [3/9] toolchain + machine fingerprint ==
+date: 2026-07-14T21:52:47Z
+uname: Darwin Mac-Studio.local 25.6.0 Darwin Kernel Version 25.6.0: Thu Jun 18 00:38:56 PDT 2026; root:xnu-12377.160.73.0.5~11/RELEASE_ARM64_T6000 arm64
+cpu: Apple M1 Ultra
+mem: 64 GB
+elan: elan 4.2.3 (b6cec7e10 2026-06-08)
+lean: Lean (version 4.30.0, arm64-apple-darwin24.6.0, commit d024af099ca4bf2c86f649261ebf59565dc8c622, Release)
+lake: Lake version 5.0.0-src+d024af0 (Lean version 4.30.0)
+cadical: 3.0.0
+drat-trim: usage: drat-trim [INPUT] [<PROOF>] [<option> ...]
+== [4/9] mathlib cache fetch ==
+No files to download
+Decompressed 8283 already-cached file(s)
+Completed successfully in 44140 ms!
+== [5/9] full clean lake build (heavy module first, then the rest) ==
+  build exit: 0
+✔ [8497/8498] Built Lean617 (9.2s)
+Build completed successfully (8498 jobs).
+== [6/9] axiom prints (verbatim) ==
+  axiom-print exit: 0
+  no sorryAx
+== [7/9] leanchecker on key modules ==
+  leanchecker Lean617.Statements: exit 0
+  leanchecker Lean617.Final: exit 0
+  leanchecker Lean617.EqualityProof: exit 0
+  leanchecker Lean617.JoinTransport: exit 0
+  leanchecker Lean617.Primitives: exit 0
+  leanchecker Lean617.KPConstruction: exit 0
+== [8/9] SAT-primitive re-checks (CNF drift + re-solve + INDEPENDENT drat-trim) ==
+  CNF M9 sha256 OK
+  CNF M10 sha256 OK
+  CNF nonex11 sha256 OK
+  CNF nonex12 sha256 OK
+  CaDiCaL re-solve M9 exit=20 (20=UNSAT expected)
+  drat-trim M9: s VERIFIED (independent)
+  CaDiCaL re-solve M10 exit=20 (20=UNSAT expected)
+  drat-trim M10: s VERIFIED (independent)
+== [9/9] summary ==
+  (nonex11/nonex12 fresh re-solve + drat-trim VERIFIED separately; see solve-logs/ and drattrim-nonex*.log)
+ALL DONE build=0 axioms=0
+
+Kernel-pure demo (run in working checkout, referenced): m9-kernel-pure-demo.log

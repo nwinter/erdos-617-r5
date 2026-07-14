@@ -1,0 +1,9 @@
+date: 2026-07-14T21:52:47Z
+uname: Darwin Mac-Studio.local 25.6.0 Darwin Kernel Version 25.6.0: Thu Jun 18 00:38:56 PDT 2026; root:xnu-12377.160.73.0.5~11/RELEASE_ARM64_T6000 arm64
+cpu: Apple M1 Ultra
+mem: 64 GB
+elan: elan 4.2.3 (b6cec7e10 2026-06-08)
+lean: Lean (version 4.30.0, arm64-apple-darwin24.6.0, commit d024af099ca4bf2c86f649261ebf59565dc8c622, Release)
+lake: Lake version 5.0.0-src+d024af0 (Lean version 4.30.0)
+cadical: 3.0.0
+drat-trim: usage: drat-trim [INPUT] [<PROOF>] [<option> ...]

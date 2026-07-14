@@ -1,0 +1,6 @@
+M n=9 k=18: 39743 clauses, maxVar=728
+M n=10 k=24: 98102 clauses, maxVar=1179
+nonex n=11: 210375 clauses, maxVar=109
+nonex n=12: 420640 clauses, maxVar=131
+s UNSATISFIABLE
+s UNSATISFIABLE
