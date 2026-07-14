@@ -24,6 +24,9 @@ STEPS="$OUT/steps.log"; : > "$STEPS"
 log(){ echo "$@" | tee -a "$STEPS"; }
 
 WORK="$(mktemp -d)/clone"
+# Clean up the (multi-GB, mathlib-cloning) scratch clone even on interrupt/failure,
+# so a killed run cannot leave orphaned clones filling the disk.
+trap 'rm -rf "$(dirname "$WORK")" 2>/dev/null' EXIT INT TERM
 DT="$REPO_ROOT/ext/drat-trim/drat-trim"
 
 log "== [1/9] fresh local clone =="
@@ -57,8 +60,14 @@ cat "$OUT/fingerprint.txt" | tee -a "$STEPS"
 log "== [4/9] mathlib cache fetch =="
 ( cd "$WORK/lean617" && lake exe cache get 2>&1 | tail -3 ) | tee "$OUT/cache-get.log" | tee -a "$STEPS"
 
-log "== [5/9] full clean lake build =="
-( cd "$WORK/lean617" && lake build > "$OUT/build.log" 2>&1 ); bexit=$?
+log "== [5/9] full clean lake build (heavy module first, then the rest) =="
+# MEMORY-SAFE RECIPE. The kernel-`decide` modules (KPConstruction, JoinTransport,
+# EqualityProof) peak at ~6GB each. They are dependency-chained so they never build
+# concurrently, but a plain `lake build` can still stack a heavy module with light
+# workers. Building KPConstruction first in its own invocation bounds the peak; the
+# second `lake build` finishes the rest. (This Lake version has NO `-j` flag.)
+( cd "$WORK/lean617" && lake build Lean617.KPConstruction > "$OUT/build.log" 2>&1 \
+    && lake build >> "$OUT/build.log" 2>&1 ); bexit=$?
 log "  build exit: $bexit"
 tail -2 "$OUT/build.log" | tee -a "$STEPS"
 gzip -f "$OUT/build.log"
