@@ -1,0 +1,178 @@
+# formalization.yaml — see https://github.com/mathlib-initiative/formalization.yaml
+# Self-report for the Lean 4 formalization of the r=5 case of Erdős Problem 617.
+version: "v0.3"
+
+project:
+  name: "Erdős Problem 617 at r = 5 — machine-checked candidate resolution (no balanced 5-colouring of K_26; N(5) = 25)"
+  authors:
+    - "Claude Fable 5 (Anthropic) — chain deduction, verification infrastructure, full Lean formalization via relay agent sessions"
+    - "gpt-5.6-sol (OpenAI, via codex CLI) — proofs of the two central lemmas from written briefs; Lean co-prover on sub-lemmas"
+    - "Nick Winter — commissioning, direction, process verification (not mathematical verification)"
+  license: "Apache-2.0"
+
+sources:
+  - title: "A variant of the classical Ramsey problem"
+    authors: ["P. Erdős", "A. Gyárfás"]
+    id: "https://doi.org/10.1016/S0012-365X(98)00322-1"
+    type: "journal article (the conjecture; the affine-plane construction; the r=3,4 cases)"
+    author_contacted: "n/a"
+  - title: "erdosproblems.com #617 (problem statement of record)"
+    authors: ["T. F. Bloom (site)"]
+    id: "https://www.erdosproblems.com/617"
+    type: "problem-database entry; pinned in PROBLEM.md with worked examples"
+    author_contacted: "no"
+  - title: "google-deepmind/formal-conjectures: erdos_617 (formal statement of record)"
+    authors: ["formal-conjectures contributors"]
+    id: "https://github.com/google-deepmind/formal-conjectures"
+    type: "Lean statement; our upstream-shaped theorems match it token-identically at r=5 (see RELEASE.md §Statement-fidelity review)"
+    author_contacted: "no"
+  - title: "Some lotto numbers from an extension of Turán's theorem (Brouwer's bound)"
+    authors: ["A. E. Brouwer"]
+    id: "CWI/ZW report 152/81, 1981 (pinned PDF hash in papers/brouwer-kang-pikhurko.md)"
+    type: "technical report — formalized from scratch in this project (kp_upper, kp_saving)"
+    author_contacted: "no"
+  - title: "Maximum Ks+1-free graphs which are not r-partite (equality classification)"
+    authors: ["M. Kang", "O. Pikhurko"]
+    id: "Mat. Studii 24 (2005), 12–20 (pinned PDF hash in papers/brouwer-kang-pikhurko.md)"
+    type: "journal article — the (5,21) instance formalized from scratch in this project (kp_equality_classification_proven)"
+    author_contacted: "no"
+  - title: "This repository's reviewed proof documents (the two central lemmas and the chain)"
+    authors: ["gpt-5.6-sol (proofs)", "Claude Fable 5 sessions (chain, briefs, reviews)"]
+    id: "review_queue/mh2-gpt56-candidate.md, review_queue/mm-gpt56-candidate.md, review_queue/extension-chain.md"
+    type: "internal candidate documents, adversarially reviewed (two repaired gaps)"
+    author_contacted: "yes"
+
+status:
+  scope: >
+    Complete formalization of the r=5 case: the extension-obstruction chain, both
+    central lemmas ([MH″], [MM]), the counting toolkit, Brouwer's 1981 bound (full
+    Kang–Pikhurko Theorem-1 induction), the (5,21) equality classification, and the
+    four finite SAT facts (LRAT certificates checked by Lean's verified checker via
+    native_decide). The final theorems carry no mathematical hypothesis.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+    - "Erdos617.unsat_M9._native.native_decide.ax_1_1"
+    - "Erdos617.unsat_M10._native.native_decide.ax_1_1"
+    - "Erdos617.unsat_nonex11._native.native_decide.ax_1_1"
+    - "Erdos617.unsat_nonex12._native.native_decide.ax_1_1"
+  main_results:
+    - declaration: "Erdos617.erdos_617_r5_unconditional"
+      file: "lean617/Lean617/Final.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound", "Erdos617.unsat_M9._native.native_decide.ax_1_1", "Erdos617.unsat_M10._native.native_decide.ax_1_1", "Erdos617.unsat_nonex11._native.native_decide.ax_1_1", "Erdos617.unsat_nonex12._native.native_decide.ax_1_1"]
+      comparator_config: "tools/comparator/erdos617_r5.json"
+      literature_dependencies: []   # none — the classical inputs (Brouwer 1981; Kang–Pikhurko 2005 at (5,21)) are themselves proved in this repository
+    - declaration: "Erdos617.erdos_617_r5_upstream_unconditional"
+      file: "lean617/Lean617/Final.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound", "Erdos617.unsat_M9._native.native_decide.ax_1_1", "Erdos617.unsat_M10._native.native_decide.ax_1_1", "Erdos617.unsat_nonex11._native.native_decide.ax_1_1", "Erdos617.unsat_nonex12._native.native_decide.ax_1_1"]
+      comparator_config: "tools/comparator/erdos617_r5.json"
+      literature_dependencies: []
+    - declaration: "Erdos617.erdos_617_r5"
+      file: "lean617/Lean617/Final.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound", "Erdos617.unsat_M9._native.native_decide.ax_1_1", "Erdos617.unsat_M10._native.native_decide.ax_1_1", "Erdos617.unsat_nonex11._native.native_decide.ax_1_1", "Erdos617.unsat_nonex12._native.native_decide.ax_1_1"]
+      comparator_config: "tools/comparator/erdos617_r5.json"
+      literature_dependencies:
+        - statement: "KPEqualityClassification — the Kang–Pikhurko equality classification at (5,21), taken as an explicit hypothesis of this CONDITIONAL variant (readers who prefer to audit the classification separately)"
+          source: "Kang–Pikhurko 2005 (also proved in-repo: kp_equality_classification_proven)"
+
+automation:
+  methods:
+    - method: "agent"
+      models: ["claude-fable-5"]
+      framework: "Claude Code (relay agent sessions: ~21 formalization runners + analysis/review agents, orchestrated by a coordinating session)"
+      tool_setup: >
+        Untouchable referee script (tools/verify.py); falsify-before-proving discipline
+        (SAT/local-search probes before proof effort); per-milestone compile-verified
+        commits; fresh-session adversarial reviews; custom axiom-audit and sorry-gate
+        scripts; cadical/kissat + drat-trim for certificates; Lean 4.30 + Mathlib.
+      cost:
+        wall_time: "2026-07-05 to 2026-07-18 (r=5 core complete 07-12; kernel-pure migration 07-14)"
+        spend_usd: "subscription-based usage (Anthropic)"
+        hardware: "Apple Silicon laptop (64 GB); API-only models"
+      prompting_notes: >
+        Relay-runner pattern: each runner received the campaign ledger (FORMAL.md),
+        a scoped roadmap, compile-every-edit and consolidate-before-budget rules;
+        stuck >45 min ⇒ named sorried sub-lemma + ledger note.
+    - method: "agent"
+      models: ["gpt-5.6-sol"]
+      framework: "codex CLI (ultra reasoning effort)"
+      tool_setup: "Written mathematical briefs; proofs returned as candidate documents; also lemma co-prover during Lean campaigns; independent cross-checker."
+      cost:
+        wall_time: "within the same window"
+        spend_usd: "subscription-based usage (OpenAI Pro)"
+        hardware: "API-only"
+      prompting_notes: "Self-contained lemma briefs with pinned definitions; adversarial review by fresh sessions of the other model family."
+  spend_usd: "subscription-based usage on both providers; no metered API spend tracked"
+  notes: >
+    A separately-run control experiment (gpt-5.6-sol solo, its own repository)
+    produced an independent second proof of the same theorem; the two teams
+    hostile-reviewed each other (both SURVIVES) and a kernel-checked equivalence
+    (Lean617/InterfaceCross.lean) shows both formalizations state the same theorem.
+
+fidelity:
+  divergences: >
+    (1) Main is stated over Fin 26; the upstream-shaped corollaries quantify over an
+    arbitrary 26-element vertex type and match formal-conjectures' erdos_617 at r=5
+    token-identically (audited). (2) The two central lemmas are proved from weakened
+    hypotheses (K_6-free classes + cap-11 window) that are implied by balancedness —
+    the formalized statements are strictly stronger than the balanced forms. (3) The
+    K_25 lower-bound construction merges slopes {0,1}; other valid merge choices exist
+    and one (horizontal+vertical) is used by the independent second proof. (4) The 10
+    finite Kang–Pikhurko construction witnesses are kernel-checked by decide (since
+    2026-07-14); the four SAT primitives remain native_decide reflections, with a
+    documented kernel-bridge infeasibility analysis (FORMAL.md "KERNEL-PURE MIGRATION").
+
+review:
+  status: "agent-reviewed"
+  reviewers:
+    - "Fresh Claude sessions (internal adversarial reviews; two genuine gaps found and repaired — review_queue/*.md)"
+    - "gpt-5.6-sol control team (independent hostile review of the full candidate: SURVIVES ×3 documents, zero fatal — review_queue/reviews-received/)"
+    - "Claude Opus 4.8 + gpt-5.6-sol (independent statement-fidelity audits: zero mismatches)"
+  notes: >
+    No independent human review yet — this is the load-bearing caveat. The result is
+    presented as a machine-verified candidate; see README "what candidate means" and
+    the honesty inventory.
+
+alignment:
+  namespace: "Erdos617"
+  statements:
+    - source: "Erdős 617 statement (erdosproblems.com / formal-conjectures erdos_617, r=5)"
+      lean: "Erdos617.Main / Erdos617.erdos_617_r5_upstream_unconditional"
+      module: "lean617/Lean617/Statements.lean, lean617/Lean617/Final.lean"
+      status: "proved"
+      note: "main_iff_no_balanced + main_imp_upstream pin the statement; R3 token-identity review"
+    - source: "Lemma [MH″] (review_queue/mh2-gpt56-candidate.md)"
+      lean: "Erdos617.lemma_MH2_of"
+      module: "lean617/Lean617/MH2Proof.lean"
+      status: "proved"
+    - source: "Lemma [MM] (review_queue/mm-gpt56-candidate.md)"
+      lean: "Erdos617.lemma_MM_of"
+      module: "lean617/Lean617/MMProof.lean"
+      status: "proved"
+    - source: "Brouwer 1981 bound (via Kang–Pikhurko Theorem 1 induction)"
+      lean: "Erdos617.kp_upper / Erdos617.kp_saving"
+      module: "lean617/Lean617/BrouwerInduction.lean"
+      status: "proved"
+      note: "axiom-clean: [propext, Classical.choice, Quot.sound]"
+    - source: "Kang–Pikhurko 2005 equality classification, (5,21) instance"
+      lean: "Erdos617.kp_equality_classification_proven"
+      module: "lean617/Lean617/JoinTransport.lean"
+      status: "proved"
+      note: "D1–D4 cone descent + join transport + (2,9) base classification; formerly a literature dependency, discharged 2026-07-12"
+    - source: "Four finite SAT facts (M(9)=19, M(10)=25, 11- and 12-vertex nonexistence)"
+      lean: "Erdos617.unsat_M9 / unsat_M10 / unsat_nonex11 / unsat_nonex12"
+      module: "lean617/Lean617/Primitives.lean"
+      status: "proved"
+      note: "LRAT certificates through Lean's verified checker; native_decide reflection axioms; certificates re-solved fresh + drat-trim verified (verification/rebuild-kernel-pure/)"
+
+acknowledgements: >
+  Lean 4 and Mathlib (leanprover-community); CaDiCaL and Kissat (A. Biere et al.);
+  drat-trim (M. Heule); the formal-conjectures project for the pinned statement;
+  the independent gpt-5.6-sol control team for the second proof, the mutual reviews,
+  and the coordination exchange.
