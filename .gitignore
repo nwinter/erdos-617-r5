@@ -41,3 +41,6 @@ data/r6/candidates/*.tmp
 # large binaries stay out of history (release-asset pattern) and the bundle is
 # the external team's artifact to publish.
 review_queue/external-candidate-B/cert-bundle/
+
+# comparator throwaway workspace (assembled by tools/comparator/run_comparator.sh)
+tools/comparator/.work/

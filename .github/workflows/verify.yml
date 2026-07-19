@@ -63,6 +63,16 @@ jobs:
       - name: Source-level sorry gate
         run: ./tools/sorry_grep.sh
 
+      # Fidelity of the self-contained comparator Challenge: its vendored
+      # definitions and theorem signatures must stay byte-identical to the
+      # canonical sources. Needs no Lean/build, so it lives in this fast job as a
+      # hard gate (comparator re-checks the same thing at the kernel level).
+      - name: Comparator Challenge fidelity (vendored defs match canonical)
+        run: ./tools/comparator/check_challenge_fidelity.sh
+
+      - name: Validate comparator config against its Config schema
+        run: python3 tools/comparator/validate_config.py tools/comparator/erdos617_r5.json
+
   machine-check:
     name: full kernel verification + axiom audit
     runs-on: ubuntu-latest
@@ -113,3 +123,98 @@ jobs:
 
       - name: Source-level sorry gate
         run: ./tools/sorry_grep.sh
+
+  comparator:
+    name: comparator (standard-tool statement-match + axiom-conformance)
+    runs-on: ubuntu-latest
+    # NON-BLOCKING for now. This job cross-checks the four final theorems with the
+    # standard leanprover/comparator tool. The load-bearing unknown is the
+    # toolchain pairing: comparator/lean4export track Lean v4.33, but our Solution
+    # is v4.30.0, so `lean4export` must be built against a v4.30.0-compatible
+    # revision to read our oleans, and the v4.33 comparator must be able to parse
+    # that export. Until that pairing is proven reproducible in CI the job stays
+    # continue-on-error (advisory); drop this flag to make it a required gate once
+    # green. The fast `fidelity` job already hard-gates the Challenge fidelity +
+    # config schema, so those signals are not lost while this is advisory.
+    # See tools/comparator/README.md "Toolchain".
+    continue-on-error: true
+    timeout-minutes: 240
+    env:
+      # comparator has no v4.30 line; pin its master HEAD (resolved 2026-07-19) for
+      # reproducibility. lean4export HAS a v4.30.0 tag matching our Solution's
+      # toolchain, so pin that — it reads our oleans natively. The residual risk is
+      # only whether comparator@v4.33 can parse a v4.30.0 export (see README).
+      COMPARATOR_REV: c3903e1ed0148a32cd39510707c632dc4d265514
+      LEAN4EXPORT_REV: v4.30.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Install CaDiCaL (SAT solver, for certificate regeneration)
+        run: sudo apt-get update && sudo apt-get install -y cadical
+
+      - name: Set up Go (to build landrun)
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Cache Mathlib build (reservoir olean cache)
+        uses: actions/cache@v4
+        with:
+          path: lean617/.lake
+          key: lake-${{ hashFiles('lean617/lean-toolchain', 'lean617/lake-manifest.json') }}
+
+      - name: Fetch Mathlib olean cache
+        working-directory: lean617
+        run: lake exe cache get
+
+      - name: Pre-build encoding (for certificate regeneration)
+        working-directory: lean617
+        run: lake build Lean617.PrimEncoding
+
+      - name: Regenerate the four SAT certificates
+        run: ./tools/regen_certificates.sh
+
+      - name: Build the Solution (Lean617.Final; kernel-checks certs via native_decide)
+        working-directory: lean617
+        run: lake build Lean617.Final
+
+      - name: Build landrun (Linux Landlock sandbox)
+        run: |
+          git clone --depth 1 https://github.com/Zouuup/landrun /tmp/landrun
+          cd /tmp/landrun
+          go build -o "$RUNNER_TEMP/landrun" cmd/landrun/main.go
+          echo "COMPARATOR_LANDRUN=$RUNNER_TEMP/landrun" >> "$GITHUB_ENV"
+
+      - name: Build lean4export against our v4.30.0 toolchain (to read our oleans)
+        run: |
+          git clone https://github.com/leanprover/lean4export /tmp/lean4export
+          cd /tmp/lean4export
+          git checkout "$LEAN4EXPORT_REV"
+          # olean format is version-specific: force the toolchain to the Solution's.
+          cp "$GITHUB_WORKSPACE/lean617/lean-toolchain" lean-toolchain
+          lake build
+          echo "COMPARATOR_LEAN4EXPORT=$(realpath .lake/build/bin/lean4export)" >> "$GITHUB_ENV"
+
+      - name: Build comparator
+        run: |
+          git clone https://github.com/leanprover/comparator /tmp/comparator
+          cd /tmp/comparator
+          git checkout "$COMPARATOR_REV"
+          lake build comparator
+          echo "COMPARATOR_COMPARATOR=$(realpath .lake/build/bin/comparator)" >> "$GITHUB_ENV"
+
+      - name: Validate config + Challenge fidelity
+        run: |
+          python3 tools/comparator/validate_config.py tools/comparator/erdos617_r5.json
+          ./tools/comparator/check_challenge_fidelity.sh
+
+      - name: Run comparator on the four final theorems
+        env:
+          SKIP_CERT_REGEN: "1"   # certificates already regenerated above
+        run: ./tools/comparator/run_comparator.sh
