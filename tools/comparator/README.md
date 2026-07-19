@@ -39,21 +39,24 @@ conjecture. That fidelity is argued elsewhere and is **not** part of this harnes
 - `PROBLEM.md` — the pinned informal statement and worked examples.
 - The **R3 statement-fidelity review** (`RELEASE.md`) and the token-identity audit
   against upstream `google-deepmind/formal-conjectures` `erdos_617` at r = 5.
-- `check_challenge_fidelity.sh` (here) — proves the Challenge's *self-contained*
-  definitions are byte-identical to the canonical ones the Solution uses, so that
-  "the Challenge and the Solution talk about the same `Main`/`KPEqualityClassification`".
+- `check_challenge_fidelity.sh` (here) — proves the Challenge's vendored
+  `AB21`/`KPEqualityClassification` are byte-identical to canonical, and that the
+  four theorem signatures match `Final.lean`. (The other statement-reachable defs —
+  `Main`, `edgeCountIn`, `IsIndep`, `alphaAtMost` — are the Solution's own imported
+  declarations; see *Why the Challenge imports the Solution's SAT layer* below.)
 
 In short: comparator answers *"does the Solution prove the Challenge, cleanly?"*;
 the documents above answer *"is the Challenge the right theorem?"*.
 
 ## Files
 
-- **`Challenge.lean`** — the four theorem **statements** with `sorry`. To stay
-  auditable without trusting this repo, it imports only Mathlib and **vendors** the
-  six statement-reachable definitions (`edgeCountIn`, `IsIndep`, `Main`,
-  `alphaAtMost`, `AB21`, `KPEqualityClassification`) byte-identically from
-  `lean617/Lean617/{Statements,LTable,Equality21}.lean`, with per-definition
-  provenance comments. We use **no definition holes** (see *Why no holes* below).
+- **`Challenge.lean`** — the four theorem **statements** with `sorry`. It
+  `import`s `Lean617.Primitives` (required — see *Why the Challenge imports the
+  Solution's SAT layer* below), which brings the four permitted SAT axioms and the
+  canonical `Main`/`edgeCountIn`/`IsIndep`/`alphaAtMost`, and it **vendors** the two
+  remaining statement-reachable defs (`AB21`, `KPEqualityClassification`, from
+  `Equality21.lean`, outside that import closure) byte-identically. We use **no
+  definition holes** (see *Why no holes* below).
 - **`erdos617_r5.json`** — the comparator config (referenced by the repo's
   `formalization.yaml`). Names the Challenge/Solution modules, the four theorems,
   and the permitted axioms.
@@ -69,12 +72,13 @@ the documents above answer *"is the Challenge the right theorem?"*.
   `Erdos617.erdos_617_r5_unconditional` (etc.) in `namespace Erdos617`, matching
   the Solution's names.
 - Statement equality is **alpha-equivalence of the exported kernel type**. For
-  every constant reachable *from a statement* — here `Main` and
-  `KPEqualityClassification` and everything they unfold to — comparator compares
-  the **full definition (type and body)** between Challenge and Solution and
-  rejects on any mismatch. This is why the vendored bodies must be identical, and
-  it is a second, kernel-level check of the same thing `check_challenge_fidelity.sh`
-  checks textually.
+  every constant reachable *from a statement* — `Main`, `KPEqualityClassification`,
+  and everything they unfold to — comparator compares the **full definition (type
+  and body)** between Challenge and Solution and rejects on any mismatch. For the
+  vendored `AB21`/`KPEqualityClassification` this is a second, kernel-level check of
+  what `check_challenge_fidelity.sh` checks textually; for `Main`/`edgeCountIn`/
+  `IsIndep`/`alphaAtMost` (imported) it is a tautology — they are the same
+  declaration on both sides.
 - `permitted_axioms` is an **exact-string allow-list** (no globs). The four
   SAT-reflection axioms are listed literally:
 
@@ -93,6 +97,32 @@ the documents above answer *"is the Challenge the right theorem?"*.
   visible cost, identical to the profile audited by `tools/axiom_audit.sh` and
   declared in `formalization.yaml`. (This matches our repo's allow-list, whose
   globs are just a convenience; comparator needs the exact names, given here.)
+
+### Why the Challenge imports the Solution's SAT layer
+
+Comparator requires **every permitted axiom to exist in both the Challenge and the
+Solution** environments (it exports both with one shared target list — comparator
+`Main.lean:257-266`, with `LEAN_ABORT_ON_PANIC` — and `compareAt` looks each axiom
+up on both sides, `Compare.lean:70-83`). Standard `native_decide` proofs use the
+universal axiom `Lean.ofReduceBool`, which is present everywhere; but our Lean
+v4.30.0 emits **per-invocation** axioms (`…unsat_M9._native.native_decide.ax_1_1`,
+…) that live only in the Solution, and whose *types embed the full 340/455MB LRAT
+certificates* plus internal defs (`Erdos617F3.MCNF`, `verifyCert`). They cannot be
+hand-declared or vendored. The only way to satisfy comparator is to `import` the
+module that generates them — `Lean617.Primitives` — so the Challenge does.
+
+**What this costs (stated plainly):** the Challenge is no longer Mathlib-only
+self-contained; it trusts `Lean617.Primitives` via import (a legitimate,
+comparator-intended pattern — "the Challenge's imports are trusted"). Because that
+import also supplies the canonical `Main`/`edgeCountIn`/`IsIndep`/`alphaAtMost`,
+comparator's cross-check of those against an independent Challenge copy is lost
+(they are the same declaration on both sides). What comparator still verifies is
+the load-bearing part: the four theorem **statements** re-type against the Solution
+(including that the vendored `KPEqualityClassification` hypothesis matches), the
+Solution's proofs use **only** the exact axiom allow-list, and the whole Solution
+**replays through the kernel**. The claim that these `Prop`s encode the informal
+conjecture rests, as always, on `PROBLEM.md` + the R3 review +
+`check_challenge_fidelity.sh` (which reads the canonical `Statements.lean`).
 
 ### Why no definition holes
 
@@ -122,8 +152,10 @@ Comparator's sandbox uses **landrun** (Linux Landlock) and is **Linux-only**.
    export COMPARATOR_COMPARATOR=/abs/comparator
    tools/comparator/run_comparator.sh
    ```
-   The runner builds a throwaway lake workspace (our Lean v4.30.0 + Mathlib),
-   fetches the Mathlib cache, ensures the SAT certificates exist, then runs
+   The runner builds a throwaway lake workspace (our Lean v4.30.0 + Mathlib +
+   `lean617` as a path dep, since the Challenge now imports `Lean617.Primitives`),
+   fetches the Mathlib cache, ensures the SAT certificates exist, runs the
+   standalone Solution-export feasibility probe (logs bytes/time/RSS), then runs
    `lake env comparator erdos617_r5.json`. Exit 0 = verified.
 
 The canonical runner is **CI** (`.github/workflows/verify.yml`, job `comparator`,
@@ -144,27 +176,45 @@ Everything except the sandboxed run is macOS-friendly: `check_challenge_fidelity
 and JSON validation run anywhere, and `Challenge.lean` elaborates against our
 project with `lake env lean` (sorry warnings only).
 
-## Toolchain (the load-bearing caveat)
+## Open risks (why the CI job is `continue-on-error`)
 
-Our Solution is **Lean v4.30.0** (Mathlib v4.30.0); upstream comparator/lean4export
-track **v4.33**. `lean4export` reads our v4.30 oleans (olean format is
-version-specific), and it conveniently publishes a **`v4.30.0` tag** — so CI pins
-`LEAN4EXPORT_REV=v4.30.0`, giving an exporter that reads our oleans natively.
-`comparator` has no v4.30 line, so CI pins its master HEAD commit for
-reproducibility. The **only** residual unknown is whether a v4.33 `comparator` can
-parse a **v4.30.0 export** (same tool, older format version) — this is the thing
-to confirm before the CI job is promoted from `continue-on-error` to required. If
-it does not interoperate, the fixes are to pin comparator to a v4.30-compatible
-commit, or to bump lean617 to v4.33 (a Mathlib bump).
+Two things must still hold for a full run to pass; CI is the probe for both.
+
+**1. Feasibility of exporting the huge axiom types (the binding risk).** The four
+permitted axioms embed the full 340/455MB LRAT certificates in their *types*.
+Comparator must export the Solution with those axioms, then parse and kernel-replay
+a multi-GB export. This may exceed a hosted runner's memory/time regardless of
+anything else. `run_comparator.sh` therefore runs a **standalone Solution-export
+probe** first and logs bytes / wall-time / peak-RSS, so if this is what defeats
+comparator, CI says so precisely. If it proves infeasible, the documented resting
+state is **option C**: keep the harness artifacts and this README, leave the job
+advisory, and rely on `tools/axiom_audit.sh` + R3 + `check_challenge_fidelity.sh`
+(which already deliver the verification comparator was to cross-check).
+
+**2. Toolchain (downstream, not yet exercised).** Our Solution is Lean **v4.30.0**;
+comparator tracks **v4.33**. `lean4export` publishes a **`v4.30.0` tag** (CI pins
+`LEAN4EXPORT_REV=v4.30.0`, so it reads our oleans natively); `comparator` has no
+v4.30 line, so CI pins its master HEAD. The residual question — can a v4.33
+comparator parse a v4.30.0 export — could not be reached earlier (the export
+panicked first on the axiom issue, now fixed by importing `Lean617.Primitives`). If
+it fails, pin comparator to a v4.30-compatible commit, or bump lean617 to v4.33.
+
+**Upstream fix (the principled alternative).** Requiring permitted axioms on the
+*challenge* side is arguably a comparator gap — the axioms are what the *Solution*
+uses, and the axiom check (`Axioms.lean`) is already solution-only. A minimal
+upstream change (don't export/compare `permitted_axioms` challenge-side) would let
+the Challenge go back to Mathlib-only self-contained. See `UPSTREAM-ISSUE-DRAFT.md`.
 
 ## Trust statement
 
 A passing run guarantees (1)–(3) above **given** comparator's own assumptions: the
-Challenge's imports/lakefile are trusted (here: Mathlib + this vendored file); no
-adversarial Solution was compiled in the environment beforehand; landrun sandboxes
-correctly; and the Lean kernel is correct (or, with nanoda enabled, Lean *or*
-nanoda is). It does **not** vouch for the informal-problem encoding — that is
-`PROBLEM.md` + the fidelity reviews + `check_challenge_fidelity.sh`.
+Challenge's imports/lakefile are trusted (here: Mathlib + `Lean617.Primitives` +
+the two vendored defs); no adversarial Solution was compiled in the environment
+beforehand; landrun sandboxes correctly; and the Lean kernel is correct (or, with
+nanoda enabled, Lean *or* nanoda is). It does **not** vouch for the informal-problem
+encoding — that is `PROBLEM.md` + the fidelity reviews + `check_challenge_fidelity.sh`.
+And it does not independently cross-check `Main`/`edgeCountIn`/`IsIndep`/`alphaAtMost`
+(imported canonically), only the vendored `AB21`/`KPEqualityClassification`.
 
 ### Optional second kernel (nanoda)
 

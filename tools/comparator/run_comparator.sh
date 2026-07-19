@@ -130,6 +130,32 @@ if [ -x "$REPO_ROOT/tools/regen_certificates.sh" ] && [ -z "${SKIP_CERT_REGEN:-}
   "$REPO_ROOT/tools/regen_certificates.sh" || echo "WARN: certificate regeneration failed; Solution build may fail." >&2
 fi
 
+# --- 2b. Solution-export feasibility probe ------------------------------------
+# The known risk (README "Feasibility"): the four permitted axioms are per-invocation
+# native_decide reflections whose TYPES embed the full 340/455MB LRAT certificates.
+# comparator must export the Solution (Lean617.Final) with those axioms as targets,
+# then parse + kernel-replay the result. This step runs that export STANDALONE and
+# reports bytes / wall-time / peak-RSS, so if the axiom-type scale is what defeats
+# comparator, CI says so precisely instead of dying opaquely inside the tool.
+# Non-fatal: we log the measurement and continue to the real comparator run.
+echo "-- Solution-export feasibility probe (lean4export on Lean617.Final) --"
+EXPORT_TARGETS="$(python3 -c 'import json,sys; c=json.load(open(sys.argv[1])); print(" ".join(c["theorem_names"]+c["permitted_axioms"]))' "$CONFIG")"
+PROBE_OUT="$WORKDIR/solution_export.txt"
+PROBE_ERR="$WORKDIR/solution_export.time"
+probe_rc=0
+if command -v /usr/bin/time >/dev/null 2>&1; then
+  ( cd "$LEAN617_PATH" && /usr/bin/time -v lake env "$LEAN4EXPORT" Lean617.Final -- $EXPORT_TARGETS ) > "$PROBE_OUT" 2> "$PROBE_ERR" || probe_rc=$?
+else
+  ( cd "$LEAN617_PATH" && lake env "$LEAN4EXPORT" Lean617.Final -- $EXPORT_TARGETS ) > "$PROBE_OUT" 2> "$PROBE_ERR" || probe_rc=$?
+fi
+if [ "$probe_rc" -eq 0 ]; then
+  echo "SOLUTION EXPORT PROBE OK: $(wc -c < "$PROBE_OUT" | tr -d ' ') bytes exported from Lean617.Final"
+  grep -E "Maximum resident set size|Elapsed \(wall clock\)" "$PROBE_ERR" 2>/dev/null | sed 's/^/  /' || true
+else
+  echo "SOLUTION EXPORT PROBE FAILED (rc=$probe_rc) — likely the native_decide axiom-type scale limit (README 'Feasibility'). Continuing to comparator for the full signal." >&2
+  tail -8 "$PROBE_ERR" 2>/dev/null | sed 's/^/  /' || true
+fi
+
 # --- 3. run comparator --------------------------------------------------------
 echo "-- invoking comparator --"
 export COMPARATOR_LANDRUN="$LANDRUN"

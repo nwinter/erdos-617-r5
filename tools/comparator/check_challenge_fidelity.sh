@@ -4,25 +4,27 @@
 # Challenge (tools/comparator/Challenge.lean).
 #
 # WHY THIS EXISTS.  comparator (the Linux-only leanprover tool) proves that our
-# Solution proves the Challenge's *stated* theorems within the axiom budget.  But
-# our Challenge is self-contained: it VENDORS the six statement-reachable
-# definitions (`edgeCountIn`, `IsIndep`, `Main`, `alphaAtMost`, `AB21`,
-# `KPEqualityClassification`) rather than importing them, so that an auditor can
-# read Challenge.lean alone.  The whole harness is only meaningful if those
-# vendored copies are the SAME objects as the canonical ones the Solution proves.
-# comparator itself enforces this (it body-compares every statement-reachable
-# constant against the built Solution), but that check runs only on Linux.  This
-# script is the independent, everywhere-runnable guard: it verifies each vendored
-# block is TEXTUALLY identical to its canonical source, and that the four theorem
-# SIGNATURES match `lean617/Lean617/Final.lean`.  Textual identity of the source,
-# under identical imports/opens, gives elaboration identity — which is what
-# comparator will confirm at the kernel level.
+# Solution proves the Challenge's *stated* theorems within the axiom budget.  The
+# Challenge (tools/comparator/Challenge.lean) imports `Lean617.Primitives` to bring
+# in the four native_decide SAT axioms comparator requires on both sides (their
+# types embed multi-hundred-MB certificates, so they cannot be vendored), which
+# also brings the canonical `Main`/`edgeCountIn`/`IsIndep`/`alphaAtMost` — those
+# are therefore the SAME imported declarations the Solution uses (fidelity by
+# import-identity, nothing to diff).  Only `AB21` and `KPEqualityClassification`
+# (in `Equality21`, outside Primitives' import closure) are VENDORED into the
+# Challenge, and the harness is only meaningful if those two copies are the SAME
+# objects as canonical.  comparator body-compares them against the built Solution,
+# but that runs only on Linux.  This script is the independent, everywhere-runnable
+# guard: it verifies each vendored block is TEXTUALLY identical to its canonical
+# source, and that the four theorem SIGNATURES match `lean617/Lean617/Final.lean`.
+# Textual identity of the source, under identical imports/opens, gives elaboration
+# identity — which is what comparator confirms at the kernel level.
 #
 # It does NOT need Lean, Mathlib, a build, or a network.  Run it anywhere:
 #   tools/comparator/check_challenge_fidelity.sh
 # Exit 0 = every vendored block and signature matches canonical.  Non-zero =
 # drift (prints a unified diff of the first offender).  Wire it into CI and run
-# it after any edit to Statements/LTable/Equality21/Final.lean or Challenge.lean.
+# it after any edit to Equality21/Final.lean or Challenge.lean.
 
 set -euo pipefail
 
@@ -40,11 +42,10 @@ repo, challenge = sys.argv[1], sys.argv[2]
 # defs: whole block (signature + body) is compared.
 # theorems: only the signature (text up to the proof delimiter " :=") is compared,
 #           because the Challenge's proof is `sorry` while the Solution's is real.
+# Only AB21 + KPEqualityClassification are vendored into the Challenge; the other
+# statement-reachable defs (Main/edgeCountIn/IsIndep/alphaAtMost) arrive canonically
+# via `import Lean617.Primitives`, so there is nothing to diff for them.
 DEFS = [
-    ("def", "edgeCountIn",               "lean617/Lean617/Statements.lean"),
-    ("def", "IsIndep",                   "lean617/Lean617/Statements.lean"),
-    ("def", "Main",                      "lean617/Lean617/Statements.lean"),
-    ("def", "alphaAtMost",               "lean617/Lean617/LTable.lean"),
     ("def", "AB21",                      "lean617/Lean617/Equality21.lean"),
     ("def", "KPEqualityClassification",  "lean617/Lean617/Equality21.lean"),
 ]
@@ -116,6 +117,7 @@ for kind, name, f in THMS:
 if failures:
     print(f"\nCHALLENGE FIDELITY FAILED: {failures} mismatch(es).")
     sys.exit(1)
-print("\nCHALLENGE FIDELITY PASSED: all 6 vendored definitions and 4 theorem "
-      "signatures are byte-identical to their canonical sources.")
+print("\nCHALLENGE FIDELITY PASSED: both vendored definitions (AB21, "
+      "KPEqualityClassification) and all 4 theorem signatures are byte-identical "
+      "to their canonical sources.")
 PY

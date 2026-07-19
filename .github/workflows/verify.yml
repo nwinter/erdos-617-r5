@@ -128,22 +128,22 @@ jobs:
     name: comparator (standard-tool statement-match + axiom-conformance)
     runs-on: ubuntu-latest
     # NON-BLOCKING for now. This job cross-checks the four final theorems with the
-    # standard leanprover/comparator tool. The load-bearing unknown is the
-    # toolchain pairing: comparator/lean4export track Lean v4.33, but our Solution
-    # is v4.30.0, so `lean4export` must be built against a v4.30.0-compatible
-    # revision to read our oleans, and the v4.33 comparator must be able to parse
-    # that export. Until that pairing is proven reproducible in CI the job stays
-    # continue-on-error (advisory); drop this flag to make it a required gate once
-    # green. The fast `fidelity` job already hard-gates the Challenge fidelity +
-    # config schema, so those signals are not lost while this is advisory.
-    # See tools/comparator/README.md "Toolchain".
+    # standard leanprover/comparator tool. Two open risks keep it advisory (README
+    # "Open risks"): (1) FEASIBILITY — the four permitted axioms embed 340/455MB LRAT
+    # certificates in their types, so comparator must export + kernel-replay a
+    # multi-GB blob; run_comparator.sh runs a standalone Solution-export probe first
+    # and logs bytes/time/RSS so a memory/time wall is reported precisely. (2)
+    # TOOLCHAIN — comparator (v4.33) parsing our v4.30.0 export (lean4export is
+    # pinned to its v4.30.0 tag, so the exporter reads our oleans natively). Drop
+    # continue-on-error to make this a required gate once green. The fast `fidelity`
+    # job already hard-gates Challenge fidelity + config schema, so those signals are
+    # not lost while this is advisory. See tools/comparator/README.md.
     continue-on-error: true
     timeout-minutes: 240
     env:
       # comparator has no v4.30 line; pin its master HEAD (resolved 2026-07-19) for
       # reproducibility. lean4export HAS a v4.30.0 tag matching our Solution's
-      # toolchain, so pin that — it reads our oleans natively. The residual risk is
-      # only whether comparator@v4.33 can parse a v4.30.0 export (see README).
+      # toolchain, so pin that — it reads our oleans natively.
       COMPARATOR_REV: c3903e1ed0148a32cd39510707c632dc4d265514
       LEAN4EXPORT_REV: v4.30.0
     steps:
